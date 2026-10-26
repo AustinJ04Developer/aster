@@ -1,0 +1,4 @@
+[2025-08-06 13:23:32] Excel processing error: Unknown column 'SemesterNumber' in 'field list'
+[2025-08-06 13:25:15] Excel processing error: Duplicate entry '0' for key 'PRIMARY'
+[2025-08-06 13:26:14] Excel processing error: Duplicate entry '0' for key 'PRIMARY'
+[2025-08-18 13:25:38] Excel processing error: Unknown column 'EID' in 'field list'

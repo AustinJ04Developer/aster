@@ -1,0 +1,1093 @@
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 03:57:24] Incomplete data for RegisterNumber .
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114035: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114013: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114002: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114030: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114036: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114006: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114033: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114019: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114009: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114007: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114005: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114021: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114001: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114028: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114029: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114014: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114018: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114003: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114020: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114027: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114024: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114015: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114004: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114011: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114016: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114037: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114040: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114034: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114039: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114041: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114038: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114010: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114042: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114025: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114026: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114022: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114032: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114017: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114012: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114031: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114008: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114023: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114302: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114701: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:01:14] Invalid data for RegisterNumber 961424114301: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114035: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114013: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114002: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114030: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114036: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114006: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114033: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114019: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114009: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114007: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114005: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114021: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114001: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114028: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114029: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114014: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114018: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114003: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114020: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114027: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114024: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114015: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114004: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114011: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114016: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114037: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114040: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114034: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114039: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114041: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114038: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114010: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114042: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114025: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114026: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114022: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114032: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114017: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114012: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114031: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114008: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114023: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114302: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114701: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:04:05] Invalid data for RegisterNumber 961424114301: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114035: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114013: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114002: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114030: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114036: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114006: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114033: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114019: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114009: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114007: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114005: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114021: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114001: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114028: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114029: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114014: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114018: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114003: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114020: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114027: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114024: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114015: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114004: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114011: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114016: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114037: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114040: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114034: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114039: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114041: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114038: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114010: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114042: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114025: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114026: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114022: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114032: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114017: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114012: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114031: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114008: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114023: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114302: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114701: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:10:25] Invalid data for RegisterNumber 961424114301: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 04:11:13] Excel processing error: Column 'Community' cannot be null
+[2025-08-24 04:12:31] Excel processing error: Column 'Community' cannot be null
+[2025-08-24 04:12:40] Excel processing error: Column 'Community' cannot be null
+[2025-08-24 08:40:41] Invalid data for RegisterNumber JESHO J S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber PUVIN M: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ABINESH Y S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber SHANOOJ C: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ANTO S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ADHARSH J G: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber MBEESH R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber SHANKIN P S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber AJAI T P: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ABIN ISSAC I: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ASHIK ANTO J A: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber BRIN B J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber JIBIN Y C: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber BANEHAR J L: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber JERLIN RIJO J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber FRANKLIN LIJO F H: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ABISH P: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber DIXON CHRISTOBER J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber BERBIN J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ASWIN J S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ATHITHYAN M: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber DHISHONE AKSIF M S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber DHARSHIN Y J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber FEBIN JOEL: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber JERBIN R J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber JENISH KUMAR S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber JOEL J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber KINGSTAN R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber FREEJIN P S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber MANO BERK M: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber VINESH W: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber MERFIN RAJ J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber ASLIN DAFFINI I: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber AJIN R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber AJAY R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber AKSHAY J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber AKILAN S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:41] Invalid data for RegisterNumber AKASH A: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber ANTRO MANOJ L: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber RAJA KUMAR J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber SALIL C L: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber SABIN B: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber RANGITH R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber VIJESHWAR V: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber MIJINESH J K: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber RAKUL R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber SERJIN S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber MANIKANDAN S S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber PRABIN F S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber RABEESHLAL R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber VINESH V: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber SANJAY R: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber ABISH M: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber ABIN LAL R L: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber THARUN CHRISTO M: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber AKHIL S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber PRANISH W D: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber SINO JERSITH J: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber ABHISHEK V S: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Invalid data for RegisterNumber EDSARON D: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:40:42] Incomplete data for RegisterNumber .
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114033: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114045: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114001: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114055: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114014: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114006: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114043: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114054: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114007: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114002: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114016: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114023: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114034: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114021: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114032: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114028: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114005: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114026: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114022: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114019: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114020: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114025: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114024: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114027: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114031: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114030: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114035: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114036: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114029: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114038: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114061: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114039: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114018: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114009: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114008: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114013: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114012: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114010: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114015: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114047: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114051: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114050: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114049: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114059: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114041: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114048: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114053: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114037: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114044: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114046: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114060: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114052: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114004: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114003: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114058: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114011: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114303: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114304: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114301: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:41:52] Invalid data for RegisterNumber 961423114302: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114033: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114045: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114001: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114055: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114014: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114006: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114043: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114054: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114007: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114002: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114016: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114023: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114034: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114021: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114032: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114028: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114005: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114026: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114022: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114019: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114020: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114025: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114024: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114027: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114031: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114030: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114035: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114036: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114029: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114038: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114061: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114039: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114018: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114009: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114008: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114013: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114012: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114010: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114015: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114047: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114051: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114050: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114049: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114059: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114041: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114048: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114053: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114037: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114044: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114046: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114060: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114052: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114004: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114003: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114058: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114011: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114303: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114304: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114301: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:43:59] Invalid data for RegisterNumber 961423114302: CourseCode, ExamName, 
+						or Grade not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114033: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114045: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114001: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114055: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114014: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114006: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114043: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114054: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114007: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114002: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114016: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114023: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114034: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114021: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114032: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114028: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114005: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114026: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114022: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114019: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114020: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114025: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114024: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114027: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114031: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114030: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114035: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114036: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114029: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114038: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114061: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114039: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114018: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114009: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114008: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114013: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114012: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114010: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114015: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114047: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114051: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114050: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114049: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114059: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114041: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114048: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114053: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114037: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114044: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114046: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114060: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114052: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114004: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114003: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114058: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114011: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114303: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114304: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114301: not found.
+[2025-08-24 08:45:54] Invalid data for RegisterNumber 961423114302: not found.
+[2025-08-24 08:47:56] Excel processing error: Column 'AcademicYear' cannot be null
+[2025-08-24 08:48:44] Excel processing error: Column 'AcademicYear' cannot be null
+[2025-08-24 08:48:51] Excel processing error: Column 'AcademicYear' cannot be null
+[2025-08-24 08:56:06] Incomplete data for RegisterNumber 961422114312.
+[2025-08-24 09:04:46] Excel processing error: Column count doesn't match value count at row 1
+[2025-08-24 09:06:25] Incomplete data for RegisterNumber 961422114312.
+[2025-08-24 19:39:41] Incomplete data for RegisterNumber 961422114312.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ABINASH P: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ABINESH EMMANUEL: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ABISHEK .D.B: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber AIBEL JOHN: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber AJIN A: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber AJIN D: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber AJIN R: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber AJISH M: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber AKASH G.K: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ALAN A: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ALDRIN JOEL: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ALJIN A V: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ARAVIND A: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ASHLIN S.J: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ASWANTH A M: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ASWIN V U: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber BENADICT ANGEL B V: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber BERLIN JEBARAJ B: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber BERWIN ASIR: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber DELPHIN ROJER T: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber FREEJITH P S: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber GENITH: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber GNANA S RABINESH: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber GODWIN RINTO S R: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber GOKUL B NAIR: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber JEFRIN PRAKASH: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber JENSON: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber Jijo Godbin.J: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber Jinish Berin J S: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber JINOJ. D: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber JITHU. M: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber KAROLIN SHANI.J: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber KAVIN J: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber NAVEEN RAJ: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber REJU R P: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber RENISH: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ROFIN ANITH: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber SHERIN: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber SHIJU: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber VINCELIN V: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber VINCELIN V S: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber ABHIJITH R M: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber BENO SANJAY J N: not found.
+[2025-09-08 19:59:54] Invalid data for RegisterNumber DIXEN D: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ABINASH P: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ABINESH EMMANUEL: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ABISHEK .D.B: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber AIBEL JOHN: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber AJIN A: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber AJIN D: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber AJIN R: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber AJISH M: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber AKASH G.K: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ALAN A: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ALDRIN JOEL: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ALJIN A V: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ARAVIND A: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ASHLIN S.J: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ASWANTH A M: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ASWIN V U: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber BENADICT ANGEL B V: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber BERLIN JEBARAJ B: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber BERWIN ASIR: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber DELPHIN ROJER T: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber FREEJITH P S: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber GENITH: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber GNANA S RABINESH: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber GODWIN RINTO S R: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber GOKUL B NAIR: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber JEFRIN PRAKASH: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber JENSON: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber Jijo Godbin.J: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber Jinish Berin J S: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber JINOJ. D: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber JITHU. M: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber KAROLIN SHANI.J: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber KAVIN J: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber NAVEEN RAJ: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber REJU R P: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber RENISH: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ROFIN ANITH: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber SHERIN: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber SHIJU: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber VINCELIN V: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber VINCELIN V S: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber ABHIJITH R M: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber BENO SANJAY J N: not found.
+[2025-09-08 20:01:33] Invalid data for RegisterNumber DIXEN D: not found.
+[2025-09-08 20:01:33] Incomplete data for RegisterNumber .
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ABINASH P: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ABINESH EMMANUEL: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ABISHEK .D.B: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber AIBEL JOHN: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber AJIN A: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber AJIN D: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber AJIN R: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber AJISH M: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber AKASH G.K: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ALAN A: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ALDRIN JOEL: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ALJIN A V: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ARAVIND A: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ASHLIN S.J: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ASWANTH A M: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ASWIN V U: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber BENADICT ANGEL B V: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber BERLIN JEBARAJ B: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber BERWIN ASIR: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber DELPHIN ROJER T: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber FREEJITH P S: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber GENITH: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber GNANA S RABINESH: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber GODWIN RINTO S R: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber GOKUL B NAIR: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber JEFRIN PRAKASH: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber JENSON: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber Jijo Godbin.J: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber Jinish Berin J S: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber JINOJ. D: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber JITHU. M: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber KAROLIN SHANI.J: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber KAVIN J: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber NAVEEN RAJ: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber REJU R P: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber RENISH: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ROFIN ANITH: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber SHERIN: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber SHIJU: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber VINCELIN V: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber VINCELIN V S: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber ABHIJITH R M: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber BENO SANJAY J N: not found.
+[2025-09-08 20:06:51] Invalid data for RegisterNumber DIXEN D: not found.
+[2025-09-08 20:06:51] Incomplete data for RegisterNumber .
+[2025-09-08 20:14:32] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-08 20:16:08] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-08 20:21:35] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-08 20:22:17] Excel processing error: Column 'ReligionCaste' cannot be null
+[2025-09-08 20:27:11] Excel processing error: Column 'ReligionCaste' cannot be null
+[2025-09-08 20:32:31] Excel processing error: Column 'ReligionCaste' cannot be null
+[2025-09-08 20:34:31] Excel processing error: Column 'ReligionCaste' cannot be null
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ABARESH B A: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ABINESH J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ABIN M: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ABIN REJI: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ABIN V S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ABISHEK M: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AFRIDHI MOHAMMED D: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AGNAL SOJAN R: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AJO A: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AKASH R: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AKASH R P: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AKASH S S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ALBERT JOY: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ANGEL MARY RAJU: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ANISH JAPRIN A: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ANITH V: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ARTLIN CHRISTO C S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ASHIN V: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ASHISH V BIJU: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ASHPREM D V: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ASWIN R S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber BENITO L: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber DHONI.S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber DICKSON G J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JAYA PRATHAP S J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JENISH J V: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JERIN PRAKASH J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JESSWIN SHANTRO S J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JIBIN S VARGHESE: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JINS K S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JOSHIK LIBU J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber KANISHKAR R: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber KIRUBAKARAN K S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber S.MAREESWARAN: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber NISHAN N: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber NITHIN M: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SAHAYA JITHEIN L: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SALIN STEPHEN: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SAUNJAY PRAKASH R: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SHAAJAN PRAKAASH R: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SHIJO R G: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SIJU S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber STEFFIN SAMUEL S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber STEPHIN S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SURYA S: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber TINU THANKACHAN: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber VIJASH P: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber VIJIN V J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber VINITH S V: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber VISHAL J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AJAY N: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber AJINESH T: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ANOOP N MICHAEL: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber JEEVALAL L V: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber ROHITH BINU: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber SREEJITH J: not found.
+[2025-09-08 20:42:47] Invalid data for RegisterNumber S.SAJAIN SINGH: not found.
+[2025-09-08 20:42:47] Incomplete data for RegisterNumber .
+[2025-09-08 20:43:14] Excel processing error: Column 'AcademicYear' cannot be null
+[2025-09-18 09:42:10] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 09:43:50] Incomplete data for RegisterNumber 0.
+[2025-09-18 09:43:50] Incomplete data for RegisterNumber .
+[2025-09-18 09:43:59] Excel processing error: Column 'Degree' cannot be null
+[2025-09-18 09:45:37] Incomplete data for RegisterNumber 0.
+[2025-09-18 09:45:37] Incomplete data for RegisterNumber .
+[2025-09-18 09:46:05] Excel processing error: Column 'Degree' cannot be null
+[2025-09-18 09:46:48] Excel processing error: Column 'StreetName' cannot be null
+[2025-09-18 09:47:38] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 09:48:02] Excel processing error: Column 'ReligionCaste' cannot be null
+[2025-09-18 09:48:24] Incomplete data for RegisterNumber 961422105315.
+[2025-09-18 09:49:02] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 09:49:29] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 09:49:35] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 14:32:52] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 14:34:04] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 14:34:32] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 15:21:28] Incomplete data for RegisterNumber 0.
+[2025-09-18 15:21:28] Excel processing error: Column 'Nationality' cannot be null
+[2025-09-18 15:22:52] Incomplete data for RegisterNumber 0.
+[2025-09-18 15:22:52] Incomplete data for RegisterNumber .
+[2025-09-18 15:28:30] Excel processing error: Column 'Degree' cannot be null
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ABINASH P: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ABINESH EMMANUEL: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ABISHEK .D.B: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber AIBEL JOHN: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber AJIN A: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber AJIN D: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber AJIN R: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber AJISH M: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber AKASH G.K: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ALAN A: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ALDRIN JOEL: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ALJIN A V: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ARAVIND A: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ASHLIN S.J: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ASWANTH A M: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ASWIN V U: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber BENADICT ANGEL B V: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber BERLIN JEBARAJ B: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber BERWIN ASIR: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber DELPHIN ROJER T: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber FREEJITH P S: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber GENITH: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber GNANA S RABINESH: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber GODWIN RINTO S R: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber GOKUL B NAIR: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber JEFRIN PRAKASH: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber JENSON: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber Jijo Godbin.J: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber Jinish Berin J S: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber JINOJ. D: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber JITHU. M: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber KAROLIN SHANI.J: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber KAVIN J: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber NAVEEN RAJ: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber REJU R P: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber RENISH: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ROFIN ANITH: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber SHERIN: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber SHIJU: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber VINCELIN V: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber VINCELIN V S: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber ABHIJITH R M: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber BENO SANJAY J N: not found.
+[2025-09-22 12:22:41] Invalid data for RegisterNumber DIXEN D: not found.
+[2025-09-22 12:22:41] Incomplete data for RegisterNumber .
+[2025-09-22 13:39:41] Excel processing error: Column 'StreetName' cannot be null
+[2025-09-22 13:43:56] Excel processing error: Column 'Regulation' cannot be null
+[2025-09-22 13:46:39] Excel processing error: Column 'Degree' cannot be null
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103001: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103002: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103003: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103004: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103005: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103006: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103007: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103008: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103009: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103010: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103012: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103013: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103014: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103015: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103016: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103017: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103018: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103019: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103301: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103302: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103303: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103305: not found.
+[2025-09-22 13:51:14] Invalid data for RegisterNumber 961423103305: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 941422103022: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103001: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103002: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103004: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103005: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103006: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103007: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103008: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103009: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103010: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103011: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103012: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103013: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103014: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103015: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103016: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103017: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103018: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103019: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103020: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103023: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103024: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103025: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103026: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103027: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103303: not found.
+[2025-09-22 13:52:27] Invalid data for RegisterNumber 961422103304: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 941422103022: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103001: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103002: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103004: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103005: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103006: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103007: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103008: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103009: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103010: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103011: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103012: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103013: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103014: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103015: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103016: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103017: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103018: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103019: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103020: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103023: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103024: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103025: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103026: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103027: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103303: not found.
+[2025-09-22 14:09:54] Invalid data for RegisterNumber 961422103304: not found.
