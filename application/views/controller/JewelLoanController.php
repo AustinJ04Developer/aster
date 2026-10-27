@@ -123,7 +123,24 @@ class JewelLoanController {
                 $form['nominee_name'] = $selectedMember['NomineeName'] ?? '';
                 $form['nominee_relation'] = $selectedMember['NomineeRelation'] ?? '';
                 $form['nominee_address'] = $selectedMember['NomineeAddress'] ?? '';
-                // New registration must always receive a fresh unique sequential D number, never an existing one
+            }
+        }
+
+        $dNumParam = trim($_GET['dnum'] ?? ($_REQUEST['dnum'] ?? ''));
+        if (!empty($dNumParam) && empty($selectedMember)) {
+            $existingCustomer = $this->model->getCustomerByDNumber($dNumParam);
+            if ($existingCustomer) {
+                $form['name'] = $existingCustomer['Name'] ?? '';
+                $form['fathers_name'] = $existingCustomer['FathersName'] ?? '';
+                $form['job'] = $existingCustomer['Job'] ?? '';
+                $form['dob'] = !empty($existingCustomer['DateOfBirth']) && $existingCustomer['DateOfBirth'] !== '0000-00-00' ? $existingCustomer['DateOfBirth'] : '';
+                $form['address'] = $existingCustomer['Address'] ?? '';
+                $form['mobile_number'] = $existingCustomer['MobileNumber'] ?? '';
+                $form['aadhaar_number'] = $existingCustomer['AadhaarNumber'] ?? '';
+                $form['pincode'] = $existingCustomer['Pincode'] ?? '';
+                $form['nominee_name'] = $existingCustomer['NomineeName'] ?? '';
+                $form['nominee_relation'] = $existingCustomer['NomineeRelation'] ?? '';
+                $form['nominee_address'] = $existingCustomer['NomineeAddress'] ?? '';
             }
         }
 
@@ -361,6 +378,22 @@ class JewelLoanController {
                         . "<a href='" . $receiptUrl . "' class='btn btn-success btn-xs' style='margin-left: 5px;'><i class='fa fa-ticket'></i> View Receipt</a>";
                     $data['savedDNumber'] = $saveResult['dNumber'];
                     $data['savedLoanDetailId'] = $saveResult['loanDetailId'] ?? 0;
+
+                    $data['processStatus'] = [
+                        'type' => 'new_account',
+                        'title' => 'New Account Created & Saved!',
+                        'message' => 'The new Jewel Loan Account details have been successfully saved and committed to the database.',
+                        'dNumber' => $saveResult['dNumber'],
+                        'customerName' => $name,
+                        'loanAmount' => $loanAmount,
+                        'totalWeight' => $totalWeight > 0 ? $totalWeight : $totalNetWeight,
+                        'loanDetailId' => $saveResult['loanDetailId'] ?? 0,
+                        'viewUrl' => $viewUrl,
+                        'pdfUrl' => $pdfUrl,
+                        'receiptUrl' => $receiptUrl,
+                        'newUrl' => 'aster-jewel-loan.php',
+                        'timestamp' => date('d/m/Y h:i A')
+                    ];
                     
                     // Preview new D-Number for next form
                     $data['dNumber'] = $this->model->previewNextDNumber();

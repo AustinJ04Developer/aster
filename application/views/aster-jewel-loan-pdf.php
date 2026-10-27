@@ -280,7 +280,12 @@ $html .= '
 
 $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
 
+// Clean output buffer to ensure pure PDF stream
+if (ob_get_length()) {
+    ob_end_clean();
+}
+
 // Close and output PDF (Inline view in browser)
-$pdfFileName = 'Jewel_Loan_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $accNo) . '.pdf';
+$pdfFileName = 'Jewel_Loan_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $dNum) . '.pdf';
 $pdf->Output($pdfFileName, 'I');
 exit;

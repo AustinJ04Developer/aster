@@ -218,6 +218,21 @@ class JewelLoanReceiptController {
             $data['savedReceiptId'] = $receiptId;
             $data['savedReceiptNo'] = $saveRes['receiptNo'];
 
+            $data['processStatus'] = [
+                'type' => 'receipt',
+                'title' => 'Receipt Saved Successfully!',
+                'message' => 'The payment receipt and loan balance have been successfully committed to the database.',
+                'receiptNo' => $saveRes['receiptNo'],
+                'dNumber' => $dNumber,
+                'customerName' => $selectedLoan['customer']['Name'] ?? '',
+                'totalPaid' => $totalPaid,
+                'receiptId' => $receiptId,
+                'viewUrl' => $viewUrl,
+                'pdfUrl' => $pdfUrl,
+                'receiptUrl' => 'aster-jewel-loan-receipt.php?dnum=' . urlencode($dNumber),
+                'timestamp' => date('d/m/Y h:i A')
+            ];
+
             // Reload loan summary with updated balance
             $data['selectedLoan'] = $this->model->getLoanReceiptSummary($loanDetailId, $dNumber);
         } else {

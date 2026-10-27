@@ -191,6 +191,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_jewel_loan']))
             $dNumParam = $editDNumber;
             $loanIdParam = $editLoanId;
             $isEditRequested = false; // Switch back to View mode on success
+
+            $processStatus = [
+                'type' => 'edit_account',
+                'title' => 'Changes Saved Successfully!',
+                'message' => 'The jewel loan customer details, loan information, and pledged ornaments have been updated in the database.',
+                'dNumber' => $editDNumber,
+                'customerName' => $editName,
+                'loanAmount' => $loanData ? $editLoanAmount : 0,
+                'totalWeight' => $totalWeight,
+                'loanDetailId' => $editLoanId,
+                'viewUrl' => 'aster-jewel-loan-view.php?dnum=' . urlencode($editDNumber),
+                'pdfUrl' => 'aster-jewel-loan-pdf.php?id=' . $editLoanId,
+                'receiptUrl' => 'aster-jewel-loan-receipt.php?dnum=' . urlencode($editDNumber),
+                'timestamp' => date('d/m/Y h:i A')
+            ];
         } else {
             $errors[] = "Update failed: " . $updateResult['error'];
         }
@@ -444,13 +459,8 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
         </div>
         <hr class="hr-background no-print" style="margin-top: 8px; margin-bottom: 20px;">
 
-        <!-- Success & Error Alerts -->
-        <?php if (!empty($success)): ?>
-            <div class="alert alert-success alert-dismissible no-print" role="alert">
-                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
-                <i class="fa fa-check-circle"></i> <?php echo $success; ?>
-            </div>
-        <?php endif; ?>
+        <!-- Process Status Modal & In-Page Visual Confirmation -->
+        <?php include_once "process-status-modal.php"; ?>
 
         <?php if (!empty($errors)): ?>
             <div class="alert alert-danger alert-dismissible no-print" role="alert">

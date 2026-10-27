@@ -36,8 +36,11 @@ $todayDateDisplay = date('d/m/Y');
  */
 function getIndianCurrencyWords($number) {
     $number = round((float)$number, 2);
+    if ($number <= 0) {
+        return 'Zero Rupees Only';
+    }
     $no = floor($number);
-    $decimal = round(($number - $no) * 100);
+    $decimal = (int)round(($number - $no) * 100);
     $digits_length = strlen((string)$no);
     $i = 0;
     $str = array();
@@ -65,7 +68,13 @@ function getIndianCurrencyWords($number) {
         }
     }
     $Rupees = implode('', array_reverse($str));
-    $paise = ($decimal > 0) ? " and " . ($words[$decimal / 10 * 10] . " " . $words[$decimal % 10]) . ' Paise' : '';
+    $paise = '';
+    if ($decimal > 0) {
+        $paiseWords = ($decimal < 21)
+            ? $words[$decimal]
+            : trim($words[floor($decimal / 10) * 10] . ' ' . $words[$decimal % 10]);
+        $paise = ($Rupees ? ' and ' : '') . $paiseWords . ' Paise';
+    }
     return trim(($Rupees ? $Rupees . 'Rupees ' : '') . $paise . ' Only');
 }
 ?>
@@ -586,13 +595,8 @@ function getIndianCurrencyWords($number) {
             </div>
             <hr class="hr-background no-print" style="margin-top: 5px; margin-bottom: 20px;">
 
-            <!-- Alerts -->
-            <?php if (!empty($success)): ?>
-                <div class="alert alert-success alert-dismissible no-print" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
-                    <i class="fa fa-check-circle"></i> <?php echo $success; ?>
-                </div>
-            <?php endif; ?>
+            <!-- Process Status Modal & In-Page Visual Confirmation -->
+            <?php include_once "process-status-modal.php"; ?>
 
             <?php if (!empty($errors)): ?>
                 <div class="alert alert-danger alert-dismissible no-print" role="alert">

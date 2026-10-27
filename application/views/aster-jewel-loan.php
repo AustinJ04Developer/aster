@@ -98,15 +98,8 @@ extract($data);
             </div>
         </div>
 
-        <!-- Success Message -->
-        <?php if (!empty($success)): ?>
-            <div class="alert alert-success alert-dismissible" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <?php echo $success; ?>
-            </div>
-        <?php endif; ?>
+        <!-- Process Status Modal & In-Page Visual Confirmation -->
+        <?php include_once "process-status-modal.php"; ?>
 
         <!-- Error Messages -->
         <?php if (!empty($errors)): ?>

@@ -149,7 +149,7 @@ $redirectPage = "aster-jewel-loan.php";
                         <thead>
                             <tr class="header-row">
                                 <th style="width: 60px;">SlNo</th>
-                                <th>Member Code</th>
+                                <th>Member Code / D Number</th>
                                 <th>Name</th>
                                 <th>Aadhaar No</th>
                                 <th>Mobile No</th>
@@ -158,19 +158,34 @@ $redirectPage = "aster-jewel-loan.php";
                         </thead>
                         <tbody>
                             <?php foreach ($searchmember as $index => $row): ?>
+                                <?php
+                                $dNumVal = !empty($row['DNumber']) ? $row['DNumber'] : '';
+                                $memIdVal = !empty($row['MemberId']) ? (int)$row['MemberId'] : 0;
+                                $viewUrl = !empty($dNumVal) 
+                                    ? "aster-jewel-loan-view.php?dnum=" . urlencode($dNumVal)
+                                    : "aster-jewel-loan-view.php?id=" . urlencode($memIdVal);
+                                $loanUrl = !empty($memIdVal)
+                                    ? "aster-jewel-loan.php?id=" . urlencode($memIdVal)
+                                    : "aster-jewel-loan.php?dnum=" . urlencode($dNumVal);
+                                ?>
                                 <tr>
                                     <td class="text-center" style="vertical-align: middle;"><?php echo $index + 1; ?></td>
-                                    <td style="vertical-align: middle;"><?php echo htmlspecialchars($row['MemberCode']); ?></td>
+                                    <td style="vertical-align: middle;">
+                                        <strong><?php echo htmlspecialchars($row['MemberCode']); ?></strong>
+                                        <?php if (!empty($row['RecordSource']) && $row['RecordSource'] === 'jewel'): ?>
+                                            <span class="label label-primary" style="font-size: 10px; margin-left: 5px;">Jewel Loan</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td style="vertical-align: middle;"><?php echo htmlspecialchars($row['FullName']); ?></td>
-                                    <td style="vertical-align: middle;"><?php echo htmlspecialchars($row['Aadhaar'] ?? ''); ?></td>
-                                    <td style="vertical-align: middle;"><?php echo htmlspecialchars($row['MobileNo'] ?? ''); ?></td>
+                                    <td style="vertical-align: middle;"><?php echo htmlspecialchars(!empty($row['Aadhaar']) ? $row['Aadhaar'] : '-'); ?></td>
+                                    <td style="vertical-align: middle;"><?php echo htmlspecialchars(!empty($row['MobileNo']) ? $row['MobileNo'] : '-'); ?></td>
                                     <td class="text-center" style="vertical-align: middle; white-space: nowrap;">
-                                        <a href="aster-jewel-loan-view.php?id=<?php echo urlencode($row['MemberId']); ?>" 
+                                        <a href="<?php echo $viewUrl; ?>" 
                                            class="btn btn-sm btn-info" 
                                            style="padding: 4px 10px; font-weight: 500; margin-right: 4px;">
                                            <i class="fa fa-eye"></i> View Details
                                         </a>
-                                        <a href="aster-jewel-loan.php?id=<?php echo urlencode($row['MemberId']); ?>" 
+                                        <a href="<?php echo $loanUrl; ?>" 
                                            class="btn btn-sm btn-success" 
                                            style="padding: 4px 10px; font-weight: 500;">
                                            <i class="fa fa-plus-circle"></i> New Loan

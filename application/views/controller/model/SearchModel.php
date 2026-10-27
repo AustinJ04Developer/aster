@@ -13,30 +13,48 @@ class SearchModel {
         return [];
     }
 
-    // Build SQL 
+    $val = $this->conn->real_escape_string(trim($search_value));
+
+    // Build SQL searching both registered members and jewel loan accounts
     if ($search_field == 1) {
-        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo
+        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo, '' AS DNumber, 'member' AS RecordSource
                 FROM ast_members
-                WHERE MemberCode LIKE '%".$this->conn->real_escape_string($search_value)."%'
-                ORDER BY MemberId";
+                WHERE MemberCode LIKE '%".$val."%'
+                UNION
+                SELECT 0 AS MemberId, DNumber AS MemberCode, Name AS FullName, AadhaarNumber AS Aadhaar, MobileNumber AS MobileNo, DNumber, 'jewel' AS RecordSource
+                FROM ast_jewel_loan_customer
+                WHERE DNumber LIKE '%".$val."%'
+                ORDER BY FullName ASC";
     }
     else if ($search_field == 2) {
-        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo
+        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo, '' AS DNumber, 'member' AS RecordSource
                 FROM ast_members
-                WHERE FullName LIKE '%".$search_value."%'
-                ORDER BY MemberId";
+                WHERE FullName LIKE '%".$val."%'
+                UNION
+                SELECT 0 AS MemberId, DNumber AS MemberCode, Name AS FullName, AadhaarNumber AS Aadhaar, MobileNumber AS MobileNo, DNumber, 'jewel' AS RecordSource
+                FROM ast_jewel_loan_customer
+                WHERE Name LIKE '%".$val."%'
+                ORDER BY FullName ASC";
     }
     else if ($search_field == 3) {
-        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo
+        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo, '' AS DNumber, 'member' AS RecordSource
                 FROM ast_members
-                WHERE Aadhaar = '".$search_value."'
-                ORDER BY MemberId";
+                WHERE Aadhaar LIKE '%".$val."%'
+                UNION
+                SELECT 0 AS MemberId, DNumber AS MemberCode, Name AS FullName, AadhaarNumber AS Aadhaar, MobileNumber AS MobileNo, DNumber, 'jewel' AS RecordSource
+                FROM ast_jewel_loan_customer
+                WHERE AadhaarNumber LIKE '%".$val."%'
+                ORDER BY FullName ASC";
     }
     else if ($search_field == 4) {
-        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo
+        $sql = "SELECT MemberId, MemberCode, FullName, Aadhaar, MobileNo, '' AS DNumber, 'member' AS RecordSource
                 FROM ast_members
-                WHERE MobileNo = '".$search_value."'
-                ORDER BY MemberId";
+                WHERE MobileNo LIKE '%".$val."%'
+                UNION
+                SELECT 0 AS MemberId, DNumber AS MemberCode, Name AS FullName, AadhaarNumber AS Aadhaar, MobileNumber AS MobileNo, DNumber, 'jewel' AS RecordSource
+                FROM ast_jewel_loan_customer
+                WHERE MobileNumber LIKE '%".$val."%'
+                ORDER BY FullName ASC";
     }
     else {
         return [];  // invalid field
@@ -45,8 +63,10 @@ class SearchModel {
     $result = $this->conn->query($sql);
 
     $searchmember = [];
-    while ($row = $result->fetch_assoc()) {
-        $searchmember[] = $row;
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $searchmember[] = $row;
+        }
     }
 
     return $searchmember;
