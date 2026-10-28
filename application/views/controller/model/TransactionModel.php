@@ -63,7 +63,7 @@ class TransactionModel {
         $this->conn->autocommit(true);
 		return $tid; // Return current transaction id
 	  }
-	  catch
+	  catch (Exception $e)
 	  {
 			$conn->rollback();
 			$this->conn->autocommit(true);
@@ -85,4 +85,5 @@ class TransactionModel {
         $result_val = $stmt->get_result()->fetch_assoc();
 		return $result_val['AYID'];
     }
+}
 ?>

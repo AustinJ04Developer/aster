@@ -73,7 +73,7 @@ class SavingsMonthlyModel {
 				'matured_amount' => 0
 			];
 		}
-		$years = (int,int,int,int)$row['years2','Years3','Years4','Years5'];	
+		$years = (int)$savingType;	
 		// Get matured amount from master table
 		$sql2 = "SELECT *
 				 FROM ast_master_savings_monthly

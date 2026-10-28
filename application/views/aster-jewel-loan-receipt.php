@@ -678,6 +678,9 @@ function getIndianCurrencyWords($number) {
                     <input type="hidden" name="transaction_type" id="transaction_type" value="INTEREST_PAYMENT">
                     <input type="hidden" name="action_type" id="action_type" value="save">
                     <input type="hidden" name="interest_months" id="interest_months" value="<?php echo htmlspecialchars($calc['calculatedMonths'] ?? '1'); ?>">
+                    <input type="hidden" name="principal_paid" id="hidden_principal_paid" value="0.00">
+                    <input type="hidden" name="period_from" id="hidden_period_from" value="<?php echo htmlspecialchars($calc['lastCalculatedDate'] ?? ($l['LoanDate'] ?? '')); ?>">
+                    <input type="hidden" name="period_to" id="hidden_period_to" value="<?php echo htmlspecialchars(date('Y-m-d')); ?>">
 
                     <!-- ========================================== -->
                     <!-- SECTION 1: Date, D Number Search, Payment Details -->
@@ -807,9 +810,13 @@ function getIndianCurrencyWords($number) {
                         <div class="col-md-3 col-sm-4 col-xs-12">
                             <div class="form-group">
                                 <label class="form-label-bold">Receiving Amount (₹): <span class="mandatory-star">*</span></label>
+                                <?php 
+                                $suggestedIntAmt = round((float)$accruedInterestVal + (float)$defaultInterestVal, 2);
+                                $initPayAmt = $suggestedIntAmt > 0 ? number_format($suggestedIntAmt, 2, '.', '') : (!empty($totalAmountDueVal) && (float)$totalAmountDueVal > 0 ? htmlspecialchars($totalAmountDueVal) : '');
+                                ?>
                                 <input type="number" step="0.01" min="1" name="total_paid" id="amount_paying" class="form-control text-right" 
                                        placeholder="Enter amount" 
-                                       value="<?php echo !empty($totalAmountDueVal) && (float)$totalAmountDueVal > 0 ? htmlspecialchars($totalAmountDueVal) : ''; ?>" required>
+                                       value="<?php echo htmlspecialchars($initPayAmt); ?>" required>
                             </div>
                         </div>
 
@@ -820,6 +827,28 @@ function getIndianCurrencyWords($number) {
                                     <option value="INTEREST_PAYMENT" selected>Interest Payment (Receive Interest & Partial Balance)</option>
                                     <option value="JEWEL_RELEASE">Full Settlement & Jewel Release</option>
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Live Payment Allocation Breakdown Banner -->
+                    <div id="payment-allocation-summary" style="margin-top: 5px; margin-bottom: 20px; background: #f4f9fd; border: 1px solid #c8e1f5; border-radius: 5px; padding: 12px 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <div class="row text-center">
+                            <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #d6e5f1;">
+                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Interest Covered</span>
+                                <span id="alloc_interest_text" style="font-size: 16px; font-weight: bold; color: #2e6da4;">₹0.00</span>
+                            </div>
+                            <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #d6e5f1;">
+                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Default Int. Covered</span>
+                                <span id="alloc_default_int_text" style="font-size: 16px; font-weight: bold; color: #a94442;">₹0.00</span>
+                            </div>
+                            <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #d6e5f1;">
+                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Principal Reduced</span>
+                                <span id="alloc_principal_text" style="font-size: 16px; font-weight: bold; color: #3c763d;">₹0.00</span>
+                            </div>
+                            <div class="col-xs-6 col-sm-3">
+                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">New Remaining Balance</span>
+                                <span id="alloc_balance_text" style="font-size: 16px; font-weight: bold; color: #d9534f;">₹0.00</span>
                             </div>
                         </div>
                     </div>
@@ -1308,21 +1337,66 @@ function toggleReceiptPaymentMethod(method) {
     }
 }
 
+// Dynamic Live Payment Allocation Breakdown
+function updatePaymentAllocation() {
+    var totalPaid = parseFloat($('#amount_paying').val()) || 0;
+    var currentBalance = parseFloat($('#current_balance_loan').val()) || 0;
+    var interestDue = parseFloat($('#display_interest').val()) || 0;
+    var defaultIntDue = parseFloat($('#display_default_interest').val()) || 0;
+    var txnType = $('#receipt_transaction_type_select').val() || $('#transaction_type').val() || 'INTEREST_PAYMENT';
+
+    var interestPaid = 0;
+    var defaultIntPaid = 0;
+    var principalPaid = 0;
+    var newBalance = currentBalance;
+
+    if (txnType === 'JEWEL_RELEASE') {
+        interestPaid = interestDue;
+        defaultIntPaid = defaultIntDue;
+        principalPaid = currentBalance;
+        newBalance = 0;
+    } else {
+        // Priority 1: Default Interest
+        defaultIntPaid = Math.min(defaultIntDue, totalPaid);
+        var rem = Math.max(0, totalPaid - defaultIntPaid);
+
+        // Priority 2: Accrued Interest
+        interestPaid = Math.min(interestDue, rem);
+        rem = Math.max(0, rem - interestPaid);
+
+        // Priority 3: Principal Reduction
+        principalPaid = Math.min(currentBalance, rem);
+        newBalance = Math.max(0, currentBalance - principalPaid);
+    }
+
+    // Update Live Summary Box
+    $('#alloc_interest_text').text('₹' + formatCurrency(interestPaid));
+    $('#alloc_default_int_text').text('₹' + formatCurrency(defaultIntPaid));
+    $('#alloc_principal_text').text('₹' + formatCurrency(principalPaid));
+    $('#alloc_balance_text').text('₹' + formatCurrency(newBalance));
+
+    // Update hidden field for server submission
+    $('#hidden_principal_paid').val(principalPaid.toFixed(2));
+}
+
 // Transaction type switch (Interest only vs Jewel Release)
 function onTxnTypeChange(txnType) {
     $('#transaction_type').val(txnType);
+    $('#receipt_transaction_type_select').val(txnType);
     var bal = parseFloat($('#current_balance_loan').val()) || 0;
     var intAmt = parseFloat($('#display_interest').val()) || 0;
     var defInt = parseFloat($('#display_default_interest').val()) || 0;
     
     if (txnType === 'JEWEL_RELEASE') {
         var totalClosure = bal + intAmt + defInt;
-        $('#amount_paying').val(totalClosure.toFixed(2));
+        $('#amount_paying').val(totalClosure.toFixed(2)).prop('readonly', true);
     } else {
         // Interest Payment
         var interestOnly = intAmt + defInt;
-        $('#amount_paying').val(interestOnly > 0 ? interestOnly.toFixed(2) : bal.toFixed(2));
+        $('#amount_paying').prop('readonly', false);
+        $('#amount_paying').val(interestOnly > 0 ? interestOnly.toFixed(2) : (bal > 0 ? bal.toFixed(2) : ''));
     }
+    updatePaymentAllocation();
 }
 
 // Reset form for New Receipt
@@ -1339,7 +1413,12 @@ function resetReceiptForm() {
     $('#display_default_interest').val('0.00');
     $('#display_total_due').val('0.00');
     $('#display_grace_period').val('0');
-    $('#amount_paying').val('');
+    $('#amount_paying').val('').prop('readonly', false);
+    $('#hidden_principal_paid').val('0.00');
+    $('#alloc_interest_text').text('₹0.00');
+    $('#alloc_default_int_text').text('₹0.00');
+    $('#alloc_principal_text').text('₹0.00');
+    $('#alloc_balance_text').text('₹0.00');
 
     // Reset loan dates
     $('#display_loan_date').val('');
@@ -1435,6 +1514,10 @@ function populateReceiptData(data) {
     $('#search_d_number').val(l.DNumber);
     $('#current_balance_loan').val(calc.principalBalance);
     $('#interest_months').val(calc.calculatedMonths || 1);
+    $('#hidden_period_from').val(calc.lastCalculatedDate || l.LoanDate);
+    var now = new Date();
+    var nowStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    $('#hidden_period_to').val(nowStr);
 
     // Section 1
     $('#display_d_number').val(l.DNumber);
@@ -1446,7 +1529,11 @@ function populateReceiptData(data) {
     $('#display_default_interest').val(formatCurrency(calc.defaultInterest));
     $('#display_total_due').val(formatCurrency(calc.totalAmountDue));
     $('#display_grace_period').val(calc.gracePeriodDays || '0');
-    $('#amount_paying').val(formatCurrency(calc.totalAmountDue));
+
+    // Default to Interest Payment mode and allocate
+    $('#receipt_transaction_type_select').val('INTEREST_PAYMENT');
+    $('#transaction_type').val('INTEREST_PAYMENT');
+    onTxnTypeChange('INTEREST_PAYMENT');
 
     // Section 2
     $('#display_loan_date').val(formatDateDisplay(l.LoanDate));
@@ -1532,6 +1619,14 @@ $('#jewel-loan-receipt-form').on('submit', function(e) {
 
     // Disable button to prevent duplicate submissions
     $('#btn-save-receipt').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+});
+
+// Bind amount paying live allocation
+$('#amount_paying').on('input keyup change', updatePaymentAllocation);
+
+// Run initial allocation on page load
+$(document).ready(function() {
+    updatePaymentAllocation();
 });
 </script>
 </body>

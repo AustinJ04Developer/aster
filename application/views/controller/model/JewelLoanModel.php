@@ -954,11 +954,18 @@ class JewelLoanModel {
         $loanDateStr = $loan['LoanDate'];
         $lastDateStr = $loanDateStr;
 
+        $today = new DateTime();
+
         // Check if there was a previous interest payment
+        $interestAlreadyPaidToDate = false;
         if (!empty($receipts)) {
             foreach ($receipts as $r) {
-                if ($r['TransactionType'] === 'INTEREST_PAYMENT' && !empty($r['InterestPeriodTo'])) {
-                    $lastDateStr = $r['InterestPeriodTo'];
+                if ($r['TransactionType'] === 'INTEREST_PAYMENT' && ((float)$r['InterestPaid'] > 0 || !empty($r['InterestPeriodTo']))) {
+                    $lastDateStr = !empty($r['InterestPeriodTo']) ? $r['InterestPeriodTo'] : $r['ReceiptDate'];
+                    $lastPeriodDate = new DateTime($lastDateStr);
+                    if ($lastPeriodDate->format('Y-m-d') >= $today->format('Y-m-d')) {
+                        $interestAlreadyPaidToDate = true;
+                    }
                     break;
                 }
             }
@@ -966,7 +973,6 @@ class JewelLoanModel {
 
         $originalLoanDate = new DateTime($loanDateStr);
         $calcStartDate    = new DateTime($lastDateStr);
-        $today            = new DateTime();
 
         // 1. Contractual Closing Due Date: 12 calendar months (or 1 year) from original pledge date
         $closingDueDate = clone $originalLoanDate;
@@ -1028,31 +1034,55 @@ class JewelLoanModel {
             $totDaysDisplay = "{$totDaysElapsed} Days ({$daysLeft} Days Remaining)";
         }
 
-        $principalBalance = (float)($loan['BalanceLoanAmount'] > 0 ? $loan['BalanceLoanAmount'] : $loan['LoanAmount']);
+        $hasReleaseReceipt = false;
+        if (!empty($receipts)) {
+            foreach ($receipts as $r) {
+                if ($r['TransactionType'] === 'JEWEL_RELEASE') {
+                    $hasReleaseReceipt = true;
+                    break;
+                }
+            }
+        }
+        if ($hasReleaseReceipt) {
+            $principalBalance = 0.00;
+        } else {
+            $principalBalance = isset($loan['BalanceLoanAmount']) && $loan['BalanceLoanAmount'] !== null
+                ? (float)$loan['BalanceLoanAmount']
+                : (float)($loan['LoanAmount'] ?? 0);
+            if ($principalBalance <= 0 && empty($receipts)) {
+                $principalBalance = (float)($loan['LoanAmount'] ?? 0);
+            }
+        }
         $rate = (float)($loan['InterestRate'] ?? 0);
 
         // Interest calculation rules:
-        // Policy: minimum 15 days interest. Released within 15 days -> 6% interest rate.
-        $effectiveDays = $interestDays;
-        $isUnder15Days = ($effectiveDays <= 15 && $totDaysElapsed <= 15);
-        if ($effectiveDays < 15 && $effectiveDays > 0) {
-            $effectiveDays = 15;
-        }
-
-        // Daily interest: (Principal * Rate / 100) / 365 * days
-        // Or Monthly interest: (Principal * Rate / 100 / 12) * (days / 30)
-        // Standard Nidhi / Banking monthly convention:
-        $months = round($effectiveDays / 30.4167, 2);
-        if ($months < 0.5 && $effectiveDays >= 15) {
-            $months = 0.5;
-        }
-
-        if ($isUnder15Days && $effectiveDays <= 15) {
-            // 6% annual rate for quick release within 15 days
-            $calculatedInterest = round(($principalBalance * (6.0 / 100) / 365) * ($effectiveDays > 0 ? $effectiveDays : 15), 2);
+        if ($interestAlreadyPaidToDate || $interestDays <= 0) {
+            $effectiveDays = 0;
+            $months = 0;
+            $calculatedInterest = 0.00;
         } else {
-            // Standard rate: (Principal * (Rate / 100) / 12) * months
-            $calculatedInterest = round(($principalBalance * ($rate / 100) / 12) * ($months > 0 ? $months : 1), 2);
+            // Policy: minimum 15 days interest. Released within 15 days -> 6% interest rate.
+            $effectiveDays = $interestDays;
+            $isUnder15Days = ($effectiveDays <= 15 && $totDaysElapsed <= 15);
+            if ($effectiveDays < 15 && $effectiveDays > 0) {
+                $effectiveDays = 15;
+            }
+
+            // Daily interest: (Principal * Rate / 100) / 365 * days
+            // Or Monthly interest: (Principal * Rate / 100 / 12) * (days / 30)
+            // Standard Nidhi / Banking monthly convention:
+            $months = round($effectiveDays / 30.4167, 2);
+            if ($months < 0.5 && $effectiveDays >= 15) {
+                $months = 0.5;
+            }
+
+            if ($isUnder15Days && $effectiveDays <= 15) {
+                // 6% annual rate for quick release within 15 days
+                $calculatedInterest = round(($principalBalance * (6.0 / 100) / 365) * ($effectiveDays > 0 ? $effectiveDays : 15), 2);
+            } else {
+                // Standard rate: (Principal * (Rate / 100) / 12) * months
+                $calculatedInterest = round(($principalBalance * ($rate / 100) / 12) * ($months > 0 ? $months : 1), 2);
+            }
         }
 
         // Default interest: 2% p.a. default interest on overdue principal after due date + grace period
@@ -1316,7 +1346,7 @@ class JewelLoanModel {
                     $upStmt->execute();
                     $upStmt->close();
                 }
-            } elseif ($txnType === 'INTEREST_PAYMENT' && $principalPaid > 0) {
+            } elseif ($txnType === 'INTEREST_PAYMENT') {
                 $upSql = "UPDATE ast_jewel_loan_details SET BalanceLoanAmount = ? WHERE LoanDetailId = ?";
                 $upStmt = $this->conn->prepare($upSql);
                 if ($upStmt) {

@@ -322,5 +322,11 @@ $html .= '
 ';
 
 $pdf->writeHTML($html, true, false, true, false, '');
+
+// Clean output buffer to ensure pure PDF stream without header conflicts
+if (ob_get_length()) {
+    ob_end_clean();
+}
+
 $pdf->Output('Jewel_Loan_Receipt_' . $rNo . '.pdf', 'I');
 ?>

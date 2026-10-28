@@ -111,12 +111,11 @@ class JewelLoanReceiptController {
         }
         
         $currentBalance = (float)($_POST['current_balance_loan'] ?? 0);
-        $principalPaid  = (float)($_POST['principal_paid'] ?? 0);
-        $interestPaid   = (float)($_POST['interest_paid'] ?? 0);
-        $defaultInterestPaid = (float)($_POST['default_interest'] ?? 0);
+        $totalPaid      = (float)($_POST['total_paid'] ?? 0);
+        $interestDue    = (float)($_POST['interest_paid'] ?? 0);
+        $defaultIntDue  = (float)($_POST['default_interest'] ?? 0);
         $appraiserCharge= (float)($_POST['appraiser_charge'] ?? 0);
         $processingFee  = (float)($_POST['processing_fee'] ?? 0);
-        $totalPaid      = (float)($_POST['total_paid'] ?? 0);
 
         $interestMonths = (float)($_POST['interest_months'] ?? 0);
         $periodFrom     = !empty($_POST['period_from']) ? date('Y-m-d', strtotime($_POST['period_from'])) : null;
@@ -137,10 +136,41 @@ class JewelLoanReceiptController {
         if ($txnType === 'JEWEL_RELEASE') {
             // For jewel release, full principal balance must be paid
             $principalPaid = $currentBalance;
+            $interestPaid = $interestDue;
+            $defaultInterestPaid = $defaultIntDue;
             $newBalance = 0.00;
+            $totalPaid = round($principalPaid + $interestPaid + $defaultInterestPaid + $appraiserCharge + $processingFee, 2);
+            if (empty($periodTo)) {
+                $periodTo = $receiptDate;
+            }
         } else {
-            // Partial or interest-only payment
-            $newBalance = max(0.00, $currentBalance - $principalPaid);
+            // INTEREST_PAYMENT: Allocate payment to default interest, accrued interest, then principal
+            // Priority 1: Default Interest
+            $defaultInterestPaid = min($defaultIntDue, $totalPaid);
+            $rem = max(0.00, $totalPaid - $defaultInterestPaid);
+
+            // Priority 2: Accrued Interest
+            $interestPaid = min($interestDue, $rem);
+            $rem = max(0.00, $rem - $interestPaid);
+
+            // Priority 3: Principal Reduction
+            if (isset($_POST['principal_paid']) && (float)$_POST['principal_paid'] > 0) {
+                $principalPaid = min($currentBalance, (float)$_POST['principal_paid']);
+            } else {
+                $principalPaid = min($currentBalance, $rem);
+            }
+            $newBalance = max(0.00, round($currentBalance - $principalPaid, 2));
+
+            // Set Interest Period To date to receipt date if interest is covered/paid
+            if ($interestPaid > 0 || !empty($_POST['period_to'])) {
+                $periodTo = !empty($_POST['period_to']) ? date('Y-m-d', strtotime($_POST['period_to'])) : $receiptDate;
+            }
+        }
+
+        // Fallback for periodFrom if not supplied
+        if (empty($periodFrom)) {
+            $summary = $this->model->getLoanReceiptSummary($loanDetailId, $dNumber);
+            $periodFrom = $summary['calculation']['lastCalculatedDate'] ?? ($summary['loan']['LoanDate'] ?? $receiptDate);
         }
 
         $calcTotal = $principalPaid + $interestPaid + $defaultInterestPaid + $appraiserCharge + $processingFee;
