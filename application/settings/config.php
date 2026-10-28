@@ -11,13 +11,13 @@
 ini_set('max_execution_time', 600);
 $hostname =  "localhost";
 $user = "root";
-$pass = "Austin@2109*#";
+$pass = "";
 $db = "aster";
 //$db = "gorcery";
 global $dbh;
 /*db connection*/
 try {
-    $dbh = new PDO("mysql:host=$hostname;port=3307;dbname=$db",$user,$pass);
+    $dbh = new PDO("mysql:host=$hostname;port=3306;dbname=$db",$user,$pass);
 }
 catch (PDOException $e) {
     die('Unable to connect to database ' . $e->getMessage());

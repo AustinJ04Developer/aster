@@ -752,6 +752,29 @@ class JewelLoanModel {
      * Retrieve complete saved jewel loan record for PDF generation or printing
      * Primary lookup is by LoanDetailId (auto-increment id), fallback by DNumber.
      */
+    public function getReceiptsByLoanId($loanDetailId) {
+        $receipts = [];
+        $sql = "SELECT * FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? ORDER BY ReceiptId ASC";
+        $st = $this->conn->prepare($sql);
+        if ($st) {
+            $loanDetailId = (int)$loanDetailId;
+            $st->bind_param("i", $loanDetailId);
+            $st->execute();
+            $res = $st->get_result();
+            if ($res) {
+                while ($row = $res->fetch_assoc()) {
+                    $receipts[] = $row;
+                }
+            }
+            $st->close();
+        }
+        return $receipts;
+    }
+
+    public function getJewelLoanByDNumber($dNumber) {
+        return $this->getLoanRecordForPdf(0, $dNumber);
+    }
+
     public function getLoanRecordForPdf($loanDetailId = 0, $dNumber = '') {
         $loanDetail = null;
         if ((int)$loanDetailId > 0) {
@@ -985,23 +1008,16 @@ class JewelLoanModel {
         $closingDueDateStr = $closingDueDate->format('Y-m-d');
         $dueDateStr = $closingDueDateStr; // Backwards compatible key
 
-        // 2. Next Monthly Interest Due Date:
-        // Calculated on calendar month basis from the last interest-covered date (or original loan date)
-        $monthlyDueDate = clone $calcStartDate;
-        $calcStartDay = (int)$calcStartDate->format('d');
-        $monthlyDueDate->modify('+1 month');
-        if ((int)$monthlyDueDate->format('d') !== $calcStartDay) {
-            $monthlyDueDate->modify('last day of previous month');
-        }
-        // If monthly due date already in past, advance until >= today or closing due date
-        while ($monthlyDueDate < $today && $monthlyDueDate < $closingDueDate) {
-            $prevMDay = (int)$monthlyDueDate->format('d');
-            $monthlyDueDate->modify('+1 month');
-            if ((int)$monthlyDueDate->format('d') !== $origDay) {
-                $monthlyDueDate->modify('last day of previous month');
+        // 2. Next Monthly Interest Due Date (monthly EMI cycle: e.g. 15-03-2026 -> 15-04-2026):
+        $monthlyDueDateStr = $this->calculateNextMonthlyDueDate($loanDateStr, (int)($loan['LoanDetailId'] ?? 0));
+        if (empty($monthlyDueDateStr)) {
+            $mDue = clone $calcStartDate;
+            $mDue->modify('+1 month');
+            if ((int)$mDue->format('d') !== $origDay) {
+                $mDue->modify('last day of previous month');
             }
+            $monthlyDueDateStr = $mDue->format('Y-m-d');
         }
-        $monthlyDueDateStr = $monthlyDueDate->format('Y-m-d');
 
         // Total Days elapsed since loan creation
         $totDaysElapsed = $originalLoanDate->diff($today)->days;
@@ -1056,7 +1072,7 @@ class JewelLoanModel {
         $rate = (float)($loan['InterestRate'] ?? 0);
 
         // Interest calculation rules:
-        if ($interestAlreadyPaidToDate || $interestDays <= 0) {
+        if ($interestAlreadyPaidToDate) {
             $effectiveDays = 0;
             $months = 0;
             $calculatedInterest = 0.00;
@@ -1064,7 +1080,7 @@ class JewelLoanModel {
             // Policy: minimum 15 days interest. Released within 15 days -> 6% interest rate.
             $effectiveDays = $interestDays;
             $isUnder15Days = ($effectiveDays <= 15 && $totDaysElapsed <= 15);
-            if ($effectiveDays < 15 && $effectiveDays > 0) {
+            if ($effectiveDays < 15) {
                 $effectiveDays = 15;
             }
 
@@ -1162,20 +1178,16 @@ class JewelLoanModel {
         }
         $closingDueDateStr = $closingDueDate->format('Y-m-d');
 
-        // 2. Next Monthly Interest Due Date:
-        $monthlyDueDate = clone $calcStartDate;
-        $calcStartDay = (int)$calcStartDate->format('d');
-        $monthlyDueDate->modify('+1 month');
-        if ((int)$monthlyDueDate->format('d') !== $calcStartDay) {
-            $monthlyDueDate->modify('last day of previous month');
-        }
-        while ($monthlyDueDate < $today && $monthlyDueDate < $closingDueDate) {
-            $monthlyDueDate->modify('+1 month');
-            if ((int)$monthlyDueDate->format('d') !== $origDay) {
-                $monthlyDueDate->modify('last day of previous month');
+        // 2. Next Monthly Interest Due Date (monthly EMI cycle: e.g. 15-03-2026 -> 15-04-2026):
+        $monthlyDueDateStr = $this->calculateNextMonthlyDueDate($loanDateStr, (int)($loan['LoanDetailId'] ?? 0));
+        if (empty($monthlyDueDateStr)) {
+            $mDue = clone $calcStartDate;
+            $mDue->modify('+1 month');
+            if ((int)$mDue->format('d') !== $origDay) {
+                $mDue->modify('last day of previous month');
             }
+            $monthlyDueDateStr = $mDue->format('Y-m-d');
         }
-        $monthlyDueDateStr = $monthlyDueDate->format('Y-m-d');
 
         // Total Days elapsed
         $totDaysElapsed = $originalLoanDate->diff($today)->days;
@@ -1417,6 +1429,139 @@ class JewelLoanModel {
     /**
      * Get all active loan D-Numbers for receipt search autocomplete / dropdown
      */
+    /**
+     * Get all jewel loan accounts created till a given date (inclusive)
+     * Ordered by LoanDate DESC, LoanDetailId DESC
+     */
+    /**
+     * Calculate the next monthly due date for a jewel loan
+     * Jewel loan functions on a monthly due cycle (like an EMI).
+     * e.g., Jewel loan created on 15-03-2026 -> 15-04-2026 is the next due date.
+     * When payments are made, the due date advances month by month from the last covered interest period.
+     */
+    public function calculateNextMonthlyDueDate($loanDateStr, $loanDetailId = 0) {
+        if (empty($loanDateStr) || $loanDateStr === '0000-00-00') {
+            return '';
+        }
+        $origDate = new DateTime($loanDateStr);
+        $origDay = (int)$origDate->format('d');
+        
+        $baseDate = clone $origDate;
+        if ((int)$loanDetailId > 0) {
+            $ldId = (int)$loanDetailId;
+            $sql = "SELECT InterestPeriodTo, ReceiptDate FROM ast_jewel_loan_receipt 
+                    WHERE LoanDetailId = ? AND TransactionType = 'INTEREST_PAYMENT' 
+                    ORDER BY ReceiptId DESC LIMIT 1";
+            $st = $this->conn->prepare($sql);
+            if ($st) {
+                $st->bind_param("i", $ldId);
+                $st->execute();
+                $res = $st->get_result();
+                if ($res && $r = $res->fetch_assoc()) {
+                    $paidTo = !empty($r['InterestPeriodTo']) ? $r['InterestPeriodTo'] : $r['ReceiptDate'];
+                    if (!empty($paidTo) && $paidTo !== '0000-00-00') {
+                        $baseDate = new DateTime($paidTo);
+                    }
+                }
+                $st->close();
+            }
+        }
+        
+        $nextDueDate = clone $baseDate;
+        $nextDueDate->modify('+1 month');
+        if ((int)$nextDueDate->format('d') !== $origDay) {
+            $nextDueDate->modify('last day of previous month');
+        }
+        return $nextDueDate->format('Y-m-d');
+    }
+
+    public function getJewelLoansCreatedTillDate($tillDate) {
+        $results = [];
+        $sql = "SELECT d.LoanDetailId, d.DNumber, d.LoanDate, d.InterestRate, 
+                       d.LoanAmount, d.BalanceLoanAmount, d.TotalNetWeight,
+                       d.PaymentMethod, d.AppraiserCharge, d.ProcessingFee,
+                       COALESCE(NULLIF(c.Name, ''), m.FullName, 'Customer') AS CustomerName,
+                       COALESCE(NULLIF(c.MobileNumber, ''), m.MobileNo, '-') AS MobileNumber,
+                       COALESCE(NULLIF(c.AadhaarNumber, ''), m.Aadhaar, '-') AS AadhaarNumber,
+                       COALESCE(c.Address, m.PermenantAddress, m.PresentAddress, '-') AS Address
+                FROM ast_jewel_loan_details d
+                LEFT JOIN ast_jewel_loan_customer c ON c.DNumber = d.DNumber
+                LEFT JOIN ast_members m ON m.MemberCode = d.DNumber
+                WHERE d.LoanDate <= ?
+                ORDER BY d.LoanDate DESC, d.LoanDetailId DESC";
+        $stmt = $this->conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("s", $tillDate);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res) {
+                while ($row = $res->fetch_assoc()) {
+                    // Next Monthly Due Date (monthly EMI-style cycle e.g. 15-03-2026 -> 15-04-2026)
+                    $loanDateObj = new DateTime($row['LoanDate']);
+                    $row['LoanDateFormatted'] = $loanDateObj->format('d/m/Y');
+                    $nextDueDateStr = $this->calculateNextMonthlyDueDate($row['LoanDate'], (int)$row['LoanDetailId']);
+                    $row['DueDate'] = $nextDueDateStr;
+                    $row['DueDateFormatted'] = !empty($nextDueDateStr) ? date('d/m/Y', strtotime($nextDueDateStr)) : '-';
+
+                    // Check if jewel released or balance is 0.00
+                    $bal = (float)$row['BalanceLoanAmount'];
+                    $hasRelease = false;
+                    $checkSql = "SELECT 1 FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? AND TransactionType = 'JEWEL_RELEASE' LIMIT 1";
+                    $stCheck = $this->conn->prepare($checkSql);
+                    if ($stCheck) {
+                        $ldId = (int)$row['LoanDetailId'];
+                        $stCheck->bind_param("i", $ldId);
+                        $stCheck->execute();
+                        $rChk = $stCheck->get_result();
+                        if ($rChk && $rChk->num_rows > 0) {
+                            $hasRelease = true;
+                        }
+                        $stCheck->close();
+                    }
+
+                    if ($hasRelease || $bal <= 0.00) {
+                        $row['Status'] = 'Inactive';
+                        $row['StatusBadge'] = '<span class="label label-default" style="font-size:12px;padding:3px 8px;">Inactive</span>';
+                    } else {
+                        $row['Status'] = 'Active';
+                        $row['StatusBadge'] = '<span class="label label-success" style="font-size:12px;padding:3px 8px;">Active</span>';
+                    }
+
+                    $results[] = $row;
+                }
+            }
+            $stmt->close();
+        }
+        return $results;
+    }
+
+    /**
+     * Get complete transaction / receipt history for a given LoanDetailId
+     */
+    public function getTransactionHistoryByLoanDetailId($loanDetailId) {
+        $txns = [];
+        $sql = "SELECT r.*, 
+                       DATE_FORMAT(r.ReceiptDate, '%d/%m/%Y') AS FormattedReceiptDate,
+                       DATE_FORMAT(r.CreatedAt, '%d/%m/%Y %h:%i %p') AS FormattedCreatedAt
+                FROM ast_jewel_loan_receipt r
+                WHERE r.LoanDetailId = ?
+                ORDER BY r.ReceiptId ASC";
+        $stmt = $this->conn->prepare($sql);
+        if ($stmt) {
+            $loanDetailId = (int)$loanDetailId;
+            $stmt->bind_param("i", $loanDetailId);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res) {
+                while ($r = $res->fetch_assoc()) {
+                    $txns[] = $r;
+                }
+            }
+            $stmt->close();
+        }
+        return $txns;
+    }
+
     public function getAllActiveLoanDNumbers() {
         $sql = "SELECT DISTINCT d.DNumber, d.LoanDetailId, 
                        COALESCE(NULLIF(c.Name, ''), m.FullName, 'Customer') AS Name, 
