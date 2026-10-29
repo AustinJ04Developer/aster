@@ -1012,7 +1012,7 @@ function getIndianCurrencyWords($number) {
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Father / Husband Name <span class="mandatory">*</span></label>
+                        <label>Father's Name / Husband's Name <span class="mandatory">*</span></label>
                         <input type="text" id="display_cust_fathers_name" class="form-control form-control-readonly" 
                                value="<?php echo htmlspecialchars($custFathersName); ?>" readonly>
                     </div>

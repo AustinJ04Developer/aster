@@ -34,6 +34,22 @@ class JewelLoanReceiptController {
         ];
 
         // AJAX search endpoint for D-Number lookup
+        if (isset($_GET['ajax_calculate_schedule'])) {
+            if (!headers_sent()) {
+                header('Content-Type: application/json');
+            }
+            $ldId = (int)($_GET['loan_detail_id'] ?? 0);
+            $asOf = trim($_GET['as_of_date'] ?? date('Y-m-d'));
+            $target = trim($_GET['target_date'] ?? '');
+            $sched = $this->model->calculateLoanInterestSchedule($ldId, $asOf, $target);
+            if ($sched) {
+                echo json_encode(['status' => 'success', 'data' => $sched]);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to calculate schedule']);
+            }
+            exit;
+        }
+
         if (isset($_GET['ajax_search_dnumber'])) {
             if (!headers_sent()) {
                 header('Content-Type: application/json');
@@ -88,7 +104,7 @@ class JewelLoanReceiptController {
         return $data;
     }
 
-    private function processReceiptSubmission(&$data) {
+        private function processReceiptSubmission(&$data) {
         $loanDetailId   = (int)($_POST['loan_detail_id'] ?? 0);
         $dNumber        = trim($_POST['d_number'] ?? '');
         $txnType        = trim($_POST['transaction_type'] ?? 'INTEREST_PAYMENT');
@@ -112,12 +128,6 @@ class JewelLoanReceiptController {
         
         $currentBalance = (float)($_POST['current_balance_loan'] ?? 0);
         $totalPaid      = (float)($_POST['total_paid'] ?? 0);
-        $interestDue    = (float)($_POST['interest_paid'] ?? 0);
-        $defaultIntDue  = (float)($_POST['default_interest'] ?? 0);
-        $appraiserCharge= (float)($_POST['appraiser_charge'] ?? 0);
-        $processingFee  = (float)($_POST['processing_fee'] ?? 0);
-
-        $interestMonths = (float)($_POST['interest_months'] ?? 0);
         $periodFrom     = !empty($_POST['period_from']) ? date('Y-m-d', strtotime($_POST['period_from'])) : null;
         $periodTo       = !empty($_POST['period_to']) ? date('Y-m-d', strtotime($_POST['period_to'])) : null;
         $remarks        = trim($_POST['remarks'] ?? '');
@@ -128,60 +138,98 @@ class JewelLoanReceiptController {
             return;
         }
 
-        if (!in_array($txnType, ['LOAN_CREATION', 'INTEREST_PAYMENT', 'JEWEL_RELEASE'])) {
+        if (!in_array($txnType, ['LOAN_CREATION', 'INTEREST_PAYMENT', 'JEWEL_RELEASE'], true)) {
             $data['errors'][] = "Invalid transaction type selected.";
             return;
         }
 
+        $rateApplied = 18.00;
+        $overdueRate = null;
+        $overduePaid = 0.00;
+        $overdueFrom = null;
+        $overdueTo = null;
+        $defaultInterestPaid = 0.00;
+        $appraiserCharge = 0.00;
+        $processingFee = 0.00;
+        $breakdownJson = null;
+
         if ($txnType === 'JEWEL_RELEASE') {
-            // For jewel release, full principal balance must be paid
-            $principalPaid = $currentBalance;
-            $interestPaid = $interestDue;
-            $defaultInterestPaid = $defaultIntDue;
-            $newBalance = 0.00;
-            $totalPaid = round($principalPaid + $interestPaid + $defaultInterestPaid + $appraiserCharge + $processingFee, 2);
-            if (empty($periodTo)) {
-                $periodTo = $receiptDate;
-            }
-        } else {
-            // INTEREST_PAYMENT: Allocate payment to default interest, accrued interest, then principal
-            // Priority 1: Default Interest
-            $defaultInterestPaid = min($defaultIntDue, $totalPaid);
-            $rem = max(0.00, $totalPaid - $defaultInterestPaid);
-
-            // Priority 2: Accrued Interest
-            $interestPaid = min($interestDue, $rem);
-            $rem = max(0.00, $rem - $interestPaid);
-
-            // Priority 3: Principal Reduction
-            if (isset($_POST['principal_paid']) && (float)$_POST['principal_paid'] > 0) {
-                $principalPaid = min($currentBalance, (float)$_POST['principal_paid']);
+            // For jewel release, calculate accrued interest up to release date
+            $schedule = $this->model->calculateLoanInterestSchedule($loanDetailId, $receiptDate);
+            $principalPaid = (float)($schedule['currentPrincipal'] ?? $currentBalance);
+            $interestPaid = (float)($schedule['totalInterestDue'] ?? 0.00);
+            
+            // Check minimum 15-day rule for quick release within 15 days of loan date
+            $origLoanDate = new DateTime($schedule['loanDate']);
+            $relDate = new DateTime($receiptDate);
+            $elapsedDays = $origLoanDate->diff($relDate)->days;
+            if ($elapsedDays <= 15) {
+                // Minimum 15-day interest @ 6%
+                $interestPaid = $this->model->calculateDailyInterest($principalPaid, 6.00, 15);
+                $rateApplied = 6.00;
             } else {
-                $principalPaid = min($currentBalance, $rem);
+                $rateApplied = (float)($schedule['applicableBaseRate'] ?? 18.0);
             }
-            $newBalance = max(0.00, round($currentBalance - $principalPaid, 2));
 
-            // Set Interest Period To date to receipt date if interest is covered/paid
-            if ($interestPaid > 0 || !empty($_POST['period_to'])) {
-                $periodTo = !empty($_POST['period_to']) ? date('Y-m-d', strtotime($_POST['period_to'])) : $receiptDate;
+            // Processing fee: 1% of principal collected ONLY once at final settlement/release
+            $pfPaid = $this->model->isProcessingFeePaid($loanDetailId);
+            $processingFee = $pfPaid ? 0.00 : $this->model->getProcessingFee($schedule['originalPrincipal']);
+            $appraiserCharge = 0.00; // Never collected at release
+            $newBalance = 0.00;
+
+            if ($totalPaid <= 0) {
+                $totalPaid = round($principalPaid + $interestPaid + $processingFee, 2);
             }
-        }
+            $periodFrom = $schedule['paidThroughDate'] ?? $receiptDate;
+            $periodTo = $receiptDate;
+            $breakdownJson = json_encode(['type' => 'JEWEL_RELEASE', 'schedule' => $schedule]);
+        } else {
+            // INTEREST_PAYMENT: Allocate payment to overdue interest, regular interest, and excess to principal
+            $schedule = $this->model->calculateLoanInterestSchedule($loanDetailId, $receiptDate, $periodTo);
+            $appraiserCharge = 0.00; // Never collected with interest
+            $processingFee = 0.00;   // Never collected with interest
 
-        // Fallback for periodFrom if not supplied
-        if (empty($periodFrom)) {
-            $summary = $this->model->getLoanReceiptSummary($loanDetailId, $dNumber);
-            $periodFrom = $summary['calculation']['lastCalculatedDate'] ?? ($summary['loan']['LoanDate'] ?? $receiptDate);
-        }
+            if ($totalPaid <= 0 && $schedule) {
+                $totalPaid = $schedule['totalInterestDue'];
+            }
 
-        $calcTotal = $principalPaid + $interestPaid + $defaultInterestPaid + $appraiserCharge + $processingFee;
-        if ($totalPaid <= 0 && $calcTotal > 0) {
-            $totalPaid = $calcTotal;
+            $allocation = $this->model->allocatePayment($loanDetailId, $totalPaid, $receiptDate, $periodTo);
+            if ($allocation) {
+                $interestPaid = $allocation['totalInterestPaid'];
+                $principalPaid = $allocation['principalPaid'];
+                $newBalance = $allocation['newPrincipalBalance'];
+                $overduePaid = $allocation['overdueInterestPaid'];
+            } else {
+                $interestPaid = min($totalPaid, $schedule['totalInterestDue']);
+                $principalPaid = max(0.00, round($totalPaid - $interestPaid, 2));
+                $newBalance = max(0.00, round($currentBalance - $principalPaid, 2));
+            }
+
+            $rateApplied = (float)($schedule['regularBreakdown']['rate'] ?? 18.0);
+            if ($schedule['overdueBreakdown']['isOverdue']) {
+                $overdueRate = (float)$schedule['overdueBreakdown']['rate'];
+                $overdueFrom = $schedule['overdueBreakdown']['periodFrom'];
+                $overdueTo = $schedule['overdueBreakdown']['periodTo'];
+            }
+
+            if (empty($periodFrom)) {
+                $periodFrom = $schedule['overdueBreakdown']['isOverdue'] 
+                    ? $schedule['overdueBreakdown']['periodFrom'] 
+                    : $schedule['regularBreakdown']['periodFrom'];
+            }
+            if (empty($periodTo)) {
+                $periodTo = $schedule['regularBreakdown']['periodTo'] ?: ($schedule['overdueBreakdown']['periodTo'] ?: $receiptDate);
+            }
+
+            $breakdownJson = json_encode(['type' => 'INTEREST_PAYMENT', 'schedule' => $schedule, 'allocation' => $allocation]);
         }
 
         if ($totalPaid <= 0) {
             $data['errors'][] = "Total paid amount must be greater than zero.";
             return;
         }
+
+        $interestMonths = round((new DateTime($periodFrom))->diff(new DateTime($periodTo))->days / 30.4167, 2);
 
         // Payment details
         $chequeNumber = trim($_POST['cheque_number'] ?? '');
@@ -196,7 +244,7 @@ class JewelLoanReceiptController {
         $upiTxn = trim($_POST['upi_transaction_number'] ?? '');
         $upiToBank = trim($_POST['upi_to_bank'] ?? '');
 
-        $actionType = trim($_POST['action_type'] ?? 'generate'); // 'save' or 'generate'
+        $actionType = trim($_POST['action_type'] ?? 'generate');
 
         $receiptData = [
             'ReceiptDate' => $receiptDate,
@@ -224,7 +272,13 @@ class JewelLoanReceiptController {
             'UpiTransactionNumber' => $upiTxn,
             'UpiToBank' => $upiToBank,
             'Remarks' => $remarks,
-            'CreatedBy' => $_SESSION['UserId'] ?? 1
+            'CreatedBy' => $_SESSION['UserId'] ?? 1,
+            'RateApplied' => $rateApplied,
+            'OverdueInterestRate' => $overdueRate,
+            'OverdueInterestPaid' => $overduePaid,
+            'OverduePeriodFrom' => $overdueFrom,
+            'OverduePeriodTo' => $overdueTo,
+            'BreakdownJson' => $breakdownJson
         ];
 
         $saveRes = $this->model->saveReceipt($receiptData);

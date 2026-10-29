@@ -137,9 +137,9 @@ extract($data);
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Father's Name</label>
+                        <label>Father's Name / Husband's Name</label>
                         <input type="text" name="fathers_name" id="fathers_name" class="form-control"
-                               placeholder="Father's Name"
+                               placeholder="Father's Name / Husband's Name"
                                value="<?php echo htmlspecialchars($form['fathers_name'] ?? ''); ?>">
                     </div>
                 </div>

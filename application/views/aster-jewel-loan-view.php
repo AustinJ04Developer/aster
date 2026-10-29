@@ -553,7 +553,7 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                             </div>
                             <div class="col-md-3 col-sm-6">
                                 <div class="form-group">
-                                    <label>Father / Husband Name</label>
+                                    <label>Father's Name / Husband's Name</label>
                                     <input type="text" name="fathers_name" class="form-control" value="<?php echo htmlspecialchars($customer['FathersName'] ?? ($member['SDWName'] ?? '')); ?>">
                                 </div>
                             </div>

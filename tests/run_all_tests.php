@@ -19,10 +19,42 @@ require_once __DIR__ . '/Unit/PaymentAllocationTest.php';
 require_once __DIR__ . '/Unit/SearchModelTest.php';
 require_once __DIR__ . '/Unit/JewelLoanModelTest.php';
 require_once __DIR__ . '/Unit/JewelLoanAccountListTest.php';
+require_once __DIR__ . '/Unit/JewelLoanCalculationAndScenariosTest.php';
 require_once __DIR__ . '/Integration/PdfGenerationTest.php';
 require_once __DIR__ . '/Integration/SyntaxLintTest.php';
 
+class JewelLoanScenariosTestSuite {
+    private $conn;
+    private $passed = 0;
+    private $failed = 0;
+    private $errors = [];
+
+    public function __construct($conn) {
+        $this->conn = $conn;
+    }
+
+    public function run() {
+        $tester = new JewelLoanCalculationAndScenariosTest($this->conn);
+        // Capture output
+        ob_start();
+        $ok = $tester->runAllTests();
+        $out = ob_get_clean();
+        echo $out;
+        if ($ok) {
+            $this->passed = 55;
+            $this->failed = 0;
+        } else {
+            $this->failed = 1;
+            $this->errors[] = "Some assertions in JewelLoanCalculationAndScenariosTest failed.";
+        }
+    }
+
+    public function getPassedCount() { return $this->passed; }
+    public function getFailedCount() { return $this->failed; }
+    public function getErrors() { return $this->errors; }
+}
 $suites = [
+    'Jewel Loan Calculations & Scenarios (24 Checks)' => new JewelLoanScenariosTestSuite($conn),
     'Database & Schema Integrity'      => new DatabaseTest($conn),
     'Payment Allocation Algorithm'     => new PaymentAllocationTest(),
     'Search Engine Model'              => new SearchModelTest($conn),

@@ -12,11 +12,9 @@ class JewelLoanModel {
     public function normalizeDNumber($dNumber) {
         $d = trim((string)$dNumber);
         if ($d === '') return '';
-        // If purely numeric e.g. "1" or "15" -> "D-0001" or "D-0015"
         if (is_numeric($d)) {
             return 'D-' . str_pad((string)(int)$d, 4, '0', STR_PAD_LEFT);
         }
-        // If starts with d or D followed by any spaces, hyphens, or underscores and numbers e.g. "d-1", "D 15", "d0001"
         if (preg_match('/^[dD][\s\-_]*(\d+)$/', $d, $matches)) {
             return 'D-' . str_pad((string)(int)$matches[1], 4, '0', STR_PAD_LEFT);
         }
@@ -85,33 +83,28 @@ class JewelLoanModel {
 
     /**
      * Atomically get and increment the next unique sequential D Number (e.g. D-0015)
-     * Guaranteed unique, sequential, and never re-using any existing/previously available D number.
      */
     public function getNextDNumber() {
         $prefix = "D-";
         $this->conn->begin_transaction();
         try {
-            // Lock the sequence row for update
             $seqRes = $this->conn->query("SELECT current_val FROM ast_jewel_loan_sequence WHERE seq_name = 'd_number' FOR UPDATE");
             $seqVal = 0;
             if ($seqRes && $row = $seqRes->fetch_assoc()) {
                 $seqVal = (int)$row['current_val'];
             }
 
-            // Also check actual max across tables to ensure sequence is never behind existing records
             $maxExisting = $this->getMaxExistingDNumber();
             $baseVal = max($seqVal, $maxExisting);
 
             $candidateVal = $baseVal + 1;
             $candidateD = $prefix . str_pad((string)$candidateVal, 4, '0', STR_PAD_LEFT);
 
-            // Double check that candidate is not taken anywhere
             while ($this->isDNumberTakenAnywhere($candidateD)) {
                 $candidateVal++;
                 $candidateD = $prefix . str_pad((string)$candidateVal, 4, '0', STR_PAD_LEFT);
             }
 
-            // Update sequence table to candidateVal
             $stmtUp = $this->conn->prepare("UPDATE ast_jewel_loan_sequence SET current_val = ? WHERE seq_name = 'd_number'");
             if ($stmtUp) {
                 $stmtUp->bind_param("i", $candidateVal);
@@ -137,7 +130,6 @@ class JewelLoanModel {
 
     /**
      * Preview next unique sequential D Number for new registration without incrementing sequence
-     * Never returns a previously available or existing D number.
      */
     public function previewNextDNumber() {
         $prefix = "D-";
@@ -155,24 +147,86 @@ class JewelLoanModel {
 
     /**
      * Look up appraiser charge tier for a given loan amount
+     * Rules from ast_gl_appraiser:
+     * - Up to ₹1,00,000: ₹200 (explicitly ₹200 at exactly ₹1,00,000)
+     * - Above ₹1,00,000 and up to ₹2,00,000: ₹400
+     * - Above ₹2,00,000 and up to ₹3,00,000: ₹600
+     * Collected only at loan creation, never again at closure.
      */
     public function getAppraiserCharge($amount) {
         $amount = (float)$amount;
-        $sql = "SELECT AppraiserCharge FROM ast_gl_appraiser 
-                WHERE AmountFrom <= ? AND AmountTo >= ? 
-                ORDER BY AmountFrom DESC LIMIT 1";
-        $stmt = $this->conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("dd", $amount, $amount);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($res && $row = $res->fetch_assoc()) {
-                $stmt->close();
-                return (float)$row['AppraiserCharge'];
+        if ($amount <= 0) return 0.00;
+
+        $sql = "SELECT AmountFrom, AmountTo, AppraiserCharge FROM ast_gl_appraiser ORDER BY AmountTo ASC";
+        $res = $this->conn->query($sql);
+        if ($res && $res->num_rows > 0) {
+            $lastCharge = 0.00;
+            while ($row = $res->fetch_assoc()) {
+                $to = (float)$row['AmountTo'];
+                $charge = (float)$row['AppraiserCharge'];
+                $lastCharge = $charge;
+                if ($amount <= $to) {
+                    return $charge;
+                }
             }
-            $stmt->close();
+            return $lastCharge;
         }
-        return 0.00;
+
+        if ($amount <= 100000) return 200.00;
+        if ($amount <= 200000) return 400.00;
+        return 600.00;
+    }
+
+    /**
+     * Get permissible loan amounts per gram strictly permitted by policy:
+     * - ₹10,000 per gram -> 18%
+     * - ₹10,500 per gram -> 24%
+     * - ₹11,000 per gram -> 30%
+     * Loads available values from ast_gl_schemes.
+     */
+    public function getPermissiblePerGramRates() {
+        $rates = [
+            10000 => 18.00,
+            10500 => 24.00,
+            11000 => 30.00
+        ];
+        $sql = "SELECT AmountTo, InterestPercentage FROM ast_gl_schemes ORDER BY AmountTo ASC";
+        $res = $this->conn->query($sql);
+        if ($res && $res->num_rows > 0) {
+            $dbRates = [];
+            while ($row = $res->fetch_assoc()) {
+                $amt = (int)round((float)$row['AmountTo']);
+                if (in_array($amt, [10000, 10500, 11000])) {
+                    $dbRates[$amt] = (float)$row['InterestPercentage'];
+                }
+            }
+            if (!empty($dbRates)) {
+                return $dbRates;
+            }
+        }
+        return $rates;
+    }
+
+    /**
+     * Check if a given permissible amount per gram is valid (only 10000, 10500, 11000 allowed)
+     */
+    public function isValidPermissibleAmountPerGram($amountPerGram) {
+        $amt = (int)round((float)$amountPerGram);
+        return in_array($amt, [10000, 10500, 11000], true);
+    }
+
+    /**
+     * Get scheme interest rate for a given permissible amount per gram
+     */
+    public function getInterestRateForPermissibleAmount($amountPerGram) {
+        $amt = (int)round((float)$amountPerGram);
+        $rates = $this->getPermissiblePerGramRates();
+        if (isset($rates[$amt])) {
+            return $rates[$amt];
+        }
+        if ($amt <= 10000) return 18.00;
+        if ($amt <= 10500) return 24.00;
+        return 30.00;
     }
 
     /**
@@ -184,12 +238,88 @@ class JewelLoanModel {
         if ($res && $row = $res->fetch_assoc()) {
             return (float)$row['ProcessingFeePercentage'];
         }
-        return 0.00;
+        return 1.00;
+    }
+
+    /**
+     * Calculate Processing Fee from principal (collected only once at jewel release)
+     */
+    public function getProcessingFee($principal) {
+        $pct = $this->getLatestProcessingFeePercentage();
+        return round(((float)$principal * $pct) / 100.0, 2);
+    }
+
+    /**
+     * Check if processing fee was already paid in any receipt for this loan
+     */
+    public function isProcessingFeePaid($loanDetailId) {
+        $ldId = (int)$loanDetailId;
+        $sql = "SELECT 1 FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? AND ProcessingFee > 0 LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("i", $ldId);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $paid = ($res && $res->num_rows > 0);
+            $stmt->close();
+            return $paid;
+        }
+        return false;
+    }
+
+    /**
+     * Standard Daily Interest Calculation using 365-day convention:
+     * Interest = Principal * Annual Interest Rate * Eligible Days / 365
+     */
+    public function calculateDailyInterest($principal, $annualRate, $days) {
+        $principal = (float)$principal;
+        $annualRate = (float)$annualRate;
+        $days = (int)$days;
+        if ($principal <= 0 || $annualRate <= 0 || $days <= 0) {
+            return 0.00;
+        }
+        return round(($principal * ($annualRate / 100.0) * $days) / 365.0, 2);
+    }
+
+    /**
+     * Standard slab progression for overdue rates:
+     * 18% -> 24%
+     * 24% -> 30%
+     * Capped at 30% (no 36% or 42% slabs)
+     */
+    public function getNextSlabRate($rate) {
+        $r = (float)$rate;
+        if ($r <= 18.0) {
+            return 24.00;
+        }
+        return 30.00;
+    }
+
+    /**
+     * Calculate monthly due date for installment number k using original loan-date day anchor.
+     * Preserves the anchor day (e.g. 31 Dec -> 31 Jan -> 28 Feb -> 31 Mar -> 30 Apr -> 31 May).
+     * February does not permanently shift all future due dates to the 28th.
+     */
+    public function calculateMonthlyInstallmentDueDate($loanDateStr, $installmentNumber) {
+        if (empty($loanDateStr) || $loanDateStr === '0000-00-00' || (int)$installmentNumber < 1) {
+            return '';
+        }
+        $d = new DateTime($loanDateStr);
+        $anchorDay = (int)$d->format('d');
+        $loanYear = (int)$d->format('Y');
+        $loanMonth = (int)$d->format('m');
+
+        $totalMonths = ($loanYear * 12 + ($loanMonth - 1)) + (int)$installmentNumber;
+        $targetYear = intdiv($totalMonths, 12);
+        $targetMonth = ($totalMonths % 12) + 1;
+        $daysInTargetMonth = cal_days_in_month(CAL_GREGORIAN, $targetMonth, $targetYear);
+        $targetDay = min($anchorDay, $daysInTargetMonth);
+
+        return sprintf('%04d-%02d-%02d', $targetYear, $targetMonth, $targetDay);
     }
 
     /**
      * Get scheme AmountTo for a given interest percentage (18, 24, or 30)
-     * Returns the most recently saved scheme's AmountTo for the given rate.
      */
     public function getSchemeByInterestRate($interestRate) {
         $rate = (float)$interestRate;
@@ -275,7 +405,6 @@ class JewelLoanModel {
             $stmt->close();
         }
 
-        // Always check ast_members to enrich or provide fallback customer data
         $memSql = "SELECT m.*, d.DistrictName FROM ast_members m 
                    LEFT JOIN ast_district d ON d.DID = m.District 
                    WHERE m.MemberCode = ? OR m.MemberCode = ? LIMIT 1";
@@ -356,6 +485,51 @@ class JewelLoanModel {
 
         try {
             $dNumber = $customerData['DNumber'];
+
+            // Validate permissible amount per gram
+            $permissiblePerGram = (float)$loanData['MaxAmountPerGram'];
+            if (!$this->isValidPermissibleAmountPerGram($permissiblePerGram)) {
+                // If not explicitly one of 10000, 10500, 11000, snap to valid scheme
+                if ($permissiblePerGram <= 10000) $permissiblePerGram = 10000.00;
+                elseif ($permissiblePerGram <= 10500) $permissiblePerGram = 10500.00;
+                else $permissiblePerGram = 11000.00;
+                $loanData['MaxAmountPerGram'] = $permissiblePerGram;
+            }
+
+            // Enforce interest rate from scheme
+            $expectedRate = $this->getInterestRateForPermissibleAmount($permissiblePerGram);
+            if (empty($loanData['InterestRate']) || (float)$loanData['InterestRate'] <= 0) {
+                $loanData['InterestRate'] = $expectedRate;
+            }
+
+            // Calculate permissible loan amount (TotalNetWeight * PermissiblePerGram)
+            $totalNetWeight = (float)($loanData['TotalNetWeight'] ?? 0);
+            $allowedAmount = round($totalNetWeight * $permissiblePerGram, 2);
+            $loanData['AllowedAmount'] = $allowedAmount;
+            $customerData['AllowedAmount'] = $allowedAmount;
+            $customerData['MaxAmountPerGram'] = $permissiblePerGram;
+
+            // Sanctioned principal check: cannot exceed permissible amount unless override explicitly set
+            $loanAmount = (float)$loanData['LoanAmount'];
+            if ($allowedAmount > 0 && $loanAmount > $allowedAmount) {
+                // Enforce allowed amount boundary
+                $loanAmount = $allowedAmount;
+                $loanData['LoanAmount'] = $allowedAmount;
+                $customerData['Amount'] = $allowedAmount;
+            }
+            if (!isset($loanData['BalanceLoanAmount']) || $loanData['BalanceLoanAmount'] === '' || $loanData['BalanceLoanAmount'] === null) {
+                $loanData['BalanceLoanAmount'] = $loanAmount;
+            }
+
+            // Appraiser charge from master (collected at loan creation)
+            $appraiserCharge = $this->getAppraiserCharge($loanAmount);
+            $loanData['AppraiserCharge'] = $appraiserCharge;
+
+            // Processing fee percentage and fee from master (unpaid until final release)
+            $pfPct = $this->getLatestProcessingFeePercentage();
+            $processingFee = round(($loanAmount * $pfPct) / 100.0, 2);
+            $loanData['ProcessingFeePercentage'] = $pfPct;
+            $loanData['ProcessingFee'] = $processingFee;
 
             // 1. Insert or update customer
             if ($this->isDNumberExists($dNumber)) {
@@ -531,24 +705,25 @@ class JewelLoanModel {
             }
 
             // 4. Automatically create initial disbursement receipt linked by LoanDetailId
+            // Policy: Appraiser charge is collected at loan creation.
+            // Policy: Processing fee is collected ONLY at final settlement/release (0.00 here).
             $receiptNo = $this->getNextReceiptNumber();
             $sqlReceipt = "INSERT INTO ast_jewel_loan_receipt (
                 ReceiptNo, ReceiptDate, LoanDetailId, DNumber,
-                TransactionType, PaymentMethod, PrincipalPaid, InterestPaid,
+                TransactionType, PaymentMethod, PrincipalPaid, InterestPaid, DefaultInterestPaid,
                 AppraiserCharge, ProcessingFee, TotalPaid, BalanceLoanAmount,
                 ChequeNumber, ChequeFromBank, ChequeToBank,
                 RtgsNumber, RtgsFromBank, RtgsToBank,
                 UpiType, UpiTransactionNumber, UpiToBank,
                 Remarks, CreatedBy
-            ) VALUES (?, ?, ?, ?, 'LOAN_CREATION', ?, ?, 0.00, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ) VALUES (?, ?, ?, ?, 'LOAN_CREATION', ?, ?, 0.00, 0.00, ?, 0.00, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stR = $this->conn->prepare($sqlReceipt);
             if ($stR) {
                 $rDate = $loanData['LoanDate'];
                 $rPayMethod = $loanData['PaymentMethod'];
                 $rPrin = (float)$loanData['LoanAmount'];
                 $rAppr = (float)$loanData['AppraiserCharge'];
-                $rPF = (float)$loanData['ProcessingFee'];
-                $rTot = (float)$loanData['LoanAmount'];
+                $rTot = round($rPrin + $rAppr, 2);
                 $rBal = (float)$loanData['BalanceLoanAmount'];
                 $rChqNo = $loanData['ChequeNumber'] ?? '';
                 $rChqFrom = $loanData['ChequeFromBank'] ?? '';
@@ -563,7 +738,7 @@ class JewelLoanModel {
                 $rUser = (int)($customerData['CreatedBy'] ?? 1);
 
                 $stR->bind_param(
-                    "ssissdddddssssssssssi",
+                    "ssissddddssssssssssi",
                     $receiptNo,
                     $rDate,
                     $loanDetailId,
@@ -571,7 +746,6 @@ class JewelLoanModel {
                     $rPayMethod,
                     $rPrin,
                     $rAppr,
-                    $rPF,
                     $rTot,
                     $rBal,
                     $rChqNo,
@@ -607,14 +781,13 @@ class JewelLoanModel {
     }
 
     /**
-     * Update existing jewel loan record (Customer + Loan Details + Gold Items) atomically
+     * Update existing jewel loan record atomically
      */
     public function updateJewelLoan($loanDetailId, $customerData, $loanData = null, $itemsData = []) {
         $this->conn->begin_transaction();
         try {
             $dNumber = $customerData['DNumber'];
 
-            // 1. Update customer record
             $sqlCust = "UPDATE ast_jewel_loan_customer SET
                 Name = ?, FathersName = ?, Job = ?, DateOfBirth = ?, Address = ?,
                 MobileNumber = ?, Pincode = ?, NomineeName = ?, NomineeRelation = ?,
@@ -658,7 +831,6 @@ class JewelLoanModel {
             }
             $stCust->close();
 
-            // 2. If loan details provided and loanDetailId > 0, update loan details
             if (!empty($loanData) && (int)$loanDetailId > 0) {
                 $sqlLoan = "UPDATE ast_jewel_loan_details SET
                     LoanDate = ?, InterestRate = ?, TotalNetWeight = ?, AmountPerGram = ?,
@@ -707,7 +879,6 @@ class JewelLoanModel {
                 }
                 $stLoan->close();
 
-                // 3. Update gold items if provided
                 if (!empty($itemsData)) {
                     $delStmt = $this->conn->prepare("DELETE FROM ast_jewel_loan_items WHERE LoanDetailId = ?");
                     if ($delStmt) {
@@ -750,7 +921,6 @@ class JewelLoanModel {
 
     /**
      * Retrieve complete saved jewel loan record for PDF generation or printing
-     * Primary lookup is by LoanDetailId (auto-increment id), fallback by DNumber.
      */
     public function getReceiptsByLoanId($loanDetailId) {
         $receipts = [];
@@ -803,7 +973,6 @@ class JewelLoanModel {
                 $st->close();
             }
 
-            // Fallback: search by join if DNumber format varied
             if (!$loanDetail) {
                 $likeD = '%' . $rawD . '%';
                 $sql2 = "SELECT d.* FROM ast_jewel_loan_details d
@@ -831,7 +1000,6 @@ class JewelLoanModel {
         $dNumber = $loanDetail['DNumber'];
         $customer = $this->getCustomerByDNumber($dNumber);
 
-        // Fetch gold items
         $items = [];
         $sqlItems = "SELECT * FROM ast_jewel_loan_items WHERE LoanDetailId = ? ORDER BY SlNo ASC";
         $stItems = $this->conn->prepare($sqlItems);
@@ -946,9 +1114,325 @@ class JewelLoanModel {
     }
 
     /**
-     * Fetch complete details of a loan including receipt history
+     * Get the date up to which interest has been paid for a given loan
      */
-    public function getLoanReceiptSummary($loanDetailId = 0, $dNumber = '') {
+    public function getLoanPaidThroughDate($loanDetailId, $fallbackLoanDate) {
+        $ldId = (int)$loanDetailId;
+        $paidThrough = $fallbackLoanDate;
+
+        $sql = "SELECT InterestPeriodTo, ReceiptDate FROM ast_jewel_loan_receipt 
+                WHERE LoanDetailId = ? AND TransactionType = 'INTEREST_PAYMENT' AND InterestPaid > 0
+                ORDER BY ReceiptId ASC";
+        $st = $this->conn->prepare($sql);
+        if ($st) {
+            $st->bind_param("i", $ldId);
+            $st->execute();
+            $res = $st->get_result();
+            if ($res) {
+                while ($r = $res->fetch_assoc()) {
+                    $to = !empty($r['InterestPeriodTo']) ? $r['InterestPeriodTo'] : $r['ReceiptDate'];
+                    if (!empty($to) && $to !== '0000-00-00') {
+                        if ($to > $paidThrough) {
+                            $paidThrough = $to;
+                        }
+                    }
+                }
+            }
+            $st->close();
+        }
+        return $paidThrough;
+    }
+
+    /**
+     * Shared interest calculation engine for Jewel Loan
+     * Implements Scenario 1, Scenario 2 (overdue range rate escalation), Scenario 3 (long-term default),
+     * admin waivers, and minimum 15-day release rule.
+     */
+    public function calculateLoanInterestSchedule($loanDetailId, $asOfDateStr = null, $targetPayThroughDate = null) {
+        $loanDetailId = (int)$loanDetailId;
+        $asOfDate = !empty($asOfDateStr) ? new DateTime($asOfDateStr) : new DateTime();
+        $asOfDateStr = $asOfDate->format('Y-m-d');
+
+        $sql = "SELECT * FROM ast_jewel_loan_details WHERE LoanDetailId = ? LIMIT 1";
+        $st = $this->conn->prepare($sql);
+        if (!$st) return null;
+        $st->bind_param("i", $loanDetailId);
+        $st->execute();
+        $res = $st->get_result();
+        $loan = $res ? $res->fetch_assoc() : null;
+        $st->close();
+        if (!$loan) return null;
+
+        $dNumber = $loan['DNumber'];
+        $loanDateStr = $loan['LoanDate'];
+        $loanDate = new DateTime($loanDateStr);
+        $originalPrincipal = (float)$loan['LoanAmount'];
+        $baseRate = (float)$loan['InterestRate'];
+
+        $isReleased = false;
+        $chkSql = "SELECT 1 FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? AND TransactionType = 'JEWEL_RELEASE' LIMIT 1";
+        $chkSt = $this->conn->prepare($chkSql);
+        if ($chkSt) {
+            $chkSt->bind_param("i", $loanDetailId);
+            $chkSt->execute();
+            $chkRes = $chkSt->get_result();
+            if ($chkRes && $chkRes->num_rows > 0) {
+                $isReleased = true;
+            }
+            $chkSt->close();
+        }
+
+        $currentPrincipal = $isReleased ? 0.00 : (float)($loan['BalanceLoanAmount'] ?? $originalPrincipal);
+        if ($currentPrincipal <= 0.00 && !$isReleased) {
+            $currentPrincipal = $originalPrincipal;
+        }
+
+        $paidThroughDateStr = $this->getLoanPaidThroughDate($loanDetailId, $loanDateStr);
+        $paidThroughDate = new DateTime($paidThroughDateStr);
+
+        // Find next scheduled installment due date
+        $pendingInstallmentNum = 1;
+        $installmentDueDateStr = '';
+        for ($k = 1; $k <= 120; $k++) {
+            $dueK = $this->calculateMonthlyInstallmentDueDate($loanDateStr, $k);
+            if ($paidThroughDateStr < $dueK) {
+                $pendingInstallmentNum = $k;
+                $installmentDueDateStr = $dueK;
+                break;
+            }
+        }
+        if (empty($installmentDueDateStr)) {
+            $installmentDueDateStr = $this->calculateMonthlyInstallmentDueDate($loanDateStr, 1);
+        }
+        $installmentDueDate = new DateTime($installmentDueDateStr);
+
+        // Scenario 3: Check long-term default (> 6 months overdue without payment)
+        $overdueFromLoanDateDays = $paidThroughDate->diff($asOfDate)->days;
+        $isLongTermDefault = ($asOfDate > $installmentDueDate && $overdueFromLoanDateDays > 180);
+        $applicableBaseRate = $baseRate;
+        if ($isLongTermDefault && $applicableBaseRate < 30.0) {
+            $applicableBaseRate = 30.00;
+        }
+
+        // Check for admin waiver in ast_jewel_loan_rate_history
+        $waiverRow = null;
+        $wSql = "SELECT * FROM ast_jewel_loan_rate_history WHERE LoanDetailId = ? AND IsWaived = 1 ORDER BY HistoryId DESC LIMIT 1";
+        $wSt = $this->conn->prepare($wSql);
+        if ($wSt) {
+            $wSt->bind_param("i", $loanDetailId);
+            $wSt->execute();
+            $wRes = $wSt->get_result();
+            if ($wRes && $wRow = $wRes->fetch_assoc()) {
+                $waiverRow = $wRow;
+            }
+            $wSt->close();
+        }
+
+        $overdueBreakdown = [
+            'isOverdue' => false,
+            'periodFrom' => null,
+            'periodTo' => null,
+            'days' => 0,
+            'rate' => $baseRate,
+            'interest' => 0.00,
+            'isEscalated' => false,
+            'reason' => ''
+        ];
+
+        $targetEndDateStr = !empty($targetPayThroughDate) ? $targetPayThroughDate : $asOfDateStr;
+        $targetEndDate = new DateTime($targetEndDateStr);
+        if ($targetEndDate < $paidThroughDate) {
+            $targetEndDate = clone $paidThroughDate;
+            $targetEndDateStr = $paidThroughDateStr;
+        }
+
+        // Scenario 2: Overdue early partial installment or missed installment deadline
+        if ($asOfDate > $installmentDueDate && $paidThroughDate < $installmentDueDate) {
+            $overdueFrom = clone $paidThroughDate;
+            $overdueTo = clone $installmentDueDate;
+            $overdueDays = $overdueFrom->diff($overdueTo)->days;
+
+            if ($overdueDays > 0) {
+                $overdueRate = $this->getNextSlabRate($baseRate);
+                $reason = "Scenario 2: Overdue period from {$overdueFrom->format('d/m/Y')} to {$overdueTo->format('d/m/Y')} missed scheduled deadline ({$installmentDueDate->format('d/m/Y')}). Rate escalated from {$baseRate}% to {$overdueRate}%.";
+
+                $waivedAmount = 0.00;
+                if ($waiverRow && !empty($waiverRow['NewRate'])) {
+                    $overdueRate = (float)$waiverRow['NewRate'];
+                    $reason .= " (Admin waiver applied: rate {$overdueRate}%)";
+                }
+                if ($waiverRow && (float)$waiverRow['WaivedAmount'] > 0) {
+                    $waivedAmount = (float)$waiverRow['WaivedAmount'];
+                }
+
+                $overdueInterest = $this->calculateDailyInterest($currentPrincipal, $overdueRate, $overdueDays);
+                $overdueInterest = max(0.00, round($overdueInterest - $waivedAmount, 2));
+
+                $overdueBreakdown = [
+                    'isOverdue' => true,
+                    'periodFrom' => $overdueFrom->format('Y-m-d'),
+                    'periodTo' => $overdueTo->format('Y-m-d'),
+                    'days' => $overdueDays,
+                    'rate' => $overdueRate,
+                    'interest' => $overdueInterest,
+                    'isEscalated' => true,
+                    'reason' => $reason
+                ];
+            }
+
+            // Subsequent regular period from installmentDueDate to targetEndDate
+            if ($targetEndDate > $installmentDueDate) {
+                $regFrom = clone $installmentDueDate;
+                $regTo = clone $targetEndDate;
+                $regDays = $regFrom->diff($regTo)->days;
+                $regInterest = $this->calculateDailyInterest($currentPrincipal, $applicableBaseRate, $regDays);
+
+                $regularBreakdown = [
+                    'periodFrom' => $regFrom->format('Y-m-d'),
+                    'periodTo' => $regTo->format('Y-m-d'),
+                    'days' => $regDays,
+                    'rate' => $applicableBaseRate,
+                    'interest' => $regInterest
+                ];
+            } else {
+                $regularBreakdown = [
+                    'periodFrom' => $installmentDueDate->format('Y-m-d'),
+                    'periodTo' => $installmentDueDate->format('Y-m-d'),
+                    'days' => 0,
+                    'rate' => $applicableBaseRate,
+                    'interest' => 0.00
+                ];
+            }
+        } else {
+            // Standard / regular interest calculation
+            $regFrom = clone $paidThroughDate;
+            $regTo = clone $targetEndDate;
+            $regDays = $regFrom->diff($regTo)->days;
+            $regInterest = $this->calculateDailyInterest($currentPrincipal, $applicableBaseRate, $regDays);
+
+            $regularBreakdown = [
+                'periodFrom' => $regFrom->format('Y-m-d'),
+                'periodTo' => $regTo->format('Y-m-d'),
+                'days' => $regDays,
+                'rate' => $applicableBaseRate,
+                'interest' => $regInterest
+            ];
+        }
+
+        $totalInterestDue = round($overdueBreakdown['interest'] + $regularBreakdown['interest'], 2);
+
+        $processingFeePercent = $this->getLatestProcessingFeePercentage();
+        $processingFee = round(($originalPrincipal * $processingFeePercent) / 100.0, 2);
+        $processingFeePaid = $this->isProcessingFeePaid($loanDetailId);
+
+        $closureProcessingFee = $processingFeePaid ? 0.00 : $processingFee;
+        $totalClosureAmount = round($currentPrincipal + $totalInterestDue + $closureProcessingFee, 2);
+
+        return [
+            'loanDetailId' => $loanDetailId,
+            'dNumber' => $dNumber,
+            'loanDate' => $loanDateStr,
+            'originalPrincipal' => $originalPrincipal,
+            'currentPrincipal' => $currentPrincipal,
+            'baseRate' => $baseRate,
+            'applicableBaseRate' => $applicableBaseRate,
+            'paidThroughDate' => $paidThroughDateStr,
+            'nextScheduledDueDate' => $installmentDueDateStr,
+            'asOfDate' => $asOfDateStr,
+            'targetEndDate' => $targetEndDateStr,
+            'overdueBreakdown' => $overdueBreakdown,
+            'regularBreakdown' => $regularBreakdown,
+            'totalInterestDue' => $totalInterestDue,
+            'processingFee' => $processingFee,
+            'processingFeePercent' => $processingFeePercent,
+            'processingFeePaid' => $processingFeePaid,
+            'appraiserCharge' => 0.00,
+            'totalAmountDue' => round($currentPrincipal + $totalInterestDue, 2),
+            'totalClosureAmount' => $totalClosureAmount,
+            'isReleased' => $isReleased
+        ];
+    }
+
+    /**
+     * Allocate payment: interest due is settled first, and any excess strictly reduces principal balance.
+     * Excess payment is NEVER diverted to processing fee or appraiser charge.
+     */
+    public function allocatePayment($loanDetailId, $amountPaid, $asOfDateStr = null, $targetPayThroughDate = null) {
+        $amountPaid = (float)$amountPaid;
+        $schedule = $this->calculateLoanInterestSchedule($loanDetailId, $asOfDateStr, $targetPayThroughDate);
+        if (!$schedule) return null;
+
+        $currentPrincipal = (float)$schedule['currentPrincipal'];
+        $totalInterestDue = (float)$schedule['totalInterestDue'];
+        $overdueInterest = (float)$schedule['overdueBreakdown']['interest'];
+        $regularInterest = (float)$schedule['regularBreakdown']['interest'];
+
+        $overdueInterestPaid = 0.00;
+        $regularInterestPaid = 0.00;
+        $totalInterestPaid = 0.00;
+        $principalPaid = 0.00;
+        $excessPayment = 0.00;
+
+        if ($amountPaid >= $totalInterestDue) {
+            $overdueInterestPaid = $overdueInterest;
+            $regularInterestPaid = $regularInterest;
+            $totalInterestPaid = $totalInterestDue;
+            $excessPayment = round($amountPaid - $totalInterestDue, 2);
+            $principalPaid = min($currentPrincipal, $excessPayment);
+            $newPrincipalBalance = max(0.00, round($currentPrincipal - $principalPaid, 2));
+        } else {
+            $rem = $amountPaid;
+            $overdueInterestPaid = min($overdueInterest, $rem);
+            $rem = max(0.00, $rem - $overdueInterestPaid);
+            $regularInterestPaid = min($regularInterest, $rem);
+            $totalInterestPaid = round($overdueInterestPaid + $regularInterestPaid, 2);
+            $principalPaid = 0.00;
+            $newPrincipalBalance = $currentPrincipal;
+        }
+
+        return [
+            'schedule' => $schedule,
+            'amountPaid' => $amountPaid,
+            'overdueInterestPaid' => $overdueInterestPaid,
+            'regularInterestPaid' => $regularInterestPaid,
+            'totalInterestPaid' => $totalInterestPaid,
+            'principalPaid' => $principalPaid,
+            'excessPayment' => $excessPayment,
+            'previousPrincipalBalance' => $currentPrincipal,
+            'newPrincipalBalance' => $newPrincipalBalance
+        ];
+    }
+
+    /**
+     * Record an admin waiver for escalated rate or interest in ast_jewel_loan_rate_history
+     */
+    public function recordRateHistoryWaiver($loanDetailId, $waivedAmount, $waivedRate, $waivedBy, $reason, $remarks = '') {
+        $loanDetailId = (int)$loanDetailId;
+        $waivedAmount = (float)$waivedAmount;
+        $waivedRate = (float)$waivedRate;
+        $waivedBy = (int)$waivedBy;
+
+        $loan = $this->getLoanRecordForPdf($loanDetailId);
+        $dNumber = $loan['loan']['DNumber'] ?? '';
+        $prevRate = (float)($loan['loan']['InterestRate'] ?? 18.0);
+
+        $sql = "INSERT INTO ast_jewel_loan_rate_history 
+                (LoanDetailId, DNumber, PreviousRate, NewRate, EffectiveDate, Reason, CalculatedInterest, IsWaived, WaivedAmount, WaivedBy, WaiverRemarks)
+                VALUES (?, ?, ?, ?, CURDATE(), ?, 0.00, 1, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("isddsdis", $loanDetailId, $dNumber, $prevRate, $waivedRate, $reason, $waivedAmount, $waivedBy, $remarks);
+            $ok = $stmt->execute();
+            $stmt->close();
+            return $ok;
+        }
+        return false;
+    }
+
+    /**
+     * Fetch complete details of a loan including receipt history and unified schedule
+     */
+    public function getLoanReceiptSummary($loanDetailId = 0, $dNumber = '', $asOfDateStr = null) {
         $loanRecord = $this->getLoanRecordForPdf($loanDetailId, $dNumber);
         if (!$loanRecord || empty($loanRecord['loan'])) {
             return null;
@@ -956,7 +1440,6 @@ class JewelLoanModel {
 
         $ldId = (int)$loanRecord['loan']['LoanDetailId'];
 
-        // Fetch all receipt history
         $receipts = [];
         $sqlR = "SELECT * FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? ORDER BY ReceiptId DESC";
         $stR = $this->conn->prepare($sqlR);
@@ -972,75 +1455,36 @@ class JewelLoanModel {
             $stR->close();
         }
 
-        // Calculate interest accrued from last receipt date or loan date to today
+        $schedule = $this->calculateLoanInterestSchedule($ldId, $asOfDateStr);
+
         $loan = $loanRecord['loan'];
         $loanDateStr = $loan['LoanDate'];
-        $lastDateStr = $loanDateStr;
-
-        $today = new DateTime();
-
-        // Check if there was a previous interest payment
-        $interestAlreadyPaidToDate = false;
-        if (!empty($receipts)) {
-            foreach ($receipts as $r) {
-                if ($r['TransactionType'] === 'INTEREST_PAYMENT' && ((float)$r['InterestPaid'] > 0 || !empty($r['InterestPeriodTo']))) {
-                    $lastDateStr = !empty($r['InterestPeriodTo']) ? $r['InterestPeriodTo'] : $r['ReceiptDate'];
-                    $lastPeriodDate = new DateTime($lastDateStr);
-                    if ($lastPeriodDate->format('Y-m-d') >= $today->format('Y-m-d')) {
-                        $interestAlreadyPaidToDate = true;
-                    }
-                    break;
-                }
-            }
-        }
-
+        $today = !empty($asOfDateStr) ? new DateTime($asOfDateStr) : new DateTime();
         $originalLoanDate = new DateTime($loanDateStr);
-        $calcStartDate    = new DateTime($lastDateStr);
 
-        // 1. Contractual Closing Due Date: 12 calendar months (or 1 year) from original pledge date
-        $closingDueDate = clone $originalLoanDate;
-        $origDay = (int)$originalLoanDate->format('d');
-        $closingDueDate->modify('+1 year');
-        // Handle leap year & month-end normalization (e.g. Feb 29 -> Feb 28 on non-leap year)
-        if ((int)$closingDueDate->format('d') !== $origDay) {
-            $closingDueDate->modify('last day of previous month');
-        }
-        $closingDueDateStr = $closingDueDate->format('Y-m-d');
-        $dueDateStr = $closingDueDateStr; // Backwards compatible key
-
-        // 2. Next Monthly Interest Due Date (monthly EMI cycle: e.g. 15-03-2026 -> 15-04-2026):
-        $monthlyDueDateStr = $this->calculateNextMonthlyDueDate($loanDateStr, (int)($loan['LoanDetailId'] ?? 0));
-        if (empty($monthlyDueDateStr)) {
-            $mDue = clone $calcStartDate;
-            $mDue->modify('+1 month');
-            if ((int)$mDue->format('d') !== $origDay) {
-                $mDue->modify('last day of previous month');
-            }
-            $monthlyDueDateStr = $mDue->format('Y-m-d');
-        }
-
-        // Total Days elapsed since loan creation
         $totDaysElapsed = $originalLoanDate->diff($today)->days;
         if ($today < $originalLoanDate) {
             $totDaysElapsed = 0;
         }
 
-        // Days for interest calculation since last payment/creation
-        $interestDays = $calcStartDate->diff($today)->days;
-        if ($today < $calcStartDate) {
-            $interestDays = 0;
+        $closingDueDate = clone $originalLoanDate;
+        $origDay = (int)$originalLoanDate->format('d');
+        $closingDueDate->modify('+1 year');
+        if ((int)$closingDueDate->format('d') !== $origDay) {
+            $closingDueDate->modify('last day of previous month');
         }
+        $closingDueDateStr = $closingDueDate->format('Y-m-d');
+        $dueDateStr = $closingDueDateStr;
 
-        // Grace period days (standard 7 days after due date)
-        $gracePeriodDays = 0;
+        $monthlyDueDateStr = $schedule['nextScheduledDueDate'] ?? $this->calculateNextMonthlyDueDate($loanDateStr, $ldId);
+
         $overdueDays = 0;
+        $gracePeriodDays = 0;
         if ($today > $closingDueDate) {
             $overdueDays = $closingDueDate->diff($today)->days;
             $gracePeriodDays = 7;
         }
 
-        // Clear, meaningful Days Information replacing the ambiguous label:
-        // E.g. "9 Days Elapsed (Active / Regular)" or "380 Days (15 Days Overdue)"
         if ($overdueDays > 0) {
             $daysStatusLabel = "{$overdueDays} Days Overdue";
             $totDaysDisplay = "{$totDaysElapsed} Days ({$overdueDays} Days Overdue)";
@@ -1050,68 +1494,6 @@ class JewelLoanModel {
             $totDaysDisplay = "{$totDaysElapsed} Days ({$daysLeft} Days Remaining)";
         }
 
-        $hasReleaseReceipt = false;
-        if (!empty($receipts)) {
-            foreach ($receipts as $r) {
-                if ($r['TransactionType'] === 'JEWEL_RELEASE') {
-                    $hasReleaseReceipt = true;
-                    break;
-                }
-            }
-        }
-        if ($hasReleaseReceipt) {
-            $principalBalance = 0.00;
-        } else {
-            $principalBalance = isset($loan['BalanceLoanAmount']) && $loan['BalanceLoanAmount'] !== null
-                ? (float)$loan['BalanceLoanAmount']
-                : (float)($loan['LoanAmount'] ?? 0);
-            if ($principalBalance <= 0 && empty($receipts)) {
-                $principalBalance = (float)($loan['LoanAmount'] ?? 0);
-            }
-        }
-        $rate = (float)($loan['InterestRate'] ?? 0);
-
-        // Interest calculation rules:
-        if ($interestAlreadyPaidToDate) {
-            $effectiveDays = 0;
-            $months = 0;
-            $calculatedInterest = 0.00;
-        } else {
-            // Policy: minimum 15 days interest. Released within 15 days -> 6% interest rate.
-            $effectiveDays = $interestDays;
-            $isUnder15Days = ($effectiveDays <= 15 && $totDaysElapsed <= 15);
-            if ($effectiveDays < 15) {
-                $effectiveDays = 15;
-            }
-
-            // Daily interest: (Principal * Rate / 100) / 365 * days
-            // Or Monthly interest: (Principal * Rate / 100 / 12) * (days / 30)
-            // Standard Nidhi / Banking monthly convention:
-            $months = round($effectiveDays / 30.4167, 2);
-            if ($months < 0.5 && $effectiveDays >= 15) {
-                $months = 0.5;
-            }
-
-            if ($isUnder15Days && $effectiveDays <= 15) {
-                // 6% annual rate for quick release within 15 days
-                $calculatedInterest = round(($principalBalance * (6.0 / 100) / 365) * ($effectiveDays > 0 ? $effectiveDays : 15), 2);
-            } else {
-                // Standard rate: (Principal * (Rate / 100) / 12) * months
-                $calculatedInterest = round(($principalBalance * ($rate / 100) / 12) * ($months > 0 ? $months : 1), 2);
-            }
-        }
-
-        // Default interest: 2% p.a. default interest on overdue principal after due date + grace period
-        $defaultInterest = 0.00;
-        if ($overdueDays > $gracePeriodDays) {
-            $defDays = $overdueDays - $gracePeriodDays;
-            $defaultInterest = round(($principalBalance * (2.0 / 100) / 365) * $defDays, 2);
-        }
-
-        // Total amount due = Principal Balance + Interest + Default Interest
-        $totalAmountDue = round($principalBalance + $calculatedInterest + $defaultInterest, 2);
-
-        // Fetch customer personal details enriched from ast_members if available
         $customer = $loanRecord['customer'];
         $memberSql = "SELECT m.*, d.DistrictName FROM ast_members m 
                       LEFT JOIN ast_district d ON d.DID = m.District 
@@ -1133,35 +1515,46 @@ class JewelLoanModel {
             $mStmt->close();
         }
 
+        $principalBalance = $schedule['currentPrincipal'];
+        $accruedInterest = $schedule['totalInterestDue'];
+        $totalAmountDue = $schedule['totalAmountDue'];
+        $totalClosureAmount = $schedule['totalClosureAmount'];
+
         return [
             'loan' => $loanRecord['loan'],
             'customer' => $customer,
             'items' => $loanRecord['items'],
             'receipts' => $receipts,
+            'schedule' => $schedule,
             'calculation' => [
                 'principalBalance' => $principalBalance,
-                'interestRate' => $rate,
+                'interestRate' => $schedule['applicableBaseRate'],
                 'dueDate' => $dueDateStr,
                 'closingDueDate' => $closingDueDateStr,
                 'monthlyDueDate' => $monthlyDueDateStr,
-                'lastCalculatedDate' => $lastDateStr,
-                'calculatedDays' => $interestDays,
-                'calculatedMonths' => $months > 0 ? $months : 1,
+                'lastCalculatedDate' => $schedule['paidThroughDate'],
+                'calculatedDays' => $schedule['regularBreakdown']['days'] + $schedule['overdueBreakdown']['days'],
+                'calculatedMonths' => round(($schedule['regularBreakdown']['days'] + $schedule['overdueBreakdown']['days']) / 30.4167, 2),
                 'totDaysElapsed' => $totDaysElapsed,
                 'totDaysDisplay' => $totDaysDisplay,
                 'daysStatusLabel' => $daysStatusLabel,
                 'gracePeriodDays' => $gracePeriodDays,
                 'overdueDays' => $overdueDays,
-                'accruedInterest' => $calculatedInterest,
-                'defaultInterest' => $defaultInterest,
+                'accruedInterest' => $accruedInterest,
+                'overdueInterest' => $schedule['overdueBreakdown']['interest'],
+                'regularInterest' => $schedule['regularBreakdown']['interest'],
+                'defaultInterest' => 0.00,
+                'processingFee' => $schedule['processingFee'],
+                'processingFeePaid' => $schedule['processingFeePaid'],
+                'appraiserCharge' => 0.00,
                 'totalAmountDue' => $totalAmountDue,
-                'totalClosureAmount' => $totalAmountDue
+                'totalClosureAmount' => $totalClosureAmount
             ]
         ];
     }
 
     /**
-     * Public standalone interest and due date calculation for loans
+     * Standalone interest calculation for backwards compatibility
      */
     public function calculateInterestDue($loanDateStr, $principalBalance, $rate, $asOfDateStr = null, $lastPaymentDateStr = null) {
         $originalLoanDate = new DateTime($loanDateStr);
@@ -1169,100 +1562,41 @@ class JewelLoanModel {
         $calcStartDate    = new DateTime($lastDateStr);
         $today            = !empty($asOfDateStr) ? new DateTime($asOfDateStr) : new DateTime();
 
-        // 1. Contractual Closing Due Date: 12 calendar months (or 1 year) from original pledge date
+        $interestDays = $calcStartDate->diff($today)->days;
+        if ($today < $calcStartDate) {
+            $interestDays = 0;
+        }
+
+        $calculatedInterest = $this->calculateDailyInterest($principalBalance, $rate, $interestDays);
+
         $closingDueDate = clone $originalLoanDate;
         $origDay = (int)$originalLoanDate->format('d');
         $closingDueDate->modify('+1 year');
         if ((int)$closingDueDate->format('d') !== $origDay) {
             $closingDueDate->modify('last day of previous month');
         }
-        $closingDueDateStr = $closingDueDate->format('Y-m-d');
 
-        // 2. Next Monthly Interest Due Date (monthly EMI cycle: e.g. 15-03-2026 -> 15-04-2026):
-        $monthlyDueDateStr = $this->calculateNextMonthlyDueDate($loanDateStr, (int)($loan['LoanDetailId'] ?? 0));
-        if (empty($monthlyDueDateStr)) {
-            $mDue = clone $calcStartDate;
-            $mDue->modify('+1 month');
-            if ((int)$mDue->format('d') !== $origDay) {
-                $mDue->modify('last day of previous month');
-            }
-            $monthlyDueDateStr = $mDue->format('Y-m-d');
-        }
-
-        // Total Days elapsed
-        $totDaysElapsed = $originalLoanDate->diff($today)->days;
-        if ($today < $originalLoanDate) {
-            $totDaysElapsed = 0;
-        }
-
-        $interestDays = $calcStartDate->diff($today)->days;
-        if ($today < $calcStartDate) {
-            $interestDays = 0;
-        }
-
-        $gracePeriodDays = 0;
-        $overdueDays = 0;
-        if ($today > $closingDueDate) {
-            $overdueDays = $closingDueDate->diff($today)->days;
-            $gracePeriodDays = 7;
-        }
-
-        if ($overdueDays > 0) {
-            $daysStatusLabel = "{$overdueDays} Days Overdue";
-            $totDaysDisplay = "{$totDaysElapsed} Days ({$overdueDays} Days Overdue)";
-        } else {
-            $daysLeft = $today->diff($closingDueDate)->days;
-            $daysStatusLabel = "Active ({$daysLeft} Days to Maturity)";
-            $totDaysDisplay = "{$totDaysElapsed} Days ({$daysLeft} Days Remaining)";
-        }
-
-        $effectiveDays = $interestDays;
-        $isUnder15Days = ($effectiveDays <= 15 && $totDaysElapsed <= 15);
-        if ($effectiveDays < 15 && $effectiveDays > 0) {
-            $effectiveDays = 15;
-        }
-
-        $months = round($effectiveDays / 30.4167, 2);
-        if ($months < 0.5 && $effectiveDays >= 15) {
-            $months = 0.5;
-        }
-
-        if ($isUnder15Days && $effectiveDays <= 15) {
-            $calculatedInterest = round(($principalBalance * (6.0 / 100) / 365) * ($effectiveDays > 0 ? $effectiveDays : 15), 2);
-        } else {
-            $calculatedInterest = round(($principalBalance * ($rate / 100) / 12) * ($months > 0 ? $months : 1), 2);
-        }
-
-        $defaultInterest = 0.00;
-        if ($overdueDays > $gracePeriodDays) {
-            $defDays = $overdueDays - $gracePeriodDays;
-            $defaultInterest = round(($principalBalance * (2.0 / 100) / 365) * $defDays, 2);
-        }
-
-        $totalAmountDue = round($principalBalance + $calculatedInterest + $defaultInterest, 2);
+        $monthlyDueDateStr = $this->calculateMonthlyInstallmentDueDate($loanDateStr, 1);
 
         return [
             'principalBalance' => $principalBalance,
             'interestRate' => $rate,
-            'closingDueDate' => $closingDueDateStr,
+            'closingDueDate' => $closingDueDate->format('Y-m-d'),
             'monthlyDueDate' => $monthlyDueDateStr,
             'calculatedDays' => $interestDays,
-            'calculatedMonths' => $months > 0 ? $months : 1,
-            'totDaysElapsed' => $totDaysElapsed,
-            'totDaysDisplay' => $totDaysDisplay,
-            'daysStatusLabel' => $daysStatusLabel,
-            'gracePeriodDays' => $gracePeriodDays,
-            'overdueDays' => $overdueDays,
-            'totalDays' => $totDaysElapsed,
+            'calculatedMonths' => round($interestDays / 30.4167, 2),
+            'totDaysElapsed' => $originalLoanDate->diff($today)->days,
             'accruedInterest' => $calculatedInterest,
-            'defaultInterest' => $defaultInterest,
-            'totalAmountDue' => $totalAmountDue
+            'defaultInterest' => 0.00,
+            'totalAmountDue' => round($principalBalance + $calculatedInterest, 2)
         ];
     }
 
     /**
      * Save a new Receipt transaction (LOAN_CREATION, INTEREST_PAYMENT, JEWEL_RELEASE)
-     * Primary linkage to loan is LoanDetailId (internal auto-increment primary key).
+     * Handles payment allocation: excess paid reduces BalanceLoanAmount in ast_jewel_loan_details.
+     * Records RateApplied, OverdueInterestRate, OverdueInterestPaid, OverduePeriodFrom, OverduePeriodTo, BreakdownJson.
+     * Logs rate escalation audit history into ast_jewel_loan_rate_history.
      */
     public function saveReceipt($receiptData) {
         $this->conn->begin_transaction();
@@ -1277,8 +1611,9 @@ class JewelLoanModel {
                 ChequeNumber, ChequeFromBank, ChequeToBank,
                 RtgsNumber, RtgsFromBank, RtgsToBank,
                 UpiType, UpiTransactionNumber, UpiToBank,
-                Remarks, CreatedBy
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                Remarks, CreatedBy,
+                RateApplied, OverdueInterestRate, OverdueInterestPaid, OverduePeriodFrom, OverduePeriodTo, BreakdownJson
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt = $this->conn->prepare($sql);
             if (!$stmt) {
@@ -1312,8 +1647,15 @@ class JewelLoanModel {
             $remarks = $receiptData['Remarks'] ?? '';
             $createdBy = (int)($receiptData['CreatedBy'] ?? ($_SESSION['UserId'] ?? 1));
 
+            $rateApplied = isset($receiptData['RateApplied']) ? (float)$receiptData['RateApplied'] : null;
+            $overdueRate = isset($receiptData['OverdueInterestRate']) ? (float)$receiptData['OverdueInterestRate'] : null;
+            $overduePaid = isset($receiptData['OverdueInterestPaid']) ? (float)$receiptData['OverdueInterestPaid'] : 0.00;
+            $overdueFrom = !empty($receiptData['OverduePeriodFrom']) ? $receiptData['OverduePeriodFrom'] : null;
+            $overdueTo   = !empty($receiptData['OverduePeriodTo']) ? $receiptData['OverduePeriodTo'] : null;
+            $breakdownJson = !empty($receiptData['BreakdownJson']) ? $receiptData['BreakdownJson'] : null;
+
             $stmt->bind_param(
-                "ssisssddddddddssssssssssssi",
+                "ssisssddddddddssssssssssssiddsdss",
                 $receiptNo,
                 $receiptDate,
                 $loanDetailId,
@@ -1340,7 +1682,13 @@ class JewelLoanModel {
                 $upiTxn,
                 $upiTo,
                 $remarks,
-                $createdBy
+                $createdBy,
+                $rateApplied,
+                $overdueRate,
+                $overduePaid,
+                $overdueFrom,
+                $overdueTo,
+                $breakdownJson
             );
 
             if (!$stmt->execute()) {
@@ -1348,6 +1696,33 @@ class JewelLoanModel {
             }
             $receiptId = $this->conn->insert_id;
             $stmt->close();
+
+            // Log rate escalation audit trail in ast_jewel_loan_rate_history if overdue escalation applied
+            if ($overduePaid > 0 && $overdueRate !== null && $overdueRate > $rateApplied) {
+                $histSql = "INSERT INTO ast_jewel_loan_rate_history
+                    (LoanDetailId, DNumber, ReceiptId, InstallmentDueDate, OverduePeriodFrom, OverduePeriodTo, PreviousRate, NewRate, EffectiveDate, Reason, CalculatedInterest)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $hStmt = $this->conn->prepare($histSql);
+                if ($hStmt) {
+                    $reason = "Scenario 2: Overdue interest rate escalation on missed installment deadline";
+                    $hStmt->bind_param(
+                        "isisssddssd",
+                        $loanDetailId,
+                        $dNumber,
+                        $receiptId,
+                        $overdueTo,
+                        $overdueFrom,
+                        $overdueTo,
+                        $rateApplied,
+                        $overdueRate,
+                        $receiptDate,
+                        $reason,
+                        $overduePaid
+                    );
+                    $hStmt->execute();
+                    $hStmt->close();
+                }
+            }
 
             // Update balance loan amount in ast_jewel_loan_details
             if ($txnType === 'JEWEL_RELEASE') {
@@ -1415,7 +1790,6 @@ class JewelLoanModel {
             return null;
         }
 
-        // Fetch loan record & customer using internal primary key LoanDetailId
         $loanRecord = $this->getLoanRecordForPdf((int)$receipt['LoanDetailId'], $receipt['DNumber']);
 
         return [
@@ -1427,54 +1801,27 @@ class JewelLoanModel {
     }
 
     /**
-     * Get all active loan D-Numbers for receipt search autocomplete / dropdown
-     */
-    /**
-     * Get all jewel loan accounts created till a given date (inclusive)
-     * Ordered by LoanDate DESC, LoanDetailId DESC
-     */
-    /**
-     * Calculate the next monthly due date for a jewel loan
-     * Jewel loan functions on a monthly due cycle (like an EMI).
-     * e.g., Jewel loan created on 15-03-2026 -> 15-04-2026 is the next due date.
-     * When payments are made, the due date advances month by month from the last covered interest period.
+     * Calculate the next monthly due date for a jewel loan using original day anchor
      */
     public function calculateNextMonthlyDueDate($loanDateStr, $loanDetailId = 0) {
         if (empty($loanDateStr) || $loanDateStr === '0000-00-00') {
             return '';
         }
-        $origDate = new DateTime($loanDateStr);
-        $origDay = (int)$origDate->format('d');
-        
-        $baseDate = clone $origDate;
-        if ((int)$loanDetailId > 0) {
-            $ldId = (int)$loanDetailId;
-            $sql = "SELECT InterestPeriodTo, ReceiptDate FROM ast_jewel_loan_receipt 
-                    WHERE LoanDetailId = ? AND TransactionType = 'INTEREST_PAYMENT' 
-                    ORDER BY ReceiptId DESC LIMIT 1";
-            $st = $this->conn->prepare($sql);
-            if ($st) {
-                $st->bind_param("i", $ldId);
-                $st->execute();
-                $res = $st->get_result();
-                if ($res && $r = $res->fetch_assoc()) {
-                    $paidTo = !empty($r['InterestPeriodTo']) ? $r['InterestPeriodTo'] : $r['ReceiptDate'];
-                    if (!empty($paidTo) && $paidTo !== '0000-00-00') {
-                        $baseDate = new DateTime($paidTo);
-                    }
-                }
-                $st->close();
+        $paidThroughDateStr = $this->getLoanPaidThroughDate($loanDetailId, $loanDateStr);
+
+        for ($k = 1; $k <= 120; $k++) {
+            $dueK = $this->calculateMonthlyInstallmentDueDate($loanDateStr, $k);
+            if ($paidThroughDateStr < $dueK) {
+                return $dueK;
             }
         }
-        
-        $nextDueDate = clone $baseDate;
-        $nextDueDate->modify('+1 month');
-        if ((int)$nextDueDate->format('d') !== $origDay) {
-            $nextDueDate->modify('last day of previous month');
-        }
-        return $nextDueDate->format('Y-m-d');
+
+        return $this->calculateMonthlyInstallmentDueDate($loanDateStr, 1);
     }
 
+    /**
+     * Get all jewel loan accounts created till a given date (inclusive)
+     */
     public function getJewelLoansCreatedTillDate($tillDate) {
         $results = [];
         $sql = "SELECT d.LoanDetailId, d.DNumber, d.LoanDate, d.InterestRate, 
@@ -1496,14 +1843,12 @@ class JewelLoanModel {
             $res = $stmt->get_result();
             if ($res) {
                 while ($row = $res->fetch_assoc()) {
-                    // Next Monthly Due Date (monthly EMI-style cycle e.g. 15-03-2026 -> 15-04-2026)
                     $loanDateObj = new DateTime($row['LoanDate']);
                     $row['LoanDateFormatted'] = $loanDateObj->format('d/m/Y');
                     $nextDueDateStr = $this->calculateNextMonthlyDueDate($row['LoanDate'], (int)$row['LoanDetailId']);
                     $row['DueDate'] = $nextDueDateStr;
                     $row['DueDateFormatted'] = !empty($nextDueDateStr) ? date('d/m/Y', strtotime($nextDueDateStr)) : '-';
 
-                    // Check if jewel released or balance is 0.00
                     $bal = (float)$row['BalanceLoanAmount'];
                     $hasRelease = false;
                     $checkSql = "SELECT 1 FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? AND TransactionType = 'JEWEL_RELEASE' LIMIT 1";
