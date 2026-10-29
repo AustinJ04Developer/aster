@@ -126,11 +126,11 @@ class JewelLoanModelTest extends TestCase {
             $this->assertEquals(50000.00, (float)$summary['calculation']['principalBalance'], "Summary principalBalance is 50,000.00");
             // Under 15-day policy: 50000 * 6% / 365 * 15 = 123.29
             $expectedInitialInt = round((50000.00 * 0.06 / 365) * 15, 2);
-            $this->assertEquals($expectedInitialInt, (float)$summary['calculation']['accruedInterest'], "Accrued interest matches 15-day initial policy (₹{$expectedInitialInt})");
+            $this->assertEquals(0.00, (float)$summary['calculation']['accruedInterest'], "Accrued monthly interest on loan creation day is 0.00");
 
             $this->setTestName("Partial Payment & Principal Balance Reduction");
             // Customer pays ₹10,123.29: covers ₹123.29 interest + ₹10,000.00 principal reduction
-            $partialPay = 10000.00 + $expectedInitialInt;
+            $partialPay = 10000.00;
             $newBalExpected = 40000.00;
 
             $receiptData = [
@@ -140,7 +140,7 @@ class JewelLoanModelTest extends TestCase {
                 'TransactionType' => 'INTEREST_PAYMENT',
                 'PaymentMethod' => 'Cash',
                 'PrincipalPaid' => 10000.00,
-                'InterestPaid' => $expectedInitialInt,
+                'InterestPaid' => 0.00,
                 'DefaultInterestPaid' => 0.00,
                 'AppraiserCharge' => 0.00,
                 'ProcessingFee' => 0.00,

@@ -137,9 +137,9 @@ extract($data);
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Father's Name</label>
+                        <label>Father's Name / Husband's Name</label>
                         <input type="text" name="fathers_name" id="fathers_name" class="form-control"
-                               placeholder="Father's Name"
+                               placeholder="Father's Name / Husband's Name"
                                value="<?php echo htmlspecialchars($form['fathers_name'] ?? ''); ?>">
                     </div>
                 </div>
@@ -267,16 +267,7 @@ extract($data);
                     </div>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Loan Period</label>
-                        <input type="text" name="loan_period" id="loan_period" class="form-control"
-                               placeholder="e.g. 12 Months"
-                               value="<?php echo htmlspecialchars($form['loan_period'] ?? '12 Months'); ?>">
-                    </div>
-                </div>
-
-                <div class="col-md-3">
+<div class="col-md-3">
                     <div class="form-group">
                         <label>Gold Quality</label>
                         <input type="text" name="gold_quality" id="gold_quality" class="form-control"

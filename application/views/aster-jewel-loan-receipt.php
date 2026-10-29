@@ -91,54 +91,32 @@ function getIndianCurrencyWords($number) {
     <link href="css/datepicker.css" rel="stylesheet" type="text/css">
     <link href="css/data-table.css" rel="stylesheet" type="text/css">
     <style>
-        .page-header-title {
+        .section-heading {
+            font-size: 16px;
+            font-weight: bold;
             color: #337ab7;
-            font-size: 22px;
-            font-weight: 600;
-            margin-top: 15px;
-            margin-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e5e5e5;
         }
-        .mandatory-star {
-            color: #d9534f;
+        .table-gold-items {
+            margin-top: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .table-gold-items thead tr th {
+            background-color: #f5f5f5;
+            color: #333;
             font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #ddd;
         }
-        .mandatory-note {
-            color: #666;
-            font-size: 13px;
-            text-align: right;
-            margin-top: 18px;
-            margin-bottom: 5px;
-        }
-        .receipt-container-card {
-            background: #ffffff;
-            border: 1px solid #dcdcdc;
-            border-radius: 4px;
-            padding: 20px 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-        .section-divider {
-            border: 0;
-            height: 1px;
-            background-color: #31b0d5;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        .section-subheading {
-            font-size: 15px;
-            font-weight: bold;
-            color: #204d74;
-            margin-top: 5px;
-            margin-bottom: 12px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #eee;
-        }
-        .form-label-bold {
-            font-size: 13px;
-            font-weight: 600;
-            color: #333333;
-            margin-bottom: 4px;
-            display: block;
+        .table-gold-items tbody td {
+            vertical-align: middle !important;
+            border: 1px solid #ddd;
+            padding: 6px 8px;
         }
         .form-control-readonly {
             background-color: #f7f7f7 !important;
@@ -157,7 +135,7 @@ function getIndianCurrencyWords($number) {
             font-size: 14px !important;
         }
         .radio-options-group {
-            margin-top: 6px;
+            margin-top: 8px;
             margin-bottom: 12px;
         }
         .radio-options-group label {
@@ -168,65 +146,6 @@ function getIndianCurrencyWords($number) {
         }
         .radio-options-group input[type="radio"] {
             margin-right: 5px;
-        }
-        .action-button-row {
-            margin-top: 15px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .btn-receipt-new {
-            background-color: #f0ad4e;
-            border-color: #eea236;
-            color: #ffffff;
-            font-weight: bold;
-            padding: 6px 20px;
-            margin-right: 10px;
-        }
-        .btn-receipt-new:hover, .btn-receipt-new:focus {
-            background-color: #ec971f;
-            border-color: #d58512;
-            color: #ffffff;
-        }
-        .btn-receipt-save {
-            background-color: #5bc0de;
-            border-color: #46b8da;
-            color: #ffffff;
-            font-weight: bold;
-            padding: 6px 25px;
-        }
-        .btn-receipt-save:hover, .btn-receipt-save:focus {
-            background-color: #31b0d5;
-            border-color: #269abc;
-            color: #ffffff;
-        }
-        .ornaments-table {
-            width: 100%;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-collapse: collapse;
-        }
-        .ornaments-table thead tr th {
-            background-color: #e8f3f8 !important;
-            color: #0b3e5b !important;
-            text-align: center;
-            font-weight: bold;
-            padding: 8px;
-            border: 1px solid #d0e4ee;
-            font-size: 13px;
-        }
-        .ornaments-table tbody td {
-            padding: 6px 8px;
-            border: 1px solid #e3e3e3;
-            vertical-align: middle;
-        }
-        .ornaments-table tbody td input {
-            background-color: #fcfcfc !important;
-            border: 1px solid #d5d5d5;
-            border-radius: 3px;
-            height: 30px;
-            padding: 3px 8px;
-            font-size: 13px;
-            color: #333333;
         }
 
         /* Voucher View Specific Styling */
@@ -248,23 +167,23 @@ function getIndianCurrencyWords($number) {
             margin-bottom: 15px;
         }
         .voucher-org-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1a4d79;
+            font-size: 22px;
+            font-weight: 800;
+            color: #204d74;
             letter-spacing: 0.5px;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
         .voucher-org-sub {
             font-size: 13px;
-            color: #555;
-            margin-bottom: 8px;
+            color: #555555;
+            margin-bottom: 10px;
         }
         .voucher-badge {
             display: inline-block;
             background: #204d74;
             color: #ffffff;
-            font-size: 13px;
             font-weight: bold;
+            font-size: 14px;
             padding: 4px 18px;
             border-radius: 3px;
             text-transform: uppercase;
@@ -310,41 +229,14 @@ function getIndianCurrencyWords($number) {
             color: #444;
         }
 
-        /* Responsive Layout Tweaks */
-        @media (max-width: 767px) {
-            .receipt-container-card {
-                padding: 15px 12px;
-            }
-            .page-header-title {
-                font-size: 18px;
-            }
-            .mandatory-note {
-                text-align: left;
-                margin-top: 0;
-            }
-            .voucher-card {
-                padding: 15px;
-            }
-            .action-button-row button {
-                width: 100%;
-                margin-bottom: 8px;
-                margin-right: 0 !important;
-            }
-        }
-
         @media print {
-            #side-menu, .navbar, .page-header, .no-print, .breadcrumb, footer, .alert, .action-button-row {
+            #side-menu, .navbar, .page-header, .no-print, .breadcrumb, footer, .alert {
                 display: none !important;
             }
             #page-wrapper {
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
-            }
-            .receipt-container-card {
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
             }
             .voucher-card {
                 border: 1px solid #000 !important;
@@ -448,105 +340,98 @@ function getIndianCurrencyWords($number) {
                     </tr>
                     <tr>
                         <td><strong>Payment Mode:</strong></td>
+                        <td><span class="label label-default" style="font-size: 12px;"><?php echo htmlspecialchars($r['PaymentMethod']); ?></span></td>
+                        <td><strong>Transaction Type:</strong></td>
                         <td>
-                            <strong><?php echo htmlspecialchars($r['PaymentMethod']); ?></strong>
-                            <?php if ($r['PaymentMethod'] === 'Cheque' && !empty($r['ChequeNumber'])): ?>
-                                <small>(Cheque: <?php echo htmlspecialchars($r['ChequeNumber']); ?>)</small>
-                            <?php elseif ($r['PaymentMethod'] === 'RTGS' && !empty($r['RtgsNumber'])): ?>
-                                <small>(UTR: <?php echo htmlspecialchars($r['RtgsNumber']); ?>)</small>
-                            <?php elseif ($r['PaymentMethod'] === 'UPI' && !empty($r['UpiTransactionNumber'])): ?>
-                                <small>(Ref: <?php echo htmlspecialchars($r['UpiTransactionNumber']); ?>)</small>
-                            <?php endif; ?>
-                        </td>
-                        <td><strong>Transaction:</strong></td>
-                        <td>
-                            <span class="label label-<?php echo ($r['TransactionType'] === 'JEWEL_RELEASE' ? 'success' : 'info'); ?>">
+                            <span class="label label-<?php echo ($r['TransactionType'] === 'JEWEL_RELEASE') ? 'success' : 'info'; ?>">
                                 <?php echo htmlspecialchars($r['TransactionType']); ?>
                             </span>
                         </td>
                     </tr>
+                    <?php if (!empty($r['ChequeNumber'])): ?>
+                        <tr>
+                            <td><strong>Cheque Details:</strong></td>
+                            <td colspan="3">Cheque No: <?php echo htmlspecialchars($r['ChequeNumber']); ?> | Customer Bank: <?php echo htmlspecialchars($r['ChequeFromBank']); ?> | Deposited: <?php echo htmlspecialchars($r['ChequeToBank']); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($r['RTGSNumber'])): ?>
+                        <tr>
+                            <td><strong>RTGS / UTR No:</strong></td>
+                            <td colspan="3"><?php echo htmlspecialchars($r['RTGSNumber']); ?> | Bank: <?php echo htmlspecialchars($r['RTGSToBank']); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($r['UPIType'])): ?>
+                        <tr>
+                            <td><strong>UPI Reference:</strong></td>
+                            <td colspan="3">App: <?php echo htmlspecialchars($r['UPIType']); ?> | Txn ID: <?php echo htmlspecialchars($r['UPITransactionNumber']); ?> | Bank: <?php echo htmlspecialchars($r['UPIToBank']); ?></td>
+                        </tr>
+                    <?php endif; ?>
                 </table>
 
-                <div class="table-responsive">
-                    <table class="voucher-table-breakdown">
-                        <thead>
+                <!-- Financial Breakdown -->
+                <table class="voucher-table-breakdown">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">Sl</th>
+                            <th>Description</th>
+                            <th class="text-right" style="width: 30%;">Amount (INR)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td>Interest Payment Paid</td>
+                            <td class="text-right">&#8377; <?php echo number_format($interestPaid, 2); ?></td>
+                        </tr>
+                        <?php if ($defaultInterestPaid > 0): ?>
                             <tr>
-                                <th style="width: 60px; text-align: center;">Sl.No</th>
-                                <th>Particulars / Description</th>
-                                <th style="width: 180px; text-align: right;">Amount (₹)</th>
+                                <td class="text-center">2</td>
+                                <td>Default / Overdue Interest Paid</td>
+                                <td class="text-right">&#8377; <?php echo number_format($defaultInterestPaid, 2); ?></td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <?php $sl = 1; ?>
-                            <?php if ($principalPaid > 0): ?>
-                                <tr>
-                                    <td class="text-center"><?php echo $sl++; ?></td>
-                                    <td>Principal Amount Repayment</td>
-                                    <td class="text-right"><?php echo number_format($principalPaid, 2); ?></td>
-                                </tr>
-                            <?php endif; ?>
-                            <?php if ($interestPaid > 0): ?>
-                                <tr>
-                                    <td class="text-center"><?php echo $sl++; ?></td>
-                                    <td>Interest Received <?php if (!empty($r['InterestMonths'])) echo '(' . (float)$r['InterestMonths'] . ' Month/Period)'; ?></td>
-                                    <td class="text-right"><?php echo number_format($interestPaid, 2); ?></td>
-                                </tr>
-                            <?php endif; ?>
-                            <?php if ($defaultInterestPaid > 0): ?>
-                                <tr>
-                                    <td class="text-center"><?php echo $sl++; ?></td>
-                                    <td>Default / Overdue Interest</td>
-                                    <td class="text-right"><?php echo number_format($defaultInterestPaid, 2); ?></td>
-                                </tr>
-                            <?php endif; ?>
-                            <?php if ($appraiserCharge > 0): ?>
-                                <tr>
-                                    <td class="text-center"><?php echo $sl++; ?></td>
-                                    <td>Appraiser Fee</td>
-                                    <td class="text-right"><?php echo number_format($appraiserCharge, 2); ?></td>
-                                </tr>
-                            <?php endif; ?>
-                            <?php if ($processingFee > 0): ?>
-                                <tr>
-                                    <td class="text-center"><?php echo $sl++; ?></td>
-                                    <td>Loan Processing Fee</td>
-                                    <td class="text-right"><?php echo number_format($processingFee, 2); ?></td>
-                                </tr>
-                            <?php endif; ?>
-                            <?php if ($sl === 1): ?>
-                                <tr>
-                                    <td class="text-center">1</td>
-                                    <td>Jewel Loan Payment Received</td>
-                                    <td class="text-right"><?php echo number_format($totalPaid, 2); ?></td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                        <tfoot>
-                            <tr style="background: #f7f9fa;">
-                                <th colspan="2" class="text-right" style="font-size: 14px;">Total Received Amount:</th>
-                                <th class="text-right" style="color: #d9534f; font-size: 15px; font-weight: bold;">
-                                    ₹<?php echo number_format($totalPaid, 2); ?>
-                                </th>
-                            </tr>
+                        <?php endif; ?>
+                        <?php if ($principalPaid > 0): ?>
                             <tr>
-                                <th colspan="2" class="text-right">Remaining Principal Balance:</th>
-                                <th class="text-right">₹<?php echo number_format($remainingBalance, 2); ?></th>
+                                <td class="text-center"><?php echo ($defaultInterestPaid > 0) ? '3' : '2'; ?></td>
+                                <td>Principal Amount Paid / Reduced</td>
+                                <td class="text-right">&#8377; <?php echo number_format($principalPaid, 2); ?></td>
                             </tr>
-                        </tfoot>
-                    </table>
+                        <?php endif; ?>
+                        <?php if ($appraiserCharge > 0): ?>
+                            <tr>
+                                <td class="text-center">#</td>
+                                <td>Appraiser Charges</td>
+                                <td class="text-right">&#8377; <?php echo number_format($appraiserCharge, 2); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($processingFee > 0): ?>
+                            <tr>
+                                <td class="text-center">#</td>
+                                <td>Processing Fee</td>
+                                <td class="text-right">&#8377; <?php echo number_format($processingFee, 2); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <tr style="background-color: #f7fbfd; font-size: 15px; font-weight: bold;">
+                            <td colspan="2" class="text-right" style="color: #204d74;">TOTAL AMOUNT RECEIVED:</td>
+                            <td class="text-right" style="color: #d9534f;">&#8377; <?php echo number_format($totalPaid, 2); ?></td>
+                        </tr>
+                        <tr style="background-color: #fafafa;">
+                            <td colspan="2" class="text-right"><strong>Remaining Principal Balance:</strong></td>
+                            <td class="text-right"><strong>&#8377; <?php echo number_format($remainingBalance, 2); ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 15px; margin-bottom: 20px; font-size: 13px;">
+                    <strong>Amount in Words:</strong> <span style="font-style: italic; color: #204d74;"><?php echo $wordsAmount; ?></span>
                 </div>
 
-                <div style="margin-top: 10px; font-size: 13px;">
-                    <strong>Amount in Words:</strong> 
-                    <span style="font-style: italic; color: #1a4d79;"><?php echo $wordsAmount; ?></span>
-                </div>
-
-                <?php if (!empty($itms) && $r['TransactionType'] === 'JEWEL_RELEASE'): ?>
-                    <div style="margin-top: 15px;">
-                        <strong>Released Pledged Items:</strong>
-                        <div class="table-responsive" style="margin-top: 5px;">
-                            <table class="table table-bordered table-condensed" style="font-size: 12px;">
-                                <tr style="background: #fafafa;">
+                <?php if (!empty($itms)): ?>
+                    <div style="margin-top: 20px;">
+                        <div style="font-weight: bold; font-size: 13px; color: #204d74; margin-bottom: 6px;">Pledged Ornaments Snapshot:</div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-condensed" style="font-size: 12px; margin-bottom: 0;">
+                                <tr style="background: #f0f0f0;">
                                     <th>Sl</th>
                                     <th>Item</th>
                                     <th>No of Items</th>
@@ -585,665 +470,635 @@ function getIndianCurrencyWords($number) {
         <!-- ============================================================= -->
         <?php else: ?>
 
-            <div class="row no-print">
-                <div class="col-sm-6 col-xs-12">
-                    <h3 class="page-header-title">Jewel Loan Receipt</h3>
-                </div>
-                <div class="col-sm-6 col-xs-12">
-                    <p class="mandatory-note"><span class="mandatory-star">*</span> Fields are mandatory</p>
-                </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">Jewel Loan Receipt</h2>
+                <hr class="hr-background">
             </div>
-            <hr class="hr-background no-print" style="margin-top: 5px; margin-bottom: 20px;">
-
-            <!-- Process Status Modal & In-Page Visual Confirmation -->
-            <?php include_once "process-status-modal.php"; ?>
-
-            <?php if (!empty($errors)): ?>
-                <div class="alert alert-danger alert-dismissible no-print" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
-                    <?php foreach ($errors as $e): ?>
-                        <p style="margin: 0;"><i class="fa fa-exclamation-circle"></i> <?php echo htmlspecialchars($e); ?></p>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <!-- Search Error Notification Box (Dynamic) -->
-            <div id="dnumber-search-alert" class="alert alert-warning alert-dismissible no-print" style="display: none;" role="alert">
-                <button type="button" class="close" onclick="$('#dnumber-search-alert').slideUp();"><span aria-hidden="true">&times;</span></button>
-                <span id="dnumber-search-alert-msg"></span>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <h6 class="madatory-caption">
+                    <span class="mandatory">*</span> Fields are mandatory
+                </h6>
             </div>
+        </div>
 
-            <?php
-            // Prepare loan fields if loan selected
-            $l = $selectedLoan['loan'] ?? null;
-            $c = $selectedLoan['customer'] ?? null;
-            $calc = $selectedLoan['calculation'] ?? null;
-            $items = $selectedLoan['items'] ?? [];
-            $loanReceiptHistory = $selectedLoan['receipts'] ?? [];
+        <!-- Process Status Modal & In-Page Visual Confirmation -->
+        <?php include_once "process-status-modal.php"; ?>
 
-            $selDNumber = $l['DNumber'] ?? ($_GET['dnum'] ?? '');
-            $customerName = $c['Name'] ?? '';
-            $interestRateVal = isset($calc['interestRate']) ? number_format((float)$calc['interestRate'], 2) : (isset($l['InterestRate']) ? number_format((float)$l['InterestRate'], 2) : '18.00');
-            $totDaysDisplay = $calc['totDaysDisplay'] ?? '0';
-            $balanceLoanVal = isset($calc['principalBalance']) ? number_format((float)$calc['principalBalance'], 2, '.', '') : (isset($l['BalanceLoanAmount']) ? number_format((float)$l['BalanceLoanAmount'], 2, '.', '') : '0.00');
-            $accruedInterestVal = isset($calc['accruedInterest']) ? number_format((float)$calc['accruedInterest'], 2, '.', '') : '0.00';
-            $defaultInterestVal = isset($calc['defaultInterest']) ? number_format((float)$calc['defaultInterest'], 2, '.', '') : '0.00';
-            $totalAmountDueVal = isset($calc['totalAmountDue']) ? number_format((float)$calc['totalAmountDue'], 2, '.', '') : '0.00';
-            $gracePeriodDaysVal = isset($calc['gracePeriodDays']) ? (string)$calc['gracePeriodDays'] : '0';
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-danger alert-dismissible no-print" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
+                <?php foreach ($errors as $e): ?>
+                    <p style="margin: 0;"><i class="fa fa-exclamation-circle"></i> <?php echo htmlspecialchars($e); ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
-            // Section 2 valuation fields
-            $loanDateVal = !empty($l['LoanDate']) ? date('d/m/Y', strtotime($l['LoanDate'])) : '';
-            $monthlyDueDateVal = !empty($calc['monthlyDueDate']) ? date('d/m/Y', strtotime($calc['monthlyDueDate'])) : '';
-            $closingDueDateVal = !empty($calc['closingDueDate']) ? date('d/m/Y', strtotime($calc['closingDueDate'])) : (!empty($calc['dueDate']) ? date('d/m/Y', strtotime($calc['dueDate'])) : '');
-            if (empty($closingDueDateVal) && !empty($l['LoanDate'])) {
-                $dt = new DateTime($l['LoanDate']);
-                $dt->modify('+1 year');
-                $closingDueDateVal = $dt->format('d/m/Y');
+        <!-- Search Error Notification Box (Dynamic) -->
+        <div id="dnumber-search-alert" class="alert alert-warning alert-dismissible no-print" style="display: none;" role="alert">
+            <button type="button" class="close" onclick="$('#dnumber-search-alert').slideUp();"><span aria-hidden="true">&times;</span></button>
+            <span id="dnumber-search-alert-msg"></span>
+        </div>
+
+        <?php
+        // Prepare loan fields if loan selected
+        $l = $selectedLoan['loan'] ?? null;
+        $c = $selectedLoan['customer'] ?? null;
+        $calc = $selectedLoan['calculation'] ?? null;
+        $items = $selectedLoan['items'] ?? [];
+        $loanReceiptHistory = $selectedLoan['receipts'] ?? [];
+
+        $selDNumber = $l['DNumber'] ?? ($_GET['dnum'] ?? '');
+        $customerName = $c['Name'] ?? '';
+        $interestRateVal = isset($calc['interestRate']) ? number_format((float)$calc['interestRate'], 2) : (isset($l['InterestRate']) ? number_format((float)$l['InterestRate'], 2) : '18.00');
+        $totDaysDisplay = $calc['totDaysDisplay'] ?? '0';
+        $balanceLoanVal = isset($calc['principalBalance']) ? number_format((float)$calc['principalBalance'], 2, '.', '') : (isset($l['BalanceLoanAmount']) ? number_format((float)$l['BalanceLoanAmount'], 2, '.', '') : '0.00');
+        $accruedInterestVal = isset($calc['accruedInterest']) ? number_format((float)$calc['accruedInterest'], 2, '.', '') : '0.00';
+        $defaultInterestVal = isset($calc['defaultInterest']) ? number_format((float)$calc['defaultInterest'], 2, '.', '') : '0.00';
+        $totalAmountDueVal = isset($calc['totalAmountDue']) ? number_format((float)$calc['totalAmountDue'], 2, '.', '') : '0.00';
+        $gracePeriodDaysVal = isset($calc['gracePeriodDays']) ? (string)$calc['gracePeriodDays'] : '0';
+
+        // Section 2 valuation fields
+        $loanDateVal = !empty($l['LoanDate']) ? date('d/m/Y', strtotime($l['LoanDate'])) : '';
+        $monthlyDueDateVal = !empty($calc['monthlyDueDate']) ? date('d/m/Y', strtotime($calc['monthlyDueDate'])) : '';
+        $closingDueDateVal = !empty($calc['closingDueDate']) ? date('d/m/Y', strtotime($calc['closingDueDate'])) : (!empty($calc['dueDate']) ? date('d/m/Y', strtotime($calc['dueDate'])) : '');
+        if (empty($closingDueDateVal) && !empty($l['LoanDate'])) {
+            $dt = new DateTime($l['LoanDate']);
+            $dt->modify('+1 year');
+            $closingDueDateVal = $dt->format('d/m/Y');
+        }
+        $valuePerGramVal = isset($l['AmountPerGram']) && (float)$l['AmountPerGram'] > 0 ? number_format((float)$l['AmountPerGram'], 2, '.', '') : '0.00';
+        $valuationAmountVal = isset($l['TotalAmount']) && (float)$l['TotalAmount'] > 0 ? number_format((float)$l['TotalAmount'], 2, '.', '') : '0.00';
+        $totalNetGramsVal = isset($l['TotalNetWeight']) ? number_format((float)$l['TotalNetWeight'], 3, '.', '') : '0.000';
+        
+        // Sum gross and wastage from ornaments
+        $sumGross = 0.0;
+        $sumWastage = 0.0;
+        if (!empty($items)) {
+            foreach ($items as $it) {
+                $sumGross += (float)$it['Gram'];
+                $sumWastage += (float)$it['Wastage'];
             }
-            $valuePerGramVal = isset($l['AmountPerGram']) && (float)$l['AmountPerGram'] > 0 ? number_format((float)$l['AmountPerGram'], 2, '.', '') : '0.00';
-            $valuationAmountVal = isset($l['TotalAmount']) && (float)$l['TotalAmount'] > 0 ? number_format((float)$l['TotalAmount'], 2, '.', '') : '0.00';
-            $totalNetGramsVal = isset($l['TotalNetWeight']) ? number_format((float)$l['TotalNetWeight'], 3, '.', '') : '0.000';
-            
-            // Sum gross and wastage from ornaments
-            $sumGross = 0.0;
-            $sumWastage = 0.0;
-            if (!empty($items)) {
-                foreach ($items as $it) {
-                    $sumGross += (float)$it['Gram'];
-                    $sumWastage += (float)$it['Wastage'];
-                }
-            }
-            $totalGrossVal = $sumGross > 0 ? number_format($sumGross, 3, '.', '') : $totalNetGramsVal;
-            $totalWastageVal = number_format($sumWastage, 3, '.', '');
+        }
+        $totalGrossVal = $sumGross > 0 ? number_format($sumGross, 3, '.', '') : $totalNetGramsVal;
+        $totalWastageVal = number_format($sumWastage, 3, '.', '');
 
-            $permissiblePerGramVal = isset($l['MaxAmountPerGram']) && (float)$l['MaxAmountPerGram'] > 0 ? number_format((float)$l['MaxAmountPerGram'], 2, '.', '') : '0.00';
-            $permissibleAmountVal = isset($l['AllowedAmount']) && (float)$l['AllowedAmount'] > 0 ? number_format((float)$l['AllowedAmount'], 2, '.', '') : '0.00';
-            $originalLoanAmountVal = isset($l['LoanAmount']) ? number_format((float)$l['LoanAmount'], 2, '.', '') : '0.00';
+        $permissiblePerGramVal = isset($l['MaxAmountPerGram']) && (float)$l['MaxAmountPerGram'] > 0 ? number_format((float)$l['MaxAmountPerGram'], 2, '.', '') : '0.00';
+        $permissibleAmountVal = isset($l['AllowedAmount']) && (float)$l['AllowedAmount'] > 0 ? number_format((float)$l['AllowedAmount'], 2, '.', '') : '0.00';
+        $originalLoanAmountVal = isset($l['LoanAmount']) ? number_format((float)$l['LoanAmount'], 2, '.', '') : '0.00';
 
-            // Section 3 Customer fields
-            $custOccupation = $c['Job'] ?? ($c['Occupation'] ?? '');
-            $custFathersName = $c['FathersName'] ?? ($c['SDWName'] ?? '');
-            $custAddress = $c['Address'] ?? ($c['PermenantAddress'] ?? '');
-            $custDistrict = $c['DistrictName'] ?? ($c['District'] ?? '');
-            $custContactNumber = $c['MobileNumber'] ?? ($c['MobileNo'] ?? '');
-            $custPincode = $c['Pincode'] ?? ($c['PinCode'] ?? '');
-            ?>
+        // Section 4 Customer fields
+        $custOccupation = $c['Job'] ?? ($c['Occupation'] ?? '');
+        $custFathersName = $c['FathersName'] ?? ($c['SDWName'] ?? '');
+        $custAddress = $c['Address'] ?? ($c['PermenantAddress'] ?? '');
+        $custDistrict = $c['DistrictName'] ?? ($c['District'] ?? '');
+        $custContactNumber = $c['MobileNumber'] ?? ($c['MobileNo'] ?? '');
+        $custPincode = $c['Pincode'] ?? ($c['PinCode'] ?? '');
+        ?>
 
-            <!-- MAIN RECEIPT FORM CONTAINER -->
-            <div class="receipt-container-card">
-                <form method="post" action="aster-jewel-loan-receipt.php" id="jewel-loan-receipt-form">
-                    <input type="hidden" name="loan_detail_id" id="loan_detail_id" value="<?php echo htmlspecialchars($l['LoanDetailId'] ?? ''); ?>">
-                    <input type="hidden" name="d_number" id="hidden_d_number" value="<?php echo htmlspecialchars($selDNumber); ?>">
-                    <input type="hidden" name="current_balance_loan" id="current_balance_loan" value="<?php echo htmlspecialchars($balanceLoanVal); ?>">
-                    <input type="hidden" name="transaction_type" id="transaction_type" value="INTEREST_PAYMENT">
-                    <input type="hidden" name="action_type" id="action_type" value="save">
-                    <input type="hidden" name="interest_months" id="interest_months" value="<?php echo htmlspecialchars($calc['calculatedMonths'] ?? '1'); ?>">
-                    <input type="hidden" name="principal_paid" id="hidden_principal_paid" value="0.00">
-                    <input type="hidden" name="period_from" id="hidden_period_from" value="<?php echo htmlspecialchars($calc['lastCalculatedDate'] ?? ($l['LoanDate'] ?? '')); ?>">
-                    <input type="hidden" name="period_to" id="hidden_period_to" value="<?php echo htmlspecialchars(date('Y-m-d')); ?>">
+        <!-- MAIN RECEIPT FORM (Clean layout matching aster-jewel-loan.php) -->
+        <form method="post" action="aster-jewel-loan-receipt.php" id="jewel-loan-receipt-form">
+            <input type="hidden" name="loan_detail_id" id="loan_detail_id" value="<?php echo htmlspecialchars($l['LoanDetailId'] ?? ''); ?>">
+            <input type="hidden" name="d_number" id="hidden_d_number" value="<?php echo htmlspecialchars($selDNumber); ?>">
+            <input type="hidden" name="current_balance_loan" id="current_balance_loan" value="<?php echo htmlspecialchars($balanceLoanVal); ?>">
+            <input type="hidden" name="transaction_type" id="transaction_type" value="INTEREST_PAYMENT">
+            <input type="hidden" name="action_type" id="action_type" value="save">
+            <input type="hidden" name="interest_months" id="interest_months" value="<?php echo htmlspecialchars($calc['calculatedMonths'] ?? '1'); ?>">
+            <input type="hidden" name="principal_paid" id="hidden_principal_paid" value="0.00">
+            <input type="hidden" name="period_from" id="hidden_period_from" value="<?php echo htmlspecialchars($calc['lastCalculatedDate'] ?? ($l['LoanDate'] ?? '')); ?>">
+            <input type="hidden" name="period_to" id="hidden_period_to" value="<?php echo htmlspecialchars(date('Y-m-d')); ?>">
+            <input type="hidden" id="display_grace_period" value="<?php echo htmlspecialchars($gracePeriodDaysVal); ?>">
 
-                    <!-- ========================================== -->
-                    <!-- SECTION 1: Date, D Number Search, Payment Details -->
-                    <!-- ========================================== -->
-                    <div class="row">
-                        <div class="col-md-3 col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Date:</label>
-                                <input type="text" name="receipt_date" id="receipt_date" class="form-control form-control-readonly text-center" 
-                                       value="<?php echo htmlspecialchars($todayDateDisplay); ?>" readonly>
-                            </div>
-                        </div>
+            <!-- ========================================== -->
+            <!-- SECTION 1: Search & Receipt Summary       -->
+            <!-- ========================================== -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="text" name="receipt_date" id="receipt_date" class="form-control form-control-readonly text-center" 
+                               value="<?php echo htmlspecialchars($todayDateDisplay); ?>" readonly>
+                    </div>
+                </div>
 
-                        <div class="col-md-6 col-sm-5 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Select D Number: <span class="mandatory-star">*</span></label>
-                                <div class="input-group">
-                                    <input type="text" name="search_d_number" id="search_d_number" class="form-control" 
-                                           list="active_dnumbers_list" placeholder="Enter D Number (e.g. D-0001)" 
-                                           value="<?php echo htmlspecialchars($selDNumber); ?>" autocomplete="off" required>
-                                    <datalist id="active_dnumbers_list">
-                                        <?php foreach ($activeDNumbers as $ad): ?>
-                                            <option value="<?php echo htmlspecialchars($ad['DNumber']); ?>">
-                                                <?php echo htmlspecialchars($ad['DNumber'] . ' - ' . ($ad['Name'] ?? 'Customer')); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </datalist>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default" id="btn-clear-dnumber" title="Clear Search">
-                                            <i class="fa fa-times"></i>
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-3 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold hidden-xs">&nbsp;</label>
-                                <button type="button" id="btn-search-dnumber" class="btn btn-success btn-block" style="font-weight: bold; height: 34px;">
-                                    <i class="fa fa-search"></i> Search
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Select D Number <span class="mandatory">*</span></label>
+                        <div class="input-group">
+                            <input type="text" name="search_d_number" id="search_d_number" class="form-control" 
+                                   list="active_dnumbers_list" placeholder="Enter D Number (e.g. D-0001)" 
+                                   value="<?php echo htmlspecialchars($selDNumber); ?>" autocomplete="off" required>
+                            <datalist id="active_dnumbers_list">
+                                <?php foreach ($activeDNumbers as $ad): ?>
+                                    <option value="<?php echo htmlspecialchars($ad['DNumber']); ?>">
+                                        <?php echo htmlspecialchars($ad['DNumber'] . ' - ' . ($ad['Name'] ?? 'Customer')); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </datalist>
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="btn-clear-dnumber" title="Clear Search">
+                                    <i class="fa fa-times"></i>
                                 </button>
-                            </div>
+                            </span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Row 1 of Loan Summary Fields: D Number, Interest Rate, Name, Tot Days -->
-                    <div class="row">
-                        <div class="col-md-2 col-sm-3 col-xs-6">
-                            <div class="form-group">
-                                <label class="form-label-bold">D Number: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_d_number" class="form-control form-control-readonly text-center" 
-                                       value="<?php echo htmlspecialchars($selDNumber); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2 col-sm-3 col-xs-6">
-                            <div class="form-group">
-                                <label class="form-label-bold">Interest Rate: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_interest_rate" class="form-control form-control-readonly text-center" 
-                                       value="<?php echo htmlspecialchars($interestRateVal); ?>%" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Customer Name: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_customer_name" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($customerName); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4 col-sm-12 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Loan Days & Due Status:</label>
-                                <input type="text" id="display_tot_days" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($totDaysDisplay); ?>" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 2 of Loan Summary Fields: Balance Loan Amount, Interest, Default Interest, Total Due -->
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Balance Loan Amount:</label>
-                                <input type="text" id="display_balance_loan" class="form-control form-control-readonly highlight-amount-field text-right" 
-                                       value="<?php echo htmlspecialchars($balanceLoanVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Interest:</label>
-                                <input type="text" name="interest_paid" id="display_interest" class="form-control form-control-readonly highlight-amount-field text-right" 
-                                       value="<?php echo htmlspecialchars($accruedInterestVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Default Interest: <span class="mandatory-star">*</span></label>
-                                <input type="text" name="default_interest" id="display_default_interest" class="form-control form-control-readonly highlight-amount-field text-right" 
-                                       value="<?php echo htmlspecialchars($defaultInterestVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Total (Loan + Int. + Def. Int):</label>
-                                <input type="text" id="display_total_due" class="form-control form-control-readonly highlight-amount-field text-right" 
-                                       value="<?php echo htmlspecialchars($totalAmountDueVal); ?>" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 3 of Loan Summary Fields: Grace Period Days, Amount, Transaction Type -->
-                    <div class="row">
-                        <div class="col-md-3 col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Grace Period (Days): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_grace_period" class="form-control form-control-readonly text-center" 
-                                       value="<?php echo htmlspecialchars($gracePeriodDaysVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Receiving Amount (₹): <span class="mandatory-star">*</span></label>
-                                <?php 
-                                $suggestedIntAmt = round((float)$accruedInterestVal + (float)$defaultInterestVal, 2);
-                                $initPayAmt = $suggestedIntAmt > 0 ? number_format($suggestedIntAmt, 2, '.', '') : (!empty($totalAmountDueVal) && (float)$totalAmountDueVal > 0 ? htmlspecialchars($totalAmountDueVal) : '');
-                                ?>
-                                <input type="number" step="0.01" min="1" name="total_paid" id="amount_paying" class="form-control text-right" 
-                                       placeholder="Enter amount" 
-                                       value="<?php echo htmlspecialchars($initPayAmt); ?>" required>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-sm-4 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Transaction Type:</label>
-                                <select id="receipt_transaction_type_select" class="form-control" onchange="onTxnTypeChange(this.value)">
-                                    <option value="INTEREST_PAYMENT" selected>Interest Payment (Receive Interest & Partial Balance)</option>
-                                    <option value="JEWEL_RELEASE">Full Settlement & Jewel Release</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dynamic Live Payment Allocation Breakdown Banner -->
-                    <div id="payment-allocation-summary" style="margin-top: 5px; margin-bottom: 20px; background: #f4f9fd; border: 1px solid #c8e1f5; border-radius: 5px; padding: 12px 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                        <div class="row text-center">
-                            <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #d6e5f1;">
-                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Interest Covered</span>
-                                <span id="alloc_interest_text" style="font-size: 16px; font-weight: bold; color: #2e6da4;">₹0.00</span>
-                            </div>
-                            <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #d6e5f1;">
-                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Default Int. Covered</span>
-                                <span id="alloc_default_int_text" style="font-size: 16px; font-weight: bold; color: #a94442;">₹0.00</span>
-                            </div>
-                            <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #d6e5f1;">
-                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Principal Reduced</span>
-                                <span id="alloc_principal_text" style="font-size: 16px; font-weight: bold; color: #3c763d;">₹0.00</span>
-                            </div>
-                            <div class="col-xs-6 col-sm-3">
-                                <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">New Remaining Balance</span>
-                                <span id="alloc_balance_text" style="font-size: 16px; font-weight: bold; color: #d9534f;">₹0.00</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment Methods Radio Group -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="radio-options-group">
-                                <label class="radio-inline">
-                                    <input type="radio" name="payment_method" value="Cash" checked onclick="toggleReceiptPaymentMethod('Cash')"> Cash
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="payment_method" value="Cheque" onclick="toggleReceiptPaymentMethod('Cheque')"> Cheque
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="payment_method" value="RTGS" onclick="toggleReceiptPaymentMethod('RTGS')"> RTGS
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="payment_method" value="UPI" onclick="toggleReceiptPaymentMethod('UPI')"> UPI
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dynamic Payment Method Details (Conditional) -->
-                    <div id="receipt-cheque-box" style="display: none; background: #fbfbfb; border: 1px dashed #cccccc; padding: 12px 15px; border-radius: 4px; margin-bottom: 15px;">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">Cheque Number <span class="mandatory-star">*</span></label>
-                                    <input type="text" name="cheque_number" id="cheque_number" class="form-control" placeholder="Cheque No.">
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">From Bank (Customer)</label>
-                                    <input type="text" name="cheque_from_bank" id="cheque_from_bank" class="form-control" placeholder="Customer Bank">
-                                </div>
-                            </div>
-                            <div class="col-md-5 col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">Deposited To (Company Bank)</label>
-                                    <select name="cheque_to_bank" id="cheque_to_bank" class="form-control">
-                                        <option value="">Select Company Bank Account</option>
-                                        <?php foreach ($companyBanks as $b): ?>
-                                            <option value="<?php echo htmlspecialchars($b['BankName']); ?>"><?php echo htmlspecialchars($b['BankName']); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="receipt-rtgs-box" style="display: none; background: #fbfbfb; border: 1px dashed #cccccc; padding: 12px 15px; border-radius: 4px; margin-bottom: 15px;">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">RTGS / UTR Number <span class="mandatory-star">*</span></label>
-                                    <input type="text" name="rtgs_number" id="rtgs_number" class="form-control" placeholder="UTR Number">
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">From Bank</label>
-                                    <input type="text" name="rtgs_from_bank" id="rtgs_from_bank" class="form-control" placeholder="Sender Bank">
-                                </div>
-                            </div>
-                            <div class="col-md-5 col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">To Bank (Company Bank)</label>
-                                    <select name="rtgs_to_bank" id="rtgs_to_bank" class="form-control">
-                                        <option value="">Select Company Bank Account</option>
-                                        <?php foreach ($companyBanks as $b): ?>
-                                            <option value="<?php echo htmlspecialchars($b['BankName']); ?>"><?php echo htmlspecialchars($b['BankName']); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="receipt-upi-box" style="display: none; background: #fbfbfb; border: 1px dashed #cccccc; padding: 12px 15px; border-radius: 4px; margin-bottom: 15px;">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">UPI Type / App <span class="mandatory-star">*</span></label>
-                                    <select name="upi_type" id="upi_type" class="form-control">
-                                        <option value="">Select UPI App</option>
-                                        <?php if (!empty($upiTypes)): ?>
-                                            <?php foreach ($upiTypes as $u): ?>
-                                                <option value="<?php echo htmlspecialchars($u['UpiName'] ?? $u['UPITypeName']); ?>">
-                                                    <?php echo htmlspecialchars($u['UpiName'] ?? $u['UPITypeName']); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <option value="GPay">GPay</option>
-                                            <option value="PhonePe">PhonePe</option>
-                                            <option value="PayTM">PayTM</option>
-                                            <option value="BHIM">BHIM</option>
-                                        <?php endif; ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">UPI Ref / Txn ID <span class="mandatory-star">*</span></label>
-                                    <input type="text" name="upi_transaction_number" id="upi_transaction_number" class="form-control" placeholder="Transaction Reference No">
-                                </div>
-                            </div>
-                            <div class="col-md-5 col-sm-12 col-xs-12">
-                                <div class="form-group">
-                                    <label class="form-label-bold">Company Receiving Bank</label>
-                                    <select name="upi_to_bank" id="upi_to_bank" class="form-control">
-                                        <option value="">Select Company Bank Account</option>
-                                        <?php foreach ($companyBanks as $b): ?>
-                                            <option value="<?php echo htmlspecialchars($b['BankName']); ?>"><?php echo htmlspecialchars($b['BankName']); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons: New Receipt & Save -->
-                    <div class="action-button-row no-print">
-                        <button type="button" class="btn btn-receipt-new" onclick="resetReceiptForm()">
-                            <i class="fa fa-refresh"></i> New Receipt
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="hidden-xs">&nbsp;</label>
+                        <button type="button" id="btn-search-dnumber" class="btn btn-primary btn-block" style="font-weight: bold; height: 34px;">
+                            <i class="fa fa-search"></i> Search
                         </button>
-                        <button type="submit" name="submit_receipt" id="btn-save-receipt" class="btn btn-receipt-save">
-                            <i class="fa fa-save"></i> Save Receipt
-                        </button>
-                        <?php if (!empty($l['LoanDetailId'])): ?>
-                            <a href="aster-jewel-loan-view.php?dnum=<?php echo urlencode($l['DNumber']); ?>" class="btn btn-info" style="margin-left: 10px;">
-                                <i class="fa fa-eye"></i> View Loan Details
-                            </a>
-                            <button type="button" class="btn btn-primary" onclick="window.print();" style="margin-left: 5px;">
-                                <i class="fa fa-print"></i> Print Screen
-                            </button>
-                        <?php endif; ?>
                     </div>
-
-                    <!-- ========================================== -->
-                    <!-- SECTION 2: Loan and Gold Valuation Details -->
-                    <!-- ========================================== -->
-                    <hr class="section-divider">
-                    <div class="section-subheading"><i class="fa fa-info-circle"></i> Loan and Gold Valuation Details</div>
-
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Loan Date: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_loan_date" class="form-control form-control-readonly highlight-blue-field text-center" 
-                                       value="<?php echo htmlspecialchars($loanDateVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Monthly Due Date: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_monthly_due_date" class="form-control form-control-readonly highlight-blue-field text-center" 
-                                       value="<?php echo htmlspecialchars($monthlyDueDateVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Closing Due Date: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_closing_due_date" class="form-control form-control-readonly highlight-blue-field text-center" 
-                                       value="<?php echo htmlspecialchars($closingDueDateVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Interest Percentage: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_percentage" class="form-control form-control-readonly text-center" 
-                                       value="<?php echo htmlspecialchars($interestRateVal); ?>%" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Value / Gram (₹): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_value_per_gram" class="form-control form-control-readonly text-right" 
-                                       value="<?php echo htmlspecialchars($valuePerGramVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Valuation Amount (₹): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_valuation_amount" class="form-control form-control-readonly text-right" 
-                                       value="<?php echo htmlspecialchars($valuationAmountVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Total Gram(s): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_total_grams" class="form-control form-control-readonly text-right" 
-                                       value="<?php echo htmlspecialchars($totalGrossVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Total Wastage (g): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_total_wastage" class="form-control form-control-readonly text-right" 
-                                       value="<?php echo htmlspecialchars($totalWastageVal); ?>" readonly>
-                            </div>
-                        </div>
-                    </div> <!-- Properly closed row -->
-
-                    <div class="row">
-                        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Permissible/Gram (₹): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_permissible_per_gram" class="form-control form-control-readonly text-right" 
-                                       value="<?php echo htmlspecialchars($permissiblePerGramVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Permissible Amount (₹): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_permissible_amount" class="form-control form-control-readonly text-right" 
-                                       value="<?php echo htmlspecialchars($permissibleAmountVal); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4 col-sm-12 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Sanctioned Loan Amount (₹): <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_loan_amount" class="form-control form-control-readonly text-right" 
-                                       value="<?php echo htmlspecialchars($originalLoanAmountVal); ?>" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ========================================== -->
-                    <!-- SECTION 3: Pledged Ornaments and Customer Details -->
-                    <!-- ========================================== -->
-                    <hr class="section-divider">
-                    <div class="section-subheading"><i class="fa fa-diamond"></i> Pledged Ornaments</div>
-
-                    <!-- A. Pledged Ornaments Table -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="table-responsive">
-                                <table class="ornaments-table" id="receipt-ornaments-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 70px;">SlNo</th>
-                                            <th style="width: 140px;">No of Items</th>
-                                            <th>Ornaments Name</th>
-                                            <th style="width: 180px;">Gross Grams</th>
-                                            <th style="width: 180px;">Wastage Grams</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="ornaments-table-body">
-                                        <?php if (!empty($items)): ?>
-                                            <?php foreach ($items as $idx => $it): ?>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <input type="text" class="form-control text-center form-control-readonly" value="<?php echo $idx + 1; ?>" readonly>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input type="text" class="form-control text-center form-control-readonly" value="<?php echo (int)$it['NoOfItems']; ?>" readonly>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control form-control-readonly" value="<?php echo htmlspecialchars($it['ItemName']); ?>" readonly>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <input type="text" class="form-control text-right form-control-readonly" value="<?php echo number_format((float)$it['Gram'], 3); ?>" readonly>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <input type="text" class="form-control text-right form-control-readonly" value="<?php echo number_format((float)$it['Wastage'], 3); ?>" readonly>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <!-- Blank row when no loan selected -->
-                                            <tr>
-                                                <td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="1" readonly></td>
-                                                <td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="-" readonly></td>
-                                                <td><input type="text" class="form-control form-control-readonly" value="No loan selected" readonly></td>
-                                                <td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="0.000" readonly></td>
-                                                <td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="0.000" readonly></td>
-                                            </tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- B. Customer Personal Details -->
-                    <div class="section-subheading" style="margin-top: 15px;"><i class="fa fa-user"></i> Customer Personal Details</div>
-
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Occupation: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_cust_occupation" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custOccupation); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Father / Husband Name: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_cust_fathers_name" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custFathersName); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Home Name/No: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_cust_home_name" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custAddress); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Street: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_cust_street" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custAddress); ?>" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Village / Town:</label>
-                                <input type="text" id="display_cust_village" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custAddress); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">District:</label>
-                                <input type="text" id="display_cust_district" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custDistrict); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Contact Number: <span class="mandatory-star">*</span></label>
-                                <input type="text" id="display_cust_mobile" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custContactNumber); ?>" readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label class="form-label-bold">Pincode:</label>
-                                <input type="text" id="display_cust_pincode" class="form-control form-control-readonly" 
-                                       value="<?php echo htmlspecialchars($custPincode); ?>" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
+                </div>
             </div>
-            <!-- /.receipt-container-card -->
 
-            <!-- Recent Receipts Table for this Loan (if loan loaded) -->
-            <?php if (!empty($l['LoanDetailId'])): ?>
-                <?php
-                // Fetch previous receipts for this loan
-                $recHistory = [];
-                $ldId = (int)$l['LoanDetailId'];
-                $rRes = $conn->query("SELECT * FROM ast_jewel_loan_receipt WHERE LoanDetailId = {$ldId} ORDER BY ReceiptId DESC");
-                if ($rRes) {
-                    while ($rh = $rRes->fetch_assoc()) {
-                        $recHistory[] = $rh;
-                    }
+            <!-- Row 1: Loan Overview -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>D Number <span class="mandatory">*</span></label>
+                        <input type="text" id="display_d_number" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($selDNumber); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Customer Name <span class="mandatory">*</span></label>
+                        <input type="text" id="display_customer_name" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($customerName); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Interest Rate <span class="mandatory">*</span></label>
+                        <input type="text" id="display_interest_rate" class="form-control form-control-readonly text-center" 
+                               value="<?php echo htmlspecialchars($interestRateVal); ?>%" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Loan Days & Due Status</label>
+                        <input type="text" id="display_tot_days" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($totDaysDisplay); ?>" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Financial Balances -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Balance Loan Amount</label>
+                        <input type="text" id="display_balance_loan" class="form-control form-control-readonly highlight-amount-field text-right" 
+                               value="<?php echo htmlspecialchars($balanceLoanVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Interest Due</label>
+                        <input type="text" name="interest_paid" id="display_interest" class="form-control form-control-readonly highlight-amount-field text-right" 
+                               value="<?php echo htmlspecialchars($accruedInterestVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Default Interest <span class="mandatory">*</span></label>
+                        <input type="text" name="default_interest" id="display_default_interest" class="form-control form-control-readonly highlight-amount-field text-right" 
+                               value="<?php echo htmlspecialchars($defaultInterestVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Total Due (Loan + Int. + Def. Int)</label>
+                        <input type="text" id="display_total_due" class="form-control form-control-readonly highlight-amount-field text-right" 
+                               value="<?php echo htmlspecialchars($totalAmountDueVal); ?>" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3: Receiving Amount, Transaction Type, Payment Mode -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Receiving Amount (₹) <span class="mandatory">*</span></label>
+                        <?php 
+                        $suggestedIntAmt = round((float)$accruedInterestVal + (float)$defaultInterestVal, 2);
+                        $initPayAmt = $suggestedIntAmt > 0 ? number_format($suggestedIntAmt, 2, '.', '') : (!empty($totalAmountDueVal) && (float)$totalAmountDueVal > 0 ? htmlspecialchars($totalAmountDueVal) : '');
+                        ?>
+                        <input type="number" step="0.01" min="1" name="total_paid" id="amount_paying" class="form-control text-right" 
+                               placeholder="Enter amount" 
+                               value="<?php echo htmlspecialchars($initPayAmt); ?>" required>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Transaction Type <span class="mandatory">*</span></label>
+                        <select id="receipt_transaction_type_select" class="form-control" onchange="onTxnTypeChange(this.value)">
+                            <option value="INTEREST_PAYMENT" selected>Interest Payment (Monthly EMI / Due)</option>
+                            <option value="JEWEL_RELEASE">Full Settlement & Jewel Release</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Payment Method <span class="mandatory">*</span></label>
+                        <div class="radio-options-group">
+                            <label class="radio-inline">
+                                <input type="radio" name="payment_method" value="Cash" checked onclick="toggleReceiptPaymentMethod('Cash')"> Cash
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="payment_method" value="Cheque" onclick="toggleReceiptPaymentMethod('Cheque')"> Cheque
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="payment_method" value="RTGS" onclick="toggleReceiptPaymentMethod('RTGS')"> RTGS
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="payment_method" value="UPI" onclick="toggleReceiptPaymentMethod('UPI')"> UPI
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Payment Allocation Summary Banner -->
+            <div id="payment-allocation-summary" style="margin-top: 5px; margin-bottom: 20px; background: #f9f9f9; border: 1px solid #e5e5e5; border-radius: 4px; padding: 12px 15px;">
+                <div class="row text-center">
+                    <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #ddd;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Interest Covered</span>
+                        <span id="alloc_interest_text" style="font-size: 16px; font-weight: bold; color: #337ab7;">₹0.00</span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #ddd;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Default Int. Covered</span>
+                        <span id="alloc_default_int_text" style="font-size: 16px; font-weight: bold; color: #d9534f;">₹0.00</span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3" style="border-right: 1px dashed #ddd;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">Principal Reduced</span>
+                        <span id="alloc_principal_text" style="font-size: 16px; font-weight: bold; color: #5cb85c;">₹0.00</span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3">
+                        <span style="font-size: 11px; text-transform: uppercase; color: #555; font-weight: 700; display: block; margin-bottom: 3px;">New Remaining Balance</span>
+                        <span id="alloc_balance_text" style="font-size: 16px; font-weight: bold; color: #d9534f;">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method Details (Conditional) -->
+            <div id="receipt-cheque-box" style="display: none; background: #fafafa; border: 1px solid #e5e5e5; padding: 12px 15px; border-radius: 4px; margin-bottom: 15px;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Cheque Number <span class="mandatory">*</span></label>
+                            <input type="text" name="cheque_number" id="cheque_number" class="form-control" placeholder="Cheque No.">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>From Bank (Customer)</label>
+                            <input type="text" name="cheque_from_bank" id="cheque_from_bank" class="form-control" placeholder="Customer Bank">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Deposited To (Company Bank)</label>
+                            <select name="cheque_to_bank" id="cheque_to_bank" class="form-control">
+                                <option value="">Select Company Bank Account</option>
+                                <?php foreach ($companyBanks as $b): ?>
+                                    <option value="<?php echo htmlspecialchars($b['BankName']); ?>"><?php echo htmlspecialchars($b['BankName']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="receipt-rtgs-box" style="display: none; background: #fafafa; border: 1px solid #e5e5e5; padding: 12px 15px; border-radius: 4px; margin-bottom: 15px;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>RTGS / UTR Number <span class="mandatory">*</span></label>
+                            <input type="text" name="rtgs_number" id="rtgs_number" class="form-control" placeholder="UTR Number">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>From Bank</label>
+                            <input type="text" name="rtgs_from_bank" id="rtgs_from_bank" class="form-control" placeholder="Sender Bank">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>To Bank (Company Bank)</label>
+                            <select name="rtgs_to_bank" id="rtgs_to_bank" class="form-control">
+                                <option value="">Select Company Bank Account</option>
+                                <?php foreach ($companyBanks as $b): ?>
+                                    <option value="<?php echo htmlspecialchars($b['BankName']); ?>"><?php echo htmlspecialchars($b['BankName']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="receipt-upi-box" style="display: none; background: #fafafa; border: 1px solid #e5e5e5; padding: 12px 15px; border-radius: 4px; margin-bottom: 15px;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>UPI Type / App <span class="mandatory">*</span></label>
+                            <select name="upi_type" id="upi_type" class="form-control">
+                                <option value="">Select UPI App</option>
+                                <?php if (!empty($upiTypes)): ?>
+                                    <?php foreach ($upiTypes as $u): ?>
+                                        <option value="<?php echo htmlspecialchars($u['UpiName'] ?? $u['UPITypeName']); ?>">
+                                            <?php echo htmlspecialchars($u['UpiName'] ?? $u['UPITypeName']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <option value="GPay">GPay</option>
+                                    <option value="PhonePe">PhonePe</option>
+                                    <option value="PayTM">PayTM</option>
+                                    <option value="BHIM">BHIM</option>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>UPI Ref / Txn ID <span class="mandatory">*</span></label>
+                            <input type="text" name="upi_transaction_number" id="upi_transaction_number" class="form-control" placeholder="Transaction Reference No">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Company Receiving Bank</label>
+                            <select name="upi_to_bank" id="upi_to_bank" class="form-control">
+                                <option value="">Select Company Bank Account</option>
+                                <?php foreach ($companyBanks as $b): ?>
+                                    <option value="<?php echo htmlspecialchars($b['BankName']); ?>"><?php echo htmlspecialchars($b['BankName']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- SECTION 2: Loan and Gold Valuation Details -->
+            <!-- ========================================== -->
+            <div class="section-heading">Loan & Valuation Details</div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Loan Date <span class="mandatory">*</span></label>
+                        <input type="text" id="display_loan_date" class="form-control form-control-readonly highlight-blue-field text-center" 
+                               value="<?php echo htmlspecialchars($loanDateVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Monthly Due Date <span class="mandatory">*</span></label>
+                        <input type="text" id="display_monthly_due_date" class="form-control form-control-readonly highlight-blue-field text-center" 
+                               value="<?php echo htmlspecialchars($monthlyDueDateVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Closing Due Date <span class="mandatory">*</span></label>
+                        <input type="text" id="display_closing_due_date" class="form-control form-control-readonly highlight-blue-field text-center" 
+                               value="<?php echo htmlspecialchars($closingDueDateVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Interest Percentage <span class="mandatory">*</span></label>
+                        <input type="text" id="display_percentage" class="form-control form-control-readonly text-center" 
+                               value="<?php echo htmlspecialchars($interestRateVal); ?>%" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Value / Gram (₹) <span class="mandatory">*</span></label>
+                        <input type="text" id="display_value_per_gram" class="form-control form-control-readonly text-right" 
+                               value="<?php echo htmlspecialchars($valuePerGramVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Valuation Amount (₹) <span class="mandatory">*</span></label>
+                        <input type="text" id="display_valuation_amount" class="form-control form-control-readonly text-right" 
+                               value="<?php echo htmlspecialchars($valuationAmountVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Total Gram(s) <span class="mandatory">*</span></label>
+                        <input type="text" id="display_total_grams" class="form-control form-control-readonly text-right" 
+                               value="<?php echo htmlspecialchars($totalGrossVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Total Wastage (g) <span class="mandatory">*</span></label>
+                        <input type="text" id="display_total_wastage" class="form-control form-control-readonly text-right" 
+                               value="<?php echo htmlspecialchars($totalWastageVal); ?>" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Permissible / Gram (₹) <span class="mandatory">*</span></label>
+                        <input type="text" id="display_permissible_per_gram" class="form-control form-control-readonly text-right" 
+                               value="<?php echo htmlspecialchars($permissiblePerGramVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Permissible Amount (₹) <span class="mandatory">*</span></label>
+                        <input type="text" id="display_permissible_amount" class="form-control form-control-readonly text-right" 
+                               value="<?php echo htmlspecialchars($permissibleAmountVal); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Sanctioned Loan Amount (₹) <span class="mandatory">*</span></label>
+                        <input type="text" id="display_loan_amount" class="form-control form-control-readonly text-right" 
+                               value="<?php echo htmlspecialchars($originalLoanAmountVal); ?>" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- SECTION 3: Pledged Ornaments               -->
+            <!-- ========================================== -->
+            <div class="section-heading">Pledged Ornaments</div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-gold-items" id="receipt-ornaments-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">Sl. No.</th>
+                                    <th style="width: 140px;">No of Items</th>
+                                    <th>Ornaments Name</th>
+                                    <th style="width: 180px;">Gross Grams</th>
+                                    <th style="width: 180px;">Wastage Grams</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ornaments-table-body">
+                                <?php if (!empty($items)): ?>
+                                    <?php foreach ($items as $idx => $it): ?>
+                                        <tr>
+                                            <td class="text-center"><?php echo $idx + 1; ?></td>
+                                            <td class="text-center"><?php echo (int)$it['NoOfItems']; ?></td>
+                                            <td><?php echo htmlspecialchars($it['ItemName']); ?></td>
+                                            <td class="text-right"><?php echo number_format((float)$it['Gram'], 3); ?></td>
+                                            <td class="text-right"><?php echo number_format((float)$it['Wastage'], 3); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td class="text-center">1</td>
+                                        <td class="text-center">-</td>
+                                        <td>No loan selected</td>
+                                        <td class="text-right">0.000</td>
+                                        <td class="text-right">0.000</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- SECTION 4: Customer Personal Details       -->
+            <!-- ========================================== -->
+            <div class="section-heading">Customer Personal Details</div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Occupation <span class="mandatory">*</span></label>
+                        <input type="text" id="display_cust_occupation" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($custOccupation); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Father's Name / Husband's Name <span class="mandatory">*</span></label>
+                        <input type="text" id="display_cust_fathers_name" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($custFathersName); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Contact Number <span class="mandatory">*</span></label>
+                        <input type="text" id="display_cust_mobile" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($custContactNumber); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Pincode</label>
+                        <input type="text" id="display_cust_pincode" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($custPincode); ?>" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Address <span class="mandatory">*</span></label>
+                        <input type="text" id="display_cust_street" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($custAddress); ?>" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>District</label>
+                        <input type="text" id="display_cust_district" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($custDistrict); ?>" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- PRIMARY ACTION BUTTONS (Positioned cleanly at the bottom)      -->
+            <!-- ============================================================= -->
+            <div class="row mt-3 no-print" style="margin-top: 25px; margin-bottom: 30px;">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" onclick="resetReceiptForm()">
+                        New
+                    </button>
+                    <button type="submit" name="submit_receipt" id="btn-save-receipt" class="btn btn-success" style="margin-left: 5px;">
+                        Save Receipt
+                    </button>
+                    <?php if (!empty($l['LoanDetailId'])): ?>
+                        <a href="aster-jewel-loan-view.php?dnum=<?php echo urlencode($l['DNumber']); ?>" class="btn btn-info" style="margin-left: 5px;">
+                            <i class="fa fa-eye"></i> View Loan Details
+                        </a>
+                        <button type="button" class="btn btn-default" onclick="window.print();" style="margin-left: 5px;">
+                            <i class="fa fa-print"></i> Print Screen
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        </form>
+
+        <!-- Previous Receipts Table for this Loan (if loan loaded) -->
+        <?php if (!empty($l['LoanDetailId'])): ?>
+            <?php
+            $recHistory = [];
+            $ldId = (int)$l['LoanDetailId'];
+            $rRes = $conn->query("SELECT * FROM ast_jewel_loan_receipt WHERE LoanDetailId = {$ldId} ORDER BY ReceiptId DESC");
+            if ($rRes) {
+                while ($rh = $rRes->fetch_assoc()) {
+                    $recHistory[] = $rh;
                 }
-                ?>
-                <?php if (!empty($recHistory)): ?>
-                    <div class="receipt-container-card no-print">
-                        <div class="section-subheading">
-                            <i class="fa fa-history"></i> Receipts Issued for Loan <?php echo htmlspecialchars($l['DNumber']); ?>
+            }
+            ?>
+            <?php if (!empty($recHistory)): ?>
+                <div class="row no-print" style="margin-top: 25px; margin-bottom: 30px;">
+                    <div class="col-md-12">
+                        <div class="section-heading">
+                            Receipts Issued for Loan <?php echo htmlspecialchars($l['DNumber']); ?>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-hover">
+                            <table class="table table-bordered table-striped table-hover table-gold-items">
                                 <thead>
-                                    <tr style="background-color: #f5f5f5;">
+                                    <tr>
                                         <th>Receipt No</th>
                                         <th>Receipt Date</th>
                                         <th>Transaction Type</th>
@@ -1288,8 +1143,9 @@ function getIndianCurrencyWords($number) {
                             </table>
                         </div>
                     </div>
-                <?php endif; ?>
+                </div>
             <?php endif; ?>
+        <?php endif; ?>
 
         <?php endif; ?>
 
@@ -1446,11 +1302,11 @@ function resetReceiptForm() {
     // Ornaments table reset
     $('#ornaments-table-body').html(
         '<tr>' +
-        '<td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="1" readonly></td>' +
-        '<td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="-" readonly></td>' +
-        '<td><input type="text" class="form-control form-control-readonly" value="No loan selected" readonly></td>' +
-        '<td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="0.000" readonly></td>' +
-        '<td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="0.000" readonly></td>' +
+        '<td class="text-center">1</td>' +
+        '<td class="text-center">-</td>' +
+        '<td>No loan selected</td>' +
+        '<td class="text-right">0.000</td>' +
+        '<td class="text-right">0.000</td>' +
         '</tr>'
     );
 
@@ -1495,13 +1351,12 @@ function performDNumberSearch() {
         },
         error: function(xhr, status, error) {
             $('#btn-search-dnumber').prop('disabled', false).html('<i class="fa fa-search"></i> Search');
-            // If AJAX returns HTML due to redirect, fallback to standard GET navigation
             window.location.href = 'aster-jewel-loan-receipt.php?dnum=' + encodeURIComponent(dNum);
         }
     });
 }
 
-// Populate received loan data into all 3 sections
+// Populate received loan data into all sections
 function populateReceiptData(data) {
     var l = data.loan;
     var c = data.customer || {};
@@ -1557,32 +1412,30 @@ function populateReceiptData(data) {
             sumGross += g;
             sumWastage += w;
             itemsHtml += '<tr>' +
-                '<td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="' + (idx + 1) + '" readonly></td>' +
-                '<td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="' + it.NoOfItems + '" readonly></td>' +
-                '<td><input type="text" class="form-control form-control-readonly" value="' + (it.ItemName || '') + '" readonly></td>' +
-                '<td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="' + g.toFixed(3) + '" readonly></td>' +
-                '<td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="' + w.toFixed(3) + '" readonly></td>' +
+                '<td class="text-center">' + (idx + 1) + '</td>' +
+                '<td class="text-center">' + it.NoOfItems + '</td>' +
+                '<td>' + (it.ItemName || '') + '</td>' +
+                '<td class="text-right">' + g.toFixed(3) + '</td>' +
+                '<td class="text-right">' + w.toFixed(3) + '</td>' +
                 '</tr>';
         });
     } else {
         itemsHtml = '<tr>' +
-            '<td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="1" readonly></td>' +
-            '<td class="text-center"><input type="text" class="form-control text-center form-control-readonly" value="-" readonly></td>' +
-            '<td><input type="text" class="form-control form-control-readonly" value="No ornaments listed" readonly></td>' +
-            '<td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="0.000" readonly></td>' +
-            '<td class="text-right"><input type="text" class="form-control text-right form-control-readonly" value="0.000" readonly></td>' +
+            '<td class="text-center">1</td>' +
+            '<td class="text-center">-</td>' +
+            '<td>No ornaments listed</td>' +
+            '<td class="text-right">0.000</td>' +
+            '<td class="text-right">0.000</td>' +
             '</tr>';
     }
     $('#ornaments-table-body').html(itemsHtml);
     $('#display_total_grams').val(sumGross > 0 ? sumGross.toFixed(3) : (parseFloat(l.TotalNetWeight) || 0).toFixed(3));
     $('#display_total_wastage').val(sumWastage.toFixed(3));
 
-    // Section 3: Customer Details
+    // Section 4: Customer Details
     $('#display_cust_occupation').val(c.Job || c.Occupation || '');
     $('#display_cust_fathers_name').val(c.FathersName || c.SDWName || '');
-    $('#display_cust_home_name').val(c.Address || c.PermenantAddress || '');
     $('#display_cust_street').val(c.Address || c.PermenantAddress || '');
-    $('#display_cust_village').val(c.Address || c.PermenantAddress || '');
     $('#display_cust_district').val(c.DistrictName || c.District || '');
     $('#display_cust_mobile').val(c.MobileNumber || c.MobileNo || '');
     $('#display_cust_pincode').val(c.Pincode || c.PinCode || '');

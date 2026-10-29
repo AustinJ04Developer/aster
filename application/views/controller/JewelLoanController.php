@@ -46,6 +46,17 @@ class JewelLoanController {
                 exit;
             }
 
+            if ($action === 'get_rate_for_permissible_amount') {
+                $amt = (float)($_GET['amount_per_gram'] ?? 0);
+                if (!$this->model->isValidPermissibleAmountPerGram($amt)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Permissible amount per gram must be strictly ₹10,000, ₹10,500, or ₹11,000.']);
+                    exit;
+                }
+                $rate = $this->model->getInterestRateForPermissibleAmount($amt);
+                echo json_encode(['status' => 'success', 'rate' => $rate, 'amount_per_gram' => $amt]);
+                exit;
+            }
+
             if ($action === 'get_scheme_amount') {
                 $rate = trim($_GET['rate'] ?? '');
                 $allowedRates = ['18', '24', '30'];
