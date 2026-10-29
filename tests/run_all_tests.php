@@ -19,6 +19,7 @@ require_once __DIR__ . '/Unit/PaymentAllocationTest.php';
 require_once __DIR__ . '/Unit/SearchModelTest.php';
 require_once __DIR__ . '/Unit/JewelLoanModelTest.php';
 require_once __DIR__ . '/Unit/JewelLoanAccountListTest.php';
+require_once __DIR__ . '/Unit/JewelLoanDeleteReceiptTest.php';
 require_once __DIR__ . '/Unit/JewelLoanCalculationAndScenariosTest.php';
 require_once __DIR__ . '/Integration/PdfGenerationTest.php';
 require_once __DIR__ . '/Integration/SyntaxLintTest.php';
@@ -60,6 +61,7 @@ $suites = [
     'Search Engine Model'              => new SearchModelTest($conn),
     'Jewel Loan Lifecycle & Accounting'=> new JewelLoanModelTest($conn),
     'Jewel Loan Account List & Monthly Due'=> new JewelLoanAccountListTest(),
+    'Jewel Loan Delete Receipt Engine' => new JewelLoanDeleteReceiptTest(),
     'PDF Voucher & Buffer Engine'      => new PdfGenerationTest($conn),
     'Codebase Syntax Lint Integrity'   => new SyntaxLintTest(),
 ];
