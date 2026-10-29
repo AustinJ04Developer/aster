@@ -4,6 +4,8 @@
  * Queries historical receipt records with comprehensive filtering and summary statistics
  */
 
+require_once __DIR__ . "/JewelLoanSidebarSync.php";
+
 class JewelLoanReceiptListModel {
     private $conn;
 
@@ -15,45 +17,13 @@ class JewelLoanReceiptListModel {
     }
 
     /**
-     * Auto-ensure the Receipt List page is registered in page & user_privilages tables
+     * Auto-ensure Jewel Loan sidebar tabs, order, and purposeful icons are synchronized
      */
     public function ensurePageRegistered() {
         if (!$this->conn) {
             return;
         }
-
-        try {
-            $check = $this->conn->query("SELECT PageId FROM `page` WHERE `Link` = 'aster-jewel-loan-receipt-list.php' LIMIT 1");
-            if ($check && $check->num_rows > 0) {
-                $row = $check->fetch_assoc();
-                $pageId = (int)$row['PageId'];
-            } else {
-                $maxRes = $this->conn->query("SELECT MAX(PageId) as max_id FROM `page`");
-                $maxRow = $maxRes ? $maxRes->fetch_assoc() : null;
-                $pageId = max(2938, ($maxRow ? (int)$maxRow['max_id'] + 1 : 2938));
-
-                $ins = $this->conn->prepare("INSERT INTO `page` (`PageId`, `PageName`, `Link`, `Description`, `UserId`, `PSMID`, `IconName`) 
-                                             VALUES (?, 'Receipt List', 'aster-jewel-loan-receipt-list.php', 'Jewel Loan Receipt List & Historical Records', 1, 50, 'glyphicon-bookmark')");
-                if ($ins) {
-                    $ins->bind_param("i", $pageId);
-                    $ins->execute();
-                    $ins->close();
-                }
-            }
-
-            if ($pageId > 0) {
-                $roles = [1, 2, 3, 4, 5, 8];
-                foreach ($roles as $roleId) {
-                    $chkPriv = $this->conn->query("SELECT 1 FROM `user_privilages` WHERE `RoleId` = {$roleId} AND `PageId` = {$pageId} LIMIT 1");
-                    if ($chkPriv && $chkPriv->num_rows === 0) {
-                        $this->conn->query("INSERT INTO `user_privilages` (`RoleId`, `Date`, `PageId`, `DInsert`, `DEdit`, `DDelete`, `DView`, `UserId`, `IsDeleted`) 
-                                            VALUES ({$roleId}, CURDATE(), {$pageId}, 1, 1, 1, 1, 1, 0)");
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            // Silently ignore to avoid runtime disruptions
-        }
+        JewelLoanSidebarSync::sync($this->conn);
     }
 
     /**
@@ -143,6 +113,9 @@ class JewelLoanReceiptListModel {
                 $stmt->execute();
                 $res = $stmt->get_result();
                 while ($row = $res->fetch_assoc()) {
+                    $currBal = (float)$row['BalanceLoanAmount'];
+                    $prinPaid = (float)$row['PrincipalPaid'];
+                    $row['BalanceBefore'] = ($row['TransactionType'] === 'LOAN_CREATION') ? $currBal : ($currBal + $prinPaid);
                     $results[] = $row;
                 }
                 $stmt->close();
@@ -151,6 +124,9 @@ class JewelLoanReceiptListModel {
             $res = $this->conn->query($sql);
             if ($res) {
                 while ($row = $res->fetch_assoc()) {
+                    $currBal = (float)$row['BalanceLoanAmount'];
+                    $prinPaid = (float)$row['PrincipalPaid'];
+                    $row['BalanceBefore'] = ($row['TransactionType'] === 'LOAN_CREATION') ? $currBal : ($currBal + $prinPaid);
                     $results[] = $row;
                 }
             }

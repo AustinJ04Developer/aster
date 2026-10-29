@@ -104,9 +104,7 @@ $todayDate = $data['todayDate'];
             <div class="col-lg-12">
                 <h2 class="page-header" style="margin-top: 15px;">
                     <i class="fa fa-list-alt text-primary"></i> Receipt List
-                    <a href="aster-jewel-loan-delete-receipt.php" class="btn btn-danger btn-sm pull-right" style="margin-top: 5px;">
-                        <i class="fa fa-trash"></i> Delete Today's Receipt
-                    </a>
+                    
                 </h2>
                 <hr class="hr-background">
             </div>
@@ -236,10 +234,11 @@ $todayDate = $data['todayDate'];
                                         <th>Mobile</th>
                                         <th>Type</th>
                                         <th>Method</th>
+                                        <th class="text-right">Balance Amount (₹)</th>
                                         <th class="text-right">Total Paid (₹)</th>
                                         <th class="text-right">Principal (₹)</th>
                                         <th class="text-right">Interest (₹)</th>
-                                        <th class="text-right">Balance Loan (₹)</th>
+                                        <th class="text-right">Current Bal (₹)</th>
                                         <th class="text-center" style="width: 130px;">Actions</th>
                                     </tr>
                                 </thead>
@@ -263,6 +262,7 @@ $todayDate = $data['todayDate'];
                                                     <?php endif; ?>
                                                 </td>
                                                 <td><?= htmlspecialchars($r['PaymentMethod']) ?></td>
+                                                <td class="text-right">₹<?= number_format($r['BalanceBefore'] ?? (($r['TransactionType'] === 'LOAN_CREATION') ? (float)$r['BalanceLoanAmount'] : ((float)$r['BalanceLoanAmount'] + (float)$r['PrincipalPaid'])), 2) ?></td>
                                                 <td class="text-right font-weight-bold">₹<?= number_format($r['TotalPaid'], 2) ?></td>
                                                 <td class="text-right">₹<?= number_format($r['PrincipalPaid'], 2) ?></td>
                                                 <td class="text-right">₹<?= number_format($r['InterestPaid'], 2) ?></td>
@@ -284,7 +284,7 @@ $todayDate = $data['todayDate'];
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="13" class="text-center text-muted" style="padding: 20px;">
+                                            <td colspan="14" class="text-center text-muted" style="padding: 20px;">
                                                 <i class="fa fa-info-circle"></i> No receipts found matching the filter criteria.
                                             </td>
                                         </tr>
