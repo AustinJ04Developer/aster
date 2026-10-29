@@ -187,6 +187,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_jewel_loan']))
     if (empty($errors)) {
         $updateResult = $model->updateJewelLoan($editLoanId, $customerData, $loanData, $itemsData);
         if ($updateResult['status']) {
+            // Synchronously update initial LOAN_CREATION receipt to reflect the edited loan amount and charges
+            if (!empty($conn) && $editLoanId > 0 && !empty($loanData)) {
+                $newLoanAmt = (float)$loanData['LoanAmount'];
+                $newAppr = (float)$loanData['AppraiserCharge'];
+                $newPF = (float)$loanData['ProcessingFee'];
+                $newTotPaid = $newLoanAmt + $newAppr + $newPF;
+
+                $upRecStmt = $conn->prepare("UPDATE ast_jewel_loan_receipt SET 
+                    PrincipalPaid = ?, 
+                    TotalPaid = ?, 
+                    BalanceLoanAmount = ?, 
+                    AppraiserCharge = ?, 
+                    ProcessingFee = ? 
+                    WHERE LoanDetailId = ? AND TransactionType = 'LOAN_CREATION'");
+                if ($upRecStmt) {
+                    $upRecStmt->bind_param("dddddi", $newLoanAmt, $newTotPaid, $newLoanAmt, $newAppr, $newPF, $editLoanId);
+                    $upRecStmt->execute();
+                    $upRecStmt->close();
+                }
+            }
             $success = "Jewel Loan details updated successfully for D-Number <strong>" . htmlspecialchars($editDNumber) . "</strong>!";
             $dNumParam = $editDNumber;
             $loanIdParam = $editLoanId;
@@ -219,6 +239,7 @@ $customer = null;
 $loan = null;
 $items = [];
 $receipts = [];
+$prinPaidSoFar = 0.00;
 $member = null;
 
 // 1. Fetch by loan_id or dnum
@@ -228,6 +249,20 @@ if ($loanIdParam > 0 || !empty($dNumParam)) {
         $loan = $record['loan'];
         $customer = $record['customer'];
         $items = $record['items'];
+
+        // Calculate principal paid so far on this loan for synchronous balance adjustment
+        if (!empty($loan['LoanDetailId']) && !empty($conn)) {
+            $pStmt = $conn->prepare("SELECT COALESCE(SUM(PrincipalPaid), 0) AS pPaid FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? AND TransactionType = 'INTEREST_PAYMENT'");
+            if ($pStmt) {
+                $pStmt->bind_param("i", $loan['LoanDetailId']);
+                $pStmt->execute();
+                $pRes = $pStmt->get_result();
+                if ($pRes && $pRow = $pRes->fetch_assoc()) {
+                    $prinPaidSoFar = (float)$pRow['pPaid'];
+                }
+                $pStmt->close();
+            }
+        }
     }
 }
 
@@ -531,6 +566,7 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                     <input type="hidden" name="loan_detail_id" value="<?php echo htmlspecialchars($loan['LoanDetailId'] ?? 0); ?>">
                     <input type="hidden" name="existing_upload_sign" value="<?php echo htmlspecialchars($customer['UploadSign'] ?? ''); ?>">
                     <input type="hidden" name="existing_upload_aadhaar" value="<?php echo htmlspecialchars($customer['UploadAadhaar'] ?? ''); ?>">
+                    <input type="hidden" id="edit_prin_paid_so_far" value="<?php echo (float)$prinPaidSoFar; ?>">
 
                     <!-- Customer Profile Edit Card -->
                     <div class="details-card">
@@ -698,13 +734,13 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                                 <div class="col-md-3 col-sm-6">
                                     <div class="form-group">
                                         <label>Loan Sanctioned Amount (₹) <span class="mandatory-star">*</span></label>
-                                        <input type="number" step="0.01" min="1" name="sub_loan_amount" id="sub_loan_amount" class="form-control text-right" required value="<?php echo htmlspecialchars($loan['LoanAmount']); ?>">
+                                        <input type="number" step="0.01" min="1" name="sub_loan_amount" id="sub_loan_amount" class="form-control text-right" required value="<?php echo htmlspecialchars($loan['LoanAmount']); ?>" oninput="onEditLoanAmountChange(this.value)">
                                     </div>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <div class="form-group">
                                         <label>Balance Loan Amount (₹) <span class="mandatory-star">*</span></label>
-                                        <input type="number" step="0.01" min="0" name="sub_balance_amount" class="form-control text-right" required value="<?php echo htmlspecialchars($loan['BalanceLoanAmount']); ?>">
+                                        <input type="number" step="0.01" min="0" name="sub_balance_amount" id="sub_balance_amount" class="form-control text-right" required value="<?php echo htmlspecialchars($loan['BalanceLoanAmount']); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -725,7 +761,7 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                                 <div class="col-md-3 col-sm-6">
                                     <div class="form-group">
                                         <label>Max Amount / Gram (₹)</label>
-                                        <input type="number" step="0.01" min="0" name="sub_max_amount_per_gram" id="sub_max_amount_per_gram" class="form-control text-right" value="<?php echo htmlspecialchars($loan['MaxAmountPerGram']); ?>">
+                                        <input type="number" step="0.01" min="0" name="sub_max_amount_per_gram" id="sub_max_amount_per_gram" class="form-control text-right" value="<?php echo htmlspecialchars($loan['MaxAmountPerGram']); ?>" oninput="recalculateEditTotals()">
                                     </div>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
@@ -740,19 +776,19 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                                 <div class="col-md-3 col-sm-6">
                                     <div class="form-group">
                                         <label>Appraiser Charge (₹)</label>
-                                        <input type="number" step="0.01" min="0" name="sub_appraiser_charge" class="form-control text-right" value="<?php echo htmlspecialchars($loan['AppraiserCharge']); ?>">
+                                        <input type="number" step="0.01" min="0" name="sub_appraiser_charge" id="sub_appraiser_charge" class="form-control text-right" value="<?php echo htmlspecialchars($loan['AppraiserCharge']); ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <div class="form-group">
                                         <label>Processing Fee (%)</label>
-                                        <input type="number" step="0.01" min="0" name="sub_processing_fee_percentage" class="form-control text-right" value="<?php echo htmlspecialchars($loan['ProcessingFeePercentage']); ?>">
+                                        <input type="number" step="0.01" min="0" name="sub_processing_fee_percentage" id="sub_processing_fee_percentage" class="form-control text-right" value="<?php echo htmlspecialchars($loan['ProcessingFeePercentage']); ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <div class="form-group">
                                         <label>Processing Fee (₹)</label>
-                                        <input type="number" step="0.01" min="0" name="sub_processing_fee" class="form-control text-right" value="<?php echo htmlspecialchars($loan['ProcessingFee']); ?>">
+                                        <input type="number" step="0.01" min="0" name="sub_processing_fee" id="sub_processing_fee" class="form-control text-right" value="<?php echo htmlspecialchars($loan['ProcessingFee']); ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
@@ -1193,10 +1229,11 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                                         <th>Receipt Date</th>
                                         <th>Transaction Type</th>
                                         <th>Payment Method</th>
-                                        <th class="text-right">Principal Paid</th>
-                                        <th class="text-right">Interest Paid</th>
-                                        <th class="text-right">Total Paid</th>
-                                        <th class="text-right">Remaining Balance</th>
+                                        <th class="text-right">Balance Amount (₹)</th>
+                                        <th class="text-right">Total Paid (₹)</th>
+                                        <th class="text-right">Principal (₹)</th>
+                                        <th class="text-right">Interest (₹)</th>
+                                        <th class="text-right">Current Bal (₹)</th>
                                         <th class="text-center no-print" style="width: 120px;">Action</th>
                                     </tr>
                                 </thead>
@@ -1211,11 +1248,12 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                                                 </span>
                                             </td>
                                             <td><?php echo htmlspecialchars($r['PaymentMethod']); ?></td>
-                                            <td class="text-right">₹<?php echo number_format((float)$r['PrincipalPaid'], 2); ?></td>
-                                            <td class="text-right">₹<?php echo number_format((float)$r['InterestPaid'], 2); ?></td>
+                                            <td class="text-right">₹<?php echo number_format(($r['TransactionType'] === 'LOAN_CREATION') ? (float)$r['BalanceLoanAmount'] : ((float)$r['BalanceLoanAmount'] + (float)$r['PrincipalPaid']), 2); ?></td>
                                             <td class="text-right" style="font-weight: bold; color: #337ab7;">
                                                 ₹<?php echo number_format((float)$r['TotalPaid'], 2); ?>
                                             </td>
+                                            <td class="text-right">₹<?php echo number_format((float)$r['PrincipalPaid'], 2); ?></td>
+                                            <td class="text-right">₹<?php echo number_format((float)$r['InterestPaid'], 2); ?></td>
                                             <td class="text-right">₹<?php echo number_format((float)$r['BalanceLoanAmount'], 2); ?></td>
                                             <td class="text-center no-print">
                                                 <a href="aster-jewel-loan-receipt.php?receipt_id=<?php echo urlencode($r['ReceiptId']); ?>&view_only=1" 
@@ -1298,7 +1336,7 @@ function toggleEditPayment(method) {
     }
 }
 
-// Recalculate totals on ornament edit
+// Recalculate totals on ornament edit synchronously
 function recalculateEditTotals() {
     var totItems = 0;
     var totGross = 0;
@@ -1326,12 +1364,49 @@ function recalculateEditTotals() {
     $('#edit_tot_wastage').text(totWastage.toFixed(3) + ' g');
     $('#edit_tot_net').text(totNet.toFixed(3) + ' g');
 
-    // Auto update valuation amount if amount per gram is present
+    // 1. Auto update valuation amount if amount per gram is present
     var ratePerGm = parseFloat($('#sub_amount_per_gram').val()) || 0;
     if (ratePerGm > 0 && totNet > 0) {
         var valuation = totNet * ratePerGm;
         $('#sub_total_amount').val(valuation.toFixed(2));
     }
+
+    // 2. Auto update allowed loan amount if max amount per gram is present
+    var maxPerGm = parseFloat($('#sub_max_amount_per_gram').val()) || 0;
+    if (maxPerGm > 0 && totNet > 0) {
+        var allowed = totNet * maxPerGm;
+        $('#sub_allowed_amount').val(allowed.toFixed(2));
+    }
+}
+
+// Synchronously update financial charges and balance when loan amount is modified
+function onEditLoanAmountChange(val) {
+    var amt = parseFloat(val) || 0;
+    if (amt <= 0) return;
+
+    // Synchronize balance loan amount (deducting principal already repaid)
+    var prinPaid = parseFloat($('#edit_prin_paid_so_far').val()) || 0;
+    var newBal = Math.max(0, amt - prinPaid);
+    $('#sub_balance_amount').val(newBal.toFixed(2));
+
+    // Fetch updated financial charges from masters
+    $.ajax({
+        url: 'aster-jewel-loan.php',
+        type: 'GET',
+        data: { action: 'get_financial_charges', amount: amt },
+        dataType: 'json',
+        success: function(res) {
+            if (res && res.status === 'success') {
+                var charge = parseFloat(res.appraiser_charge) || 0;
+                var pct = parseFloat(res.processing_fee_percentage) || 0;
+                var fee = parseFloat(res.processing_fee) || 0;
+
+                $('#sub_appraiser_charge').val(charge > 0 ? charge.toFixed(2) : '0');
+                $('#sub_processing_fee_percentage').val(pct);
+                $('#sub_processing_fee').val(fee > 0 ? fee.toFixed(2) : '0');
+            }
+        }
+    });
 }
 
 // Add row to edit ornaments table

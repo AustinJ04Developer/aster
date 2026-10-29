@@ -188,6 +188,7 @@ $todayDateDisplay = $data['todayDateDisplay'];
                             <p><span class="preview-label">Mobile Number:</span> <?= htmlspecialchars($selectedReceipt['MobileNumber']) ?></p>
                         </div>
                         <div class="col-md-3">
+                            <p><span class="preview-label">Balance Before Receipt:</span> <strong class="text-info">₹<?= number_format($selectedReceipt['BalanceBefore'] ?? (($selectedReceipt['TransactionType'] === 'LOAN_CREATION') ? (float)$selectedReceipt['BalanceLoanAmount'] : ((float)$selectedReceipt['BalanceLoanAmount'] + (float)$selectedReceipt['PrincipalPaid'])), 2) ?></strong></p>
                             <p><span class="preview-label">Total Amount Paid:</span> <strong class="text-danger">₹<?= number_format($selectedReceipt['TotalPaid'], 2) ?></strong></p>
                             <p><span class="preview-label">Principal Paid:</span> ₹<?= number_format($selectedReceipt['PrincipalPaid'], 2) ?></p>
                             <p><span class="preview-label">Interest Paid:</span> ₹<?= number_format($selectedReceipt['InterestPaid'], 2) ?></p>
@@ -253,6 +254,7 @@ $todayDateDisplay = $data['todayDateDisplay'];
                                         <th>Customer Name</th>
                                         <th>Type</th>
                                         <th>Method</th>
+                                        <th class="text-right">Balance Amount (₹)</th>
                                         <th class="text-right">Total Paid (₹)</th>
                                         <th class="text-right">Principal (₹)</th>
                                         <th class="text-right">Interest (₹)</th>
@@ -281,10 +283,11 @@ $todayDateDisplay = $data['todayDateDisplay'];
                                                     <?php endif; ?>
                                                 </td>
                                                 <td><?= htmlspecialchars($r['PaymentMethod']) ?></td>
+                                                <td class="text-right">₹<?= number_format($r['BalanceBefore'] ?? (($r['TransactionType'] === 'LOAN_CREATION') ? (float)$r['BalanceLoanAmount'] : ((float)$r['BalanceLoanAmount'] + (float)$r['PrincipalPaid'])), 2) ?></td>
                                                 <td class="text-right font-weight-bold">₹<?= number_format($r['TotalPaid'], 2) ?></td>
                                                 <td class="text-right">₹<?= number_format($r['PrincipalPaid'], 2) ?></td>
                                                 <td class="text-right">₹<?= number_format($r['InterestPaid'], 2) ?></td>
-                                                <td class="text-right">₹<?= number_format($r['CurrentLoanBalance'], 2) ?></td>
+                                                <td class="text-right">₹<?= number_format($r['BalanceLoanAmount'], 2) ?></td>
                                                 <td class="text-center">
                                                     <a href="aster-jewel-loan-delete-receipt.php?inspect_id=<?= $r['ReceiptId'] ?>" class="btn btn-info btn-xs" title="Inspect & Delete">
                                                         <i class="fa fa-eye"></i> View
@@ -306,7 +309,7 @@ $todayDateDisplay = $data['todayDateDisplay'];
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="12" class="text-center text-muted" style="padding: 20px;">
+                                            <td colspan="13" class="text-center text-muted" style="padding: 20px;">
                                                 <i class="fa fa-info-circle"></i> No receipts found for today (<?= htmlspecialchars($todayDateDisplay) ?>). Only receipts generated on the current day can be deleted.
                                             </td>
                                         </tr>

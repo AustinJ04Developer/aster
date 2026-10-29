@@ -281,6 +281,21 @@ class JewelLoanReceiptController {
             'BreakdownJson' => $breakdownJson
         ];
 
+        // Idempotency Guard: Prevent duplicate receipt creation from browser refresh or double-clicking
+        $dupCheck = $this->conn->prepare("SELECT ReceiptId, ReceiptNo FROM ast_jewel_loan_receipt WHERE LoanDetailId = ? AND ReceiptDate = ? AND TotalPaid = ? AND TransactionType = ? AND CreatedAt >= (NOW() - INTERVAL 30 SECOND) LIMIT 1");
+        if ($dupCheck) {
+            $dupCheck->bind_param("isds", $loanDetailId, $receiptDate, $totalPaid, $txnType);
+            $dupCheck->execute();
+            $dupRes = $dupCheck->get_result();
+            if ($dupRes && $dupRow = $dupRes->fetch_assoc()) {
+                $dupCheck->close();
+                $existingNo = htmlspecialchars($dupRow['ReceiptNo']);
+                $data['errors'][] = "Duplicate submission prevented: Receipt <strong>{$existingNo}</strong> with identical payment amount of ₹" . number_format($totalPaid, 2) . " was already recorded moments ago.";
+                return;
+            }
+            $dupCheck->close();
+        }
+
         $saveRes = $this->model->saveReceipt($receiptData);
 
         if ($saveRes['status']) {

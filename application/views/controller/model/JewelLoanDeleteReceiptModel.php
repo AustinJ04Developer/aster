@@ -5,6 +5,8 @@
  * Completely independent to ensure zero conflicts with other modules
  */
 
+require_once __DIR__ . "/JewelLoanSidebarSync.php";
+
 class JewelLoanDeleteReceiptModel {
     private $conn;
 
@@ -16,66 +18,13 @@ class JewelLoanDeleteReceiptModel {
     }
 
     /**
-     * Auto-ensure Delete Receipt and Receipt List pages are registered in page & user_privilages tables
+     * Auto-ensure Jewel Loan sidebar tabs, order, and purposeful icons are synchronized
      */
     public function ensurePageRegistered() {
         if (!$this->conn) {
             return;
         }
-
-        try {
-            $pagesToRegister = [
-                [
-                    'defaultId' => 2937,
-                    'name' => 'Delete Receipt',
-                    'link' => 'aster-jewel-loan-delete-receipt.php',
-                    'desc' => 'Jewel Loan Delete Receipt',
-                    'psmid' => 50,
-                    'icon' => 'glyphicon-bookmark'
-                ],
-                [
-                    'defaultId' => 2938,
-                    'name' => 'Receipt List',
-                    'link' => 'aster-jewel-loan-receipt-list.php',
-                    'desc' => 'Jewel Loan Receipt List & Historical Records',
-                    'psmid' => 50,
-                    'icon' => 'glyphicon-bookmark'
-                ]
-            ];
-
-            foreach ($pagesToRegister as $pInfo) {
-                $check = $this->conn->query("SELECT PageId FROM `page` WHERE `Link` = '{$pInfo['link']}' LIMIT 1");
-                if ($check && $check->num_rows > 0) {
-                    $row = $check->fetch_assoc();
-                    $pageId = (int)$row['PageId'];
-                } else {
-                    $maxRes = $this->conn->query("SELECT MAX(PageId) as max_id FROM `page`");
-                    $maxRow = $maxRes ? $maxRes->fetch_assoc() : null;
-                    $pageId = max($pInfo['defaultId'], ($maxRow ? (int)$maxRow['max_id'] + 1 : $pInfo['defaultId']));
-
-                    $ins = $this->conn->prepare("INSERT INTO `page` (`PageId`, `PageName`, `Link`, `Description`, `UserId`, `PSMID`, `IconName`) 
-                                                 VALUES (?, ?, ?, ?, 1, ?, ?)");
-                    if ($ins) {
-                        $ins->bind_param("isssis", $pageId, $pInfo['name'], $pInfo['link'], $pInfo['desc'], $pInfo['psmid'], $pInfo['icon']);
-                        $ins->execute();
-                        $ins->close();
-                    }
-                }
-
-                if ($pageId > 0) {
-                    $roles = [1, 2, 3, 4, 5, 8];
-                    foreach ($roles as $roleId) {
-                        $chkPriv = $this->conn->query("SELECT 1 FROM `user_privilages` WHERE `RoleId` = {$roleId} AND `PageId` = {$pageId} LIMIT 1");
-                        if ($chkPriv && $chkPriv->num_rows === 0) {
-                            $this->conn->query("INSERT INTO `user_privilages` (`RoleId`, `Date`, `PageId`, `DInsert`, `DEdit`, `DDelete`, `DView`, `UserId`, `IsDeleted`) 
-                                                VALUES ({$roleId}, CURDATE(), {$pageId}, 1, 1, 1, 1, 1, 0)");
-                        }
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            // Silently ignore registration errors to avoid disrupting runtime
-        }
+        JewelLoanSidebarSync::sync($this->conn);
     }
 
     /**
@@ -128,6 +77,9 @@ class JewelLoanDeleteReceiptModel {
                 $stmt->execute();
                 $res = $stmt->get_result();
                 while ($row = $res->fetch_assoc()) {
+                    $currBal = (float)$row['BalanceLoanAmount'];
+                    $prinPaid = (float)$row['PrincipalPaid'];
+                    $row['BalanceBefore'] = ($row['TransactionType'] === 'LOAN_CREATION') ? $currBal : ($currBal + $prinPaid);
                     $results[] = $row;
                 }
                 $stmt->close();
@@ -136,6 +88,9 @@ class JewelLoanDeleteReceiptModel {
             $res = $this->conn->query($sql);
             if ($res) {
                 while ($row = $res->fetch_assoc()) {
+                    $currBal = (float)$row['BalanceLoanAmount'];
+                    $prinPaid = (float)$row['PrincipalPaid'];
+                    $row['BalanceBefore'] = ($row['TransactionType'] === 'LOAN_CREATION') ? $currBal : ($currBal + $prinPaid);
                     $results[] = $row;
                 }
             }
@@ -183,14 +138,22 @@ class JewelLoanDeleteReceiptModel {
             $prinPaid = (float)$data['PrincipalPaid'];
             $txnType = $data['TransactionType'];
 
-            // Calculate projected balance after deletion
-            if ($txnType === 'JEWEL_RELEASE') {
-                $data['ProjectedBalance'] = $prinPaid > 0 ? $prinPaid : $origLoan;
-            } elseif ($txnType === 'INTEREST_PAYMENT') {
-                $data['ProjectedBalance'] = min($origLoan, round($currBal + $prinPaid, 2));
-            } else {
-                $data['ProjectedBalance'] = $currBal;
+            // Calculate exact restored balance from previous receipt state
+            $prevBalSql = "SELECT BalanceLoanAmount FROM `ast_jewel_loan_receipt` WHERE `LoanDetailId` = ? AND `ReceiptId` != ? ORDER BY `ReceiptId` DESC LIMIT 1";
+            $pbStmt = $this->conn->prepare($prevBalSql);
+            $projBal = $origLoan;
+            if ($pbStmt) {
+                $ldId = (int)$data['LoanDetailId'];
+                $pbStmt->bind_param("ii", $ldId, $receiptId);
+                $pbStmt->execute();
+                $pbRes = $pbStmt->get_result();
+                if ($pbRes && $pbRow = $pbRes->fetch_assoc()) {
+                    $projBal = (float)$pbRow['BalanceLoanAmount'];
+                }
+                $pbStmt->close();
             }
+            $data['ProjectedBalance'] = $projBal;
+            $data['BalanceBefore'] = ($txnType === 'LOAN_CREATION') ? (float)$data['BalanceLoanAmount'] : ((float)$data['BalanceLoanAmount'] + $prinPaid);
         }
 
         return $data;
@@ -278,29 +241,27 @@ class JewelLoanDeleteReceiptModel {
         // Begin Transaction
         $this->conn->begin_transaction();
         try {
-            // 2. Revert loan balance on ast_jewel_loan_details if applicable
-            $restoredBalance = $currentBalance;
-            if ($txnType === 'JEWEL_RELEASE') {
-                $restoredBalance = $projectedBalance;
-                $upStmt = $this->conn->prepare("UPDATE ast_jewel_loan_details SET BalanceLoanAmount = ? WHERE LoanDetailId = ?");
-                if ($upStmt) {
-                    $upStmt->bind_param("di", $restoredBalance, $loanDetailId);
-                    if (!$upStmt->execute()) {
-                        throw new Exception("Failed to restore loan balance on release reversal: " . $upStmt->error);
-                    }
-                    $upStmt->close();
+            // 2. Revert loan balance on ast_jewel_loan_details to exact previous receipt state
+            $prevBalSql = "SELECT BalanceLoanAmount FROM `ast_jewel_loan_receipt` WHERE `LoanDetailId` = ? AND `ReceiptId` != ? ORDER BY `ReceiptId` DESC LIMIT 1";
+            $pbStmt = $this->conn->prepare($prevBalSql);
+            $restoredBalance = $origLoanAmount;
+            if ($pbStmt) {
+                $pbStmt->bind_param("ii", $loanDetailId, $receiptId);
+                $pbStmt->execute();
+                $pbRes = $pbStmt->get_result();
+                if ($pbRes && $pbRow = $pbRes->fetch_assoc()) {
+                    $restoredBalance = (float)$pbRow['BalanceLoanAmount'];
                 }
-            } elseif ($txnType === 'INTEREST_PAYMENT' && $principalPaid > 0) {
-                $restoredBalance = $projectedBalance;
-                $upStmt = $this->conn->prepare("UPDATE ast_jewel_loan_details SET BalanceLoanAmount = ? WHERE LoanDetailId = ?");
-                if ($upStmt) {
-                    $upStmt->bind_param("di", $restoredBalance, $loanDetailId);
-                    if (!$upStmt->execute()) {
-                        throw new Exception("Failed to restore loan balance on payment reversal: " . $upStmt->error);
-                    }
-                    $upStmt->close();
-                }
+                $pbStmt->close();
             }
+
+            $upStmt = $this->conn->prepare("UPDATE `ast_jewel_loan_details` SET `BalanceLoanAmount` = ? WHERE `LoanDetailId` = ?");
+            if ($upStmt) {
+                $upStmt->bind_param("di", $restoredBalance, $loanDetailId);
+                if (!$upStmt->execute()) {
+                    throw new Exception("Failed to restore loan balance in ast_jewel_loan_details: " . $upStmt->error);
+                }
+                $upStmt->close();            }
 
             // 3. Clean up rate history if table exists (graceful check so no error if table not yet integrated)
             $checkTable = $this->conn->query("SHOW TABLES LIKE 'ast_jewel_loan_rate_history'");
