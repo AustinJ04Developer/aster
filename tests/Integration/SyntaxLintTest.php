@@ -28,6 +28,8 @@ class SyntaxLintTest extends TestCase {
             __DIR__ . '/../../application/views/aster-jewel-loan-search.php',
             __DIR__ . '/../../application/views/aster-jewel-loan-receipt.php',
             __DIR__ . '/../../application/views/aster-jewel-loan-receipt-pdf.php',
+            __DIR__ . '/../../application/views/aster-jewel-loan-delete-receipt.php',
+            __DIR__ . '/../../application/views/aster-jewel-loan-receipt-list.php',
             __DIR__ . '/../../application/views/aster-jewel-loan-pdf.php'
         ];
 
