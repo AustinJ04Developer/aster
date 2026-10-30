@@ -74,6 +74,14 @@ $todayDate = $data['todayDate'];
             font-size: 11px;
             font-weight: bold;
         }
+        .badge-type-principal {
+            background-color: #5bc0de;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
         .badge-type-release {
             background-color: #5cb85c;
             color: #fff;
@@ -93,6 +101,91 @@ $todayDate = $data['todayDate'];
         .table-receipts th {
             background-color: #f5f5f5;
             font-weight: bold;
+        }
+
+        /* Voucher Pop-up Modal Styling */
+        #receiptViewModal {
+            z-index: 100050 !important;
+        }
+        .modal-backdrop {
+            z-index: 100040 !important;
+        }
+        .voucher-card {
+            background: #ffffff;
+            border: 2px solid #204d74;
+            border-radius: 6px;
+            padding: 20px 25px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            max-width: 860px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .voucher-header {
+            text-align: center;
+            border-bottom: 2px solid #204d74;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+        .voucher-org-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #204d74;
+            margin-bottom: 3px;
+        }
+        .voucher-org-sub {
+            font-size: 12px;
+            color: #555555;
+            margin-bottom: 8px;
+        }
+        .voucher-badge {
+            display: inline-block;
+            background: #204d74;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 3px 15px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+        .voucher-table-meta {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        .voucher-table-meta td {
+            padding: 4px 6px;
+            font-size: 13px;
+        }
+        .voucher-table-breakdown {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        .voucher-table-breakdown th {
+            background: #f0f4f8;
+            color: #204d74;
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .voucher-table-breakdown td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+        .voucher-signatures {
+            margin-top: 30px;
+            padding-top: 8px;
+        }
+        .signature-col {
+            text-align: center;
+            border-top: 1px dashed #666;
+            padding-top: 5px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #444;
         }
     </style>
 </head>
@@ -167,6 +260,7 @@ $todayDate = $data['todayDate'];
                                         <select name="transaction_type" id="transaction_type" class="form-control">
                                             <option value="">-- All Types --</option>
                                             <option value="INTEREST_PAYMENT" <?= $filters['transaction_type'] === 'INTEREST_PAYMENT' ? 'selected' : '' ?>>INTEREST_PAYMENT</option>
+                                            <option value="PRINCIPAL_PAYMENT" <?= $filters['transaction_type'] === 'PRINCIPAL_PAYMENT' ? 'selected' : '' ?>>PRINCIPAL_PAYMENT</option>
                                             <option value="JEWEL_RELEASE" <?= $filters['transaction_type'] === 'JEWEL_RELEASE' ? 'selected' : '' ?>>JEWEL_RELEASE</option>
                                             <option value="LOAN_CREATION" <?= $filters['transaction_type'] === 'LOAN_CREATION' ? 'selected' : '' ?>>LOAN_CREATION</option>
                                         </select>
@@ -255,6 +349,8 @@ $todayDate = $data['todayDate'];
                                                 <td>
                                                     <?php if ($r['TransactionType'] === 'INTEREST_PAYMENT'): ?>
                                                         <span class="badge-type-payment">INTEREST</span>
+                                                    <?php elseif ($r['TransactionType'] === 'PRINCIPAL_PAYMENT'): ?>
+                                                        <span class="badge-type-principal">PRINCIPAL</span>
                                                     <?php elseif ($r['TransactionType'] === 'JEWEL_RELEASE'): ?>
                                                         <span class="badge-type-release">RELEASE</span>
                                                     <?php else: ?>
@@ -268,9 +364,9 @@ $todayDate = $data['todayDate'];
                                                 <td class="text-right">₹<?= number_format($r['InterestPaid'], 2) ?></td>
                                                 <td class="text-right">₹<?= number_format($r['BalanceLoanAmount'], 2) ?></td>
                                                 <td class="text-center">
-                                                    <a href="aster-jewel-loan-receipt.php?receipt_id=<?= $r['ReceiptId'] ?>&view_only=1" class="btn btn-default btn-xs" title="View / Print Voucher" target="_blank">
+                                                    <button type="button" class="btn btn-default btn-xs btn-view-receipt-popup" data-receipt-id="<?= $r['ReceiptId'] ?>" data-receipt-no="<?= htmlspecialchars($r['ReceiptNo']) ?>" title="View Receipt Voucher (Popup)">
                                                         <i class="fa fa-eye"></i>
-                                                    </a>
+                                                    </button>
                                                     <a href="aster-jewel-loan-receipt-pdf.php?receipt_id=<?= $r['ReceiptId'] ?>" class="btn btn-danger btn-xs" title="Download PDF" target="_blank">
                                                         <i class="fa fa-file-pdf-o"></i>
                                                     </a>
@@ -299,9 +395,50 @@ $todayDate = $data['todayDate'];
 
     </div>
     <!-- /#page-wrapper -->
+
     <?php include_once "footer.php"; ?>
 </div>
 <!-- /#wrapper -->
+
+<!-- ============================================================== -->
+<!-- Receipt Voucher Modal Popup (Placed outside #wrapper)           -->
+<!-- ============================================================== -->
+<div class="modal fade" id="receiptViewModal" tabindex="-1" role="dialog" aria-labelledby="receiptViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%; max-width: 900px; margin: 30px auto;">
+        <div class="modal-content" style="border-radius: 6px; box-shadow: 0 5px 25px rgba(0,0,0,0.4);">
+            <div class="modal-header" style="background-color: #f7f9fa; border-bottom: 1px solid #e1e4e8; padding: 12px 20px;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 26px; line-height: 1; margin-top: -3px;">&times;</button>
+                <div class="pull-right" style="margin-right: 15px;">
+                    <button type="button" class="btn btn-primary btn-sm" id="btn-print-modal-receipt" style="margin-right: 5px;">
+                        <i class="fa fa-print"></i> Print Voucher
+                    </button>
+                    <a href="#" target="_blank" class="btn btn-danger btn-sm" id="btn-pdf-modal-receipt" style="margin-right: 5px;">
+                        <i class="fa fa-file-pdf-o"></i> Download PDF
+                    </a>
+                </div>
+                <h4 class="modal-title" id="receiptViewModalLabel" style="font-weight: bold; color: #337ab7; margin: 0;">
+                    <i class="fa fa-ticket"></i> Receipt Voucher - <span id="modal-receipt-no-display"></span>
+                </h4>
+            </div>
+            <div class="modal-body" style="padding: 15px 20px; background-color: #f8f9fa; max-height: calc(85vh - 120px); overflow-y: auto;">
+                <div id="receipt-modal-loading" class="text-center" style="padding: 50px 20px;">
+                    <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                    <p style="margin-top: 15px; font-weight: 600; color: #555;">Loading Receipt Voucher Details...</p>
+                </div>
+                <div id="receipt-modal-error" class="alert alert-danger" style="display: none;"></div>
+                <div id="receipt-modal-body-content" style="display: none;"></div>
+            </div>
+            <div class="modal-footer" style="padding: 10px 20px; background-color: #f7f9fa; border-top: 1px solid #e1e4e8;">
+                <span class="text-muted pull-left" style="font-size: 12px; margin-top: 6px;">
+                    <i class="fa fa-info-circle"></i> Review the receipt details above. Click Close to return to the receipt list.
+                </span>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fa fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Standard Aster Platform Scripts -->
 <script src="js/jquery-1.9.1.min.js"></script>
@@ -319,6 +456,98 @@ $(document).ready(function() {
         "info": true,
         "pageLength": 25,
         "order": [[2, "desc"]]
+    });
+
+    // Open receipt voucher in modal popup
+    $(document).on('click', '.btn-view-receipt-popup', function(e) {
+        e.preventDefault();
+        var receiptId = $(this).attr('data-receipt-id') || $(this).data('receipt-id');
+        var receiptNo = $(this).attr('data-receipt-no') || $(this).data('receipt-no');
+
+        if (!receiptId) {
+            alert('Receipt ID not found.');
+            return;
+        }
+
+        $('#modal-receipt-no-display').text(receiptNo);
+        $('#btn-pdf-modal-receipt').attr('href', 'aster-jewel-loan-receipt-pdf.php?receipt_id=' + encodeURIComponent(receiptId));
+
+        $('#receipt-modal-loading').show();
+        $('#receipt-modal-error').hide().html('');
+        $('#receipt-modal-body-content').hide().html('');
+
+        // Show modal immediately
+        $('#receiptViewModal').modal('show');
+
+        // Fetch voucher HTML directly via AJAX
+        $.ajax({
+            url: 'aster-jewel-loan-receipt-list.php',
+            type: 'GET',
+            dataType: 'json',
+            data: { ajax_receipt_voucher: receiptId },
+            success: function(resp) {
+                $('#receipt-modal-loading').hide();
+                if (resp && resp.status === 'success' && resp.html) {
+                    if (resp.receipt_no) {
+                        $('#modal-receipt-no-display').text(resp.receipt_no);
+                    }
+                    $('#receipt-modal-body-content').html(resp.html).show();
+                } else {
+                    var errMsg = (resp && resp.message) ? resp.message : 'Failed to load receipt voucher.';
+                    $('#receipt-modal-error').html('<i class="fa fa-exclamation-circle"></i> ' + errMsg).show();
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#receipt-modal-loading').hide();
+                $('#receipt-modal-error').html('<i class="fa fa-exclamation-circle"></i> Server communication error. Please try again.').show();
+            }
+        });
+    });
+
+    // Print voucher directly from modal content
+    $('#btn-print-modal-receipt').on('click', function() {
+        var printContents = document.getElementById('receipt-modal-body-content').innerHTML;
+        if (!printContents) {
+            alert('Receipt content is not loaded yet.');
+            return;
+        }
+        var printWindow = window.open('', '_blank', 'height=750,width=950');
+        if (!printWindow) {
+            window.print();
+            return;
+        }
+        printWindow.document.write('<!DOCTYPE html><html><head><title>Print Receipt Voucher</title>');
+        printWindow.document.write('<link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 20px; background: #fff; }');
+        printWindow.document.write('.voucher-card { background: #fff; border: 2px solid #204d74; border-radius: 6px; padding: 20px 25px; max-width: 850px; margin: 0 auto; }');
+        printWindow.document.write('.voucher-header { text-align: center; border-bottom: 2px solid #204d74; padding-bottom: 12px; margin-bottom: 15px; }');
+        printWindow.document.write('.voucher-org-title { font-size: 20px; font-weight: 800; color: #204d74; margin-bottom: 3px; }');
+        printWindow.document.write('.voucher-org-sub { font-size: 12px; color: #555; margin-bottom: 8px; }');
+        printWindow.document.write('.voucher-badge { display: inline-block; background: #204d74; color: #fff; font-weight: bold; font-size: 13px; padding: 3px 15px; border-radius: 3px; }');
+        printWindow.document.write('.voucher-table-meta, .voucher-table-breakdown { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }');
+        printWindow.document.write('.voucher-table-meta td { padding: 5px 8px; }');
+        printWindow.document.write('.voucher-table-breakdown th, .voucher-table-breakdown td { border: 1px solid #ccc; padding: 6px 10px; }');
+        printWindow.document.write('.voucher-table-breakdown th { background: #f0f4f8; color: #204d74; font-weight: bold; }');
+        printWindow.document.write('.voucher-signatures { margin-top: 35px; }');
+        printWindow.document.write('.signature-col { text-align: center; border-top: 1px dashed #666; padding-top: 5px; font-weight: 600; font-size: 12px; }');
+        printWindow.document.write('@media print { body { padding: 0; } .voucher-card { border: 1px solid #000; box-shadow: none; width: 100%; max-width: 100%; } }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(printContents);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+        }, 300);
+    });
+
+    // Reset modal on close
+    $('#receiptViewModal').on('hidden.bs.modal', function() {
+        $('#receipt-modal-body-content').html('').hide();
+        $('#receipt-modal-error').html('').hide();
+        $('#receipt-modal-loading').show();
     });
 });
 </script>

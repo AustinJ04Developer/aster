@@ -721,9 +721,9 @@ class JewelLoanModel {
             if ($stR) {
                 $rDate = $loanData['LoanDate'];
                 $rPayMethod = $loanData['PaymentMethod'];
-                $rPrin = (float)$loanData['LoanAmount'];
+                $rPrin = 0.00; // Customer pays 0 principal at loan creation (bank disburses loan principal to customer)
                 $rAppr = (float)$loanData['AppraiserCharge'];
-                $rTot = round($rPrin + $rAppr, 2);
+                $rTot = round($rAppr, 2); // Customer only pays charges at loan creation
                 $rBal = (float)$loanData['BalanceLoanAmount'];
                 $rChqNo = $loanData['ChequeNumber'] ?? '';
                 $rChqFrom = $loanData['ChequeFromBank'] ?? '';
@@ -1733,7 +1733,7 @@ class JewelLoanModel {
                     $upStmt->execute();
                     $upStmt->close();
                 }
-            } elseif ($txnType === 'INTEREST_PAYMENT') {
+            } elseif ($txnType === 'INTEREST_PAYMENT' || $txnType === 'PRINCIPAL_PAYMENT') {
                 $upSql = "UPDATE ast_jewel_loan_details SET BalanceLoanAmount = ? WHERE LoanDetailId = ?";
                 $upStmt = $this->conn->prepare($upSql);
                 if ($upStmt) {
@@ -1908,10 +1908,16 @@ class JewelLoanModel {
     }
 
     public function getAllActiveLoanDNumbers() {
-        $sql = "SELECT DISTINCT d.DNumber, d.LoanDetailId, 
+        $sql = "SELECT d.DNumber, d.LoanDetailId, 
                        COALESCE(NULLIF(c.Name, ''), m.FullName, 'Customer') AS Name, 
                        d.LoanAmount, d.BalanceLoanAmount 
                 FROM ast_jewel_loan_details d
+                INNER JOIN (
+                    SELECT MAX(LoanDetailId) AS MaxLoanDetailId, DNumber
+                    FROM ast_jewel_loan_details
+                    WHERE DNumber IS NOT NULL AND DNumber != ''
+                    GROUP BY DNumber
+                ) latest ON d.LoanDetailId = latest.MaxLoanDetailId
                 LEFT JOIN ast_jewel_loan_customer c ON c.DNumber = d.DNumber
                 LEFT JOIN ast_members m ON m.MemberCode = d.DNumber
                 ORDER BY d.LoanDetailId DESC";

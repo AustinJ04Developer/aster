@@ -379,7 +379,7 @@ class JewelLoanController {
                 if ($saveResult['status']) {
                     $dNumSafe = htmlspecialchars($saveResult['dNumber']);
                     $loanId = (int)$saveResult['loanDetailId'];
-                    $pdfUrl = "aster-jewel-loan-pdf.php?id=" . $loanId;
+                    $pdfUrl = "aster-jewel-loan-pdf.php?dnum=" . urlencode($saveResult['dNumber']);
                     $viewUrl = "aster-jewel-loan-view.php?dnum=" . urlencode($saveResult['dNumber']);
                     $receiptUrl = "aster-jewel-loan-receipt.php?dnum=" . urlencode($saveResult['dNumber']) . "#tab-create";
 

@@ -16,7 +16,7 @@ $loanDetailId  = (int)($_GET['id'] ?? 0);
 $dNumber       = trim($_GET['dnum'] ?? ($_GET['d_number'] ?? ''));
 
 if ($loanDetailId <= 0 && empty($dNumber)) {
-    die("Error: Loan ID or D-Number is required.");
+    die("Error: D-Number is required.");
 }
 
 $model = new JewelLoanModel($conn);
@@ -135,10 +135,8 @@ $html = '
         <td class="value">' . htmlspecialchars($loanDate) . '</td>
     </tr>
     <tr>
-        <td class="label">Loan ID:</td>
-        <td class="value"><strong>JL-' . str_pad((string)$loanDetailId, 4, '0', STR_PAD_LEFT) . '</strong></td>
         <td class="label">Packet / Locker No:</td>
-        <td class="value">' . htmlspecialchars($packetNumber) . '</td>
+        <td class="value" colspan="3">' . htmlspecialchars($packetNumber) . '</td>
     </tr>
 </table>
 

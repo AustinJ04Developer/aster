@@ -68,6 +68,15 @@ class JewelLoanReceiptController {
             exit;
         }
 
+        if (isset($_GET['ajax_get_active_dnumbers'])) {
+            if (!headers_sent()) {
+                header('Content-Type: application/json');
+            }
+            $list = $this->model->getAllActiveLoanDNumbers();
+            echo json_encode(['status' => 'success', 'data' => $list]);
+            exit;
+        }
+
         // 1. Process Receipt Submission (Save or Generate Receipt)
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['submit_receipt']) || isset($_POST['action_type']))) {
             $this->processReceiptSubmission($data);
@@ -133,12 +142,22 @@ class JewelLoanReceiptController {
         $remarks        = trim($_POST['remarks'] ?? '');
 
         // Validation
-        if ($loanDetailId <= 0 || empty($dNumber)) {
-            $data['errors'][] = "Invalid loan selected. Loan ID and D-Number are required.";
+        if (empty($dNumber)) {
+            $data['errors'][] = "Invalid loan selected. D-Number is required.";
             return;
         }
 
-        if (!in_array($txnType, ['LOAN_CREATION', 'INTEREST_PAYMENT', 'JEWEL_RELEASE'], true)) {
+        if ($loanDetailId <= 0) {
+            $loanRec = $this->model->getLoanByDNumber($dNumber);
+            if ($loanRec && !empty($loanRec['LoanDetailId'])) {
+                $loanDetailId = (int)$loanRec['LoanDetailId'];
+            } else {
+                $data['errors'][] = "No active loan found for D-Number: " . htmlspecialchars($dNumber);
+                return;
+            }
+        }
+
+        if (!in_array($txnType, ['LOAN_CREATION', 'INTEREST_PAYMENT', 'PRINCIPAL_PAYMENT', 'JEWEL_RELEASE'], true)) {
             $data['errors'][] = "Invalid transaction type selected.";
             return;
         }
@@ -183,6 +202,20 @@ class JewelLoanReceiptController {
             $periodFrom = $schedule['paidThroughDate'] ?? $receiptDate;
             $periodTo = $receiptDate;
             $breakdownJson = json_encode(['type' => 'JEWEL_RELEASE', 'schedule' => $schedule]);
+        } elseif ($txnType === 'PRINCIPAL_PAYMENT') {
+            // PRINCIPAL_PAYMENT: Direct part-payment towards loan principal
+            $principalPaid = min($currentBalance, $totalPaid);
+            $interestPaid = 0.00;
+            $defaultInterestPaid = 0.00;
+            $appraiserCharge = 0.00;
+            $processingFee = 0.00;
+            $newBalance = max(0.00, round($currentBalance - $principalPaid, 2));
+
+            $schedule = $this->model->calculateLoanInterestSchedule($loanDetailId, $receiptDate);
+            $rateApplied = (float)($schedule['applicableBaseRate'] ?? 18.0);
+            $periodFrom = $receiptDate;
+            $periodTo = $receiptDate;
+            $breakdownJson = json_encode(['type' => 'PRINCIPAL_PAYMENT', 'principalPaid' => $principalPaid, 'newBalance' => $newBalance]);
         } else {
             // INTEREST_PAYMENT: Allocate payment to overdue interest, regular interest, and excess to principal
             $schedule = $this->model->calculateLoanInterestSchedule($loanDetailId, $receiptDate, $periodTo);

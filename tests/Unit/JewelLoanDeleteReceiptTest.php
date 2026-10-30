@@ -87,5 +87,14 @@ class JewelLoanDeleteReceiptTest extends TestCase {
         $this->assertTrue(is_array($listData), "Receipt List controller returns data array");
         $this->assertTrue(is_array($listData['receipts']), "Receipts list returned as array");
         $this->assertTrue(is_array($listData['summary']), "Summary metrics array returned");
+
+        $this->setTestName("Verify PRINCIPAL_PAYMENT Badge Display in Receipt List & Delete Receipt");
+        $delHtml = file_get_contents(__DIR__ . '/../../application/views/aster-jewel-loan-delete-receipt.php');
+        $this->assertContains('badge-type-principal', $delHtml, "Delete Receipt view has badge-type-principal styling");
+        $this->assertContains("TransactionType'] === 'PRINCIPAL_PAYMENT'", $delHtml, "Delete Receipt specifically checks for PRINCIPAL_PAYMENT");
+
+        $listHtml = file_get_contents(__DIR__ . '/../../application/views/aster-jewel-loan-receipt-list.php');
+        $this->assertContains('badge-type-principal', $listHtml, "Receipt List view has badge-type-principal styling");
+        $this->assertContains("TransactionType'] === 'PRINCIPAL_PAYMENT'", $listHtml, "Receipt List specifically checks for PRINCIPAL_PAYMENT");
     }
 }
