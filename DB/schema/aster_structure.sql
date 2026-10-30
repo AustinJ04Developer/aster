@@ -1,0 +1,761 @@
+-- Aster Master Baseline Schema
+-- Auto-creates any non-existent tables without affecting existing data
+
+CREATE TABLE IF NOT EXISTS `ast_account_type` (
+  `ATMID` int(3) NOT NULL AUTO_INCREMENT,
+  `AccountHead` varchar(25) NOT NULL,
+  `AccountType` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`ATMID`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_account_year` (
+  `AYID` int(3) NOT NULL AUTO_INCREMENT,
+  `AccountYear` varchar(50) NOT NULL,
+  `IsDefault` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`AYID`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_challan_series` (
+  `series_year` int(11) NOT NULL,
+  `receipt_last_no` int(11) DEFAULT 0,
+  `payment_last_no` int(11) DEFAULT 0,
+  PRIMARY KEY (`series_year`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_company_bank_account` (
+  `BankId` int(11) NOT NULL AUTO_INCREMENT,
+  `BankName` varchar(150) NOT NULL,
+  `Balance` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `ACode` int(3) NOT NULL DEFAULT 0,
+  `ASubCode` int(3) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`BankId`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_company_bank_transaction` (
+  `CBTID` int(11) NOT NULL AUTO_INCREMENT,
+  `Date` date DEFAULT NULL,
+  `BankId` int(3) NOT NULL DEFAULT 0,
+  `TransactionType` int(3) NOT NULL DEFAULT 0,
+  `Amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `TID` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`CBTID`)
+) ENGINE=InnoDB AUTO_INCREMENT=167 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_district` (
+  `DID` int(3) NOT NULL AUTO_INCREMENT,
+  `SID` int(3) NOT NULL,
+  `DistrictName` varchar(150) NOT NULL,
+  `Pincode` int(10) NOT NULL,
+  PRIMARY KEY (`DID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_gl_appraiser` (
+  `AID` int(10) NOT NULL AUTO_INCREMENT,
+  `Date` date NOT NULL,
+  `AmountFrom` bigint(10) NOT NULL,
+  `AmountTo` bigint(10) NOT NULL,
+  `AppraiserCharge` int(5) NOT NULL,
+  `UserId` int(3) NOT NULL,
+  PRIMARY KEY (`AID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_gl_processing_fee` (
+  `PFID` int(10) NOT NULL AUTO_INCREMENT,
+  `Date` date NOT NULL,
+  `ProcessingFeePercentage` decimal(10,2) NOT NULL,
+  `UserId` int(3) NOT NULL,
+  PRIMARY KEY (`PFID`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_gl_schemes` (
+  `LSID` int(10) NOT NULL AUTO_INCREMENT,
+  `Date` date NOT NULL,
+  `Dnumber` int(5) NOT NULL,
+  `InterestPercentage` decimal(5,2) NOT NULL,
+  `AmountFrom` int(5) NOT NULL,
+  `AmountTo` int(5) NOT NULL,
+  `UserId` int(3) NOT NULL,
+  PRIMARY KEY (`LSID`),
+  UNIQUE KEY `uk_gl_schemes_dnumber` (`Dnumber`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_jewel_loan_customer` (
+  `CustomerId` int(11) NOT NULL AUTO_INCREMENT,
+  `DNumber` varchar(20) NOT NULL,
+  `Name` varchar(150) NOT NULL,
+  `FathersName` varchar(150) DEFAULT NULL,
+  `Job` varchar(100) DEFAULT NULL,
+  `DateOfBirth` date DEFAULT NULL,
+  `Address` text NOT NULL,
+  `MobileNumber` varchar(20) NOT NULL,
+  `Pincode` varchar(10) DEFAULT NULL,
+  `NomineeName` varchar(150) DEFAULT NULL,
+  `NomineeRelation` varchar(50) DEFAULT NULL,
+  `NomineeAddress` text DEFAULT NULL,
+  `IfNomineeIsMinor` varchar(10) DEFAULT 'No',
+  `GuardianName` varchar(150) DEFAULT NULL,
+  `LoanDate` date NOT NULL,
+  `MaxAmountPerGram` decimal(12,2) DEFAULT 0.00,
+  `AllowedAmount` decimal(12,2) DEFAULT 0.00,
+  `PacketNumber` varchar(50) DEFAULT NULL,
+  `Amount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `ReasonForLoan` text DEFAULT NULL,
+  `LoanPeriod` varchar(50) DEFAULT NULL,
+  `AadhaarNumber` varchar(20) DEFAULT NULL,
+  `TotalWeight` decimal(10,3) DEFAULT 0.000,
+  `GoldQuality` varchar(50) DEFAULT NULL,
+  `NoOfItems` int(5) DEFAULT 0,
+  `UploadSign` varchar(255) DEFAULT NULL,
+  `UploadAadhaar` varchar(255) DEFAULT NULL,
+  `CreatedBy` int(10) DEFAULT NULL,
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `UpdatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`CustomerId`),
+  UNIQUE KEY `uk_cust_dnumber` (`DNumber`),
+  KEY `idx_cust_mobile` (`MobileNumber`),
+  KEY `idx_cust_aadhaar` (`AadhaarNumber`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_jewel_loan_details` (
+  `LoanDetailId` int(11) NOT NULL AUTO_INCREMENT,
+  `DNumber` varchar(20) NOT NULL,
+  `LoanDate` date NOT NULL,
+  `InterestRate` decimal(5,2) NOT NULL,
+  `TotalNetWeight` decimal(10,3) NOT NULL DEFAULT 0.000,
+  `AmountPerGram` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `TotalAmount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `MaxAmountPerGram` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `AllowedAmount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `LoanAmount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `BalanceLoanAmount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `AppraiserCharge` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `ProcessingFeePercentage` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `ProcessingFee` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `PaymentMethod` enum('Cash','Cheque','RTGS','UPI') NOT NULL DEFAULT 'Cash',
+  `PaymentDate` date DEFAULT NULL,
+  `PaymentAmount` decimal(12,2) DEFAULT NULL,
+  `ChequeNumber` varchar(50) DEFAULT NULL,
+  `ChequeFromBank` varchar(100) DEFAULT NULL,
+  `ChequeToBank` varchar(100) DEFAULT NULL,
+  `RtgsNumber` varchar(50) DEFAULT NULL,
+  `RtgsFromBank` varchar(100) DEFAULT NULL,
+  `RtgsToBank` varchar(100) DEFAULT NULL,
+  `UpiType` varchar(50) DEFAULT NULL,
+  `UpiTransactionNumber` varchar(100) DEFAULT NULL,
+  `UpiToBank` varchar(100) DEFAULT NULL,
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`LoanDetailId`),
+  KEY `idx_loan_dnumber` (`DNumber`),
+  CONSTRAINT `fk_jewel_loan_customer` FOREIGN KEY (`DNumber`) REFERENCES `ast_jewel_loan_customer` (`DNumber`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_jewel_loan_items` (
+  `ItemId` int(11) NOT NULL AUTO_INCREMENT,
+  `LoanDetailId` int(11) NOT NULL,
+  `DNumber` varchar(20) NOT NULL,
+  `SlNo` int(5) NOT NULL,
+  `ItemName` varchar(150) NOT NULL,
+  `NoOfItems` int(5) NOT NULL DEFAULT 1,
+  `Gram` decimal(10,3) NOT NULL DEFAULT 0.000,
+  `Wastage` decimal(10,3) NOT NULL DEFAULT 0.000,
+  `NetWeight` decimal(10,3) NOT NULL DEFAULT 0.000,
+  PRIMARY KEY (`ItemId`),
+  KEY `idx_item_loan_detail` (`LoanDetailId`),
+  KEY `idx_item_dnumber` (`DNumber`),
+  CONSTRAINT `fk_jewel_loan_detail` FOREIGN KEY (`LoanDetailId`) REFERENCES `ast_jewel_loan_details` (`LoanDetailId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_jewel_loan_item_customer` FOREIGN KEY (`DNumber`) REFERENCES `ast_jewel_loan_customer` (`DNumber`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_jewel_loan_receipt` (
+  `ReceiptId` int(11) NOT NULL AUTO_INCREMENT,
+  `ReceiptNo` varchar(50) NOT NULL,
+  `ReceiptDate` date NOT NULL,
+  `LoanDetailId` int(11) NOT NULL,
+  `DNumber` varchar(20) NOT NULL,
+  `TransactionType` enum('LOAN_CREATION','INTEREST_PAYMENT','JEWEL_RELEASE') NOT NULL,
+  `PaymentMethod` enum('Cash','Cheque','RTGS','UPI') NOT NULL DEFAULT 'Cash',
+  `PrincipalPaid` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `InterestPaid` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `DefaultInterestPaid` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `AppraiserCharge` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `ProcessingFee` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `TotalPaid` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `BalanceLoanAmount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `InterestMonths` decimal(5,2) DEFAULT 0.00,
+  `InterestPeriodFrom` date DEFAULT NULL,
+  `InterestPeriodTo` date DEFAULT NULL,
+  `ChequeNumber` varchar(50) DEFAULT NULL,
+  `ChequeFromBank` varchar(100) DEFAULT NULL,
+  `ChequeToBank` varchar(100) DEFAULT NULL,
+  `RtgsNumber` varchar(50) DEFAULT NULL,
+  `RtgsFromBank` varchar(100) DEFAULT NULL,
+  `RtgsToBank` varchar(100) DEFAULT NULL,
+  `UpiType` varchar(50) DEFAULT NULL,
+  `UpiTransactionNumber` varchar(100) DEFAULT NULL,
+  `UpiToBank` varchar(100) DEFAULT NULL,
+  `Remarks` text DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`ReceiptId`),
+  UNIQUE KEY `uk_receipt_no` (`ReceiptNo`),
+  KEY `idx_receipt_dnum` (`DNumber`),
+  KEY `idx_receipt_loandetail` (`LoanDetailId`),
+  CONSTRAINT `fk_receipt_loan_detail` FOREIGN KEY (`LoanDetailId`) REFERENCES `ast_jewel_loan_details` (`LoanDetailId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_jewel_loan_sequence` (
+  `seq_name` varchar(50) NOT NULL,
+  `current_val` int(11) NOT NULL,
+  PRIMARY KEY (`seq_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_master_chit` (
+  `CHID` int(5) NOT NULL AUTO_INCREMENT,
+  `MonthNo` int(2) NOT NULL,
+  `MonthlyAmount` int(5) NOT NULL,
+  `ChitAmount` int(5) NOT NULL,
+  `UserId` int(3) NOT NULL,
+  PRIMARY KEY (`CHID`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_master_savings_daily` (
+  `DSID` int(3) NOT NULL AUTO_INCREMENT,
+  `InstallmentAmount` int(5) NOT NULL,
+  `D100` int(10) NOT NULL,
+  `D200` int(10) NOT NULL,
+  `D300` int(10) NOT NULL,
+  `UserId` int(3) NOT NULL,
+  PRIMARY KEY (`DSID`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_master_savings_monthly` (
+  `SMID` int(5) NOT NULL AUTO_INCREMENT,
+  `InstallmentAmount` int(11) NOT NULL,
+  `Years2` int(11) NOT NULL,
+  `Years3` int(11) NOT NULL,
+  `Years4` int(11) NOT NULL,
+  `Years5` int(11) NOT NULL,
+  `UserId` int(11) NOT NULL,
+  PRIMARY KEY (`SMID`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_members` (
+  `MemberId` int(11) NOT NULL AUTO_INCREMENT,
+  `MemberCode` varchar(20) NOT NULL,
+  `FullName` varchar(150) NOT NULL,
+  `Aadhaar` varchar(12) DEFAULT NULL,
+  `MobileNo` varchar(10) DEFAULT NULL,
+  `PermenantAddress` text DEFAULT NULL,
+  `PresentAddress` text DEFAULT NULL,
+  `NomineeName` varchar(150) DEFAULT NULL,
+  `NomineeAge` int(3) DEFAULT NULL,
+  `NomineeAddress` text DEFAULT NULL,
+  `NomineeMobiles` varchar(10) DEFAULT NULL,
+  `SDWName` varchar(150) DEFAULT NULL,
+  `DateOfBirth` date DEFAULT NULL,
+  `PanNumber` varchar(20) DEFAULT NULL,
+  `EducatinalQualification` varchar(150) DEFAULT NULL,
+  `Occupation` varchar(150) DEFAULT NULL,
+  `District` varchar(150) DEFAULT NULL,
+  `State` int(3) DEFAULT NULL,
+  `PinCode` int(10) DEFAULT 0,
+  `Status` enum('Active','Closed') DEFAULT 'Active',
+  `CreatedAt` datetime DEFAULT current_timestamp(),
+  `ApprovedBy` int(3) NOT NULL DEFAULT 0,
+  `NomineeRelation` varchar(150) DEFAULT NULL,
+  `PhotoImg` varchar(500) DEFAULT NULL,
+  `SignatureImg` varchar(500) DEFAULT NULL,
+  `AadhaarImg` varchar(500) DEFAULT NULL,
+  `PancardImg` varchar(500) DEFAULT NULL,
+  `Associate` int(3) NOT NULL,
+  PRIMARY KEY (`MemberId`),
+  UNIQUE KEY `MemberCode` (`MemberCode`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_personnal_loan_application` (
+  `PID` int(11) NOT NULL AUTO_INCREMENT,
+  `RecommendedBy` int(3) NOT NULL,
+  `Date` date NOT NULL,
+  `ApplicantName` varchar(75) NOT NULL,
+  `DateOfBirth` date DEFAULT NULL,
+  `Age` int(3) DEFAULT NULL,
+  `Occupation` varchar(50) DEFAULT NULL,
+  `MonthlyIncome` int(10) DEFAULT NULL,
+  `MobileNumber` varchar(10) DEFAULT NULL,
+  `AltMobileNumber` varchar(10) DEFAULT NULL,
+  `AadhaarNo` varchar(12) DEFAULT NULL,
+  `PANNo` varchar(15) DEFAULT NULL,
+  `ResidenceType` varchar(15) DEFAULT NULL,
+  `Address` varchar(1000) DEFAULT NULL,
+  `UploadPhoto` varchar(250) DEFAULT NULL,
+  `Purpose` varchar(500) DEFAULT NULL,
+  `ReqLoanAmount` int(10) DEFAULT NULL,
+  `RelName` varchar(50) DEFAULT NULL,
+  `Relationship` varchar(50) DEFAULT NULL,
+  `RelAge` int(3) DEFAULT NULL,
+  `RelMobile` varchar(10) DEFAULT NULL,
+  `FirstGuarant` varchar(50) DEFAULT NULL,
+  `FRelationship` varchar(50) DEFAULT NULL,
+  `FAge` int(3) DEFAULT NULL,
+  `Faddress` varchar(500) DEFAULT NULL,
+  `FMobileNumber` varchar(10) DEFAULT NULL,
+  `FAadharNo` varchar(12) DEFAULT NULL,
+  `SecondGuarant` varchar(50) DEFAULT NULL,
+  `SRelationship` varchar(50) DEFAULT NULL,
+  `SAge` int(3) DEFAULT NULL,
+  `Saddress` varchar(500) DEFAULT NULL,
+  `SMobileNumber` varchar(10) DEFAULT NULL,
+  `SAadharNo` varchar(12) DEFAULT NULL,
+  `TecondGuarant` varchar(50) DEFAULT NULL,
+  `TRelationship` varchar(50) DEFAULT NULL,
+  `TAge` int(3) DEFAULT NULL,
+  `Taddress` varchar(500) DEFAULT NULL,
+  `TMobileNumber` varchar(10) DEFAULT NULL,
+  `TAadharNo` varchar(12) DEFAULT NULL,
+  `VOfficerName` int(3) DEFAULT NULL,
+  `AccountantName` int(3) DEFAULT NULL,
+  `ManagerName` int(3) DEFAULT NULL,
+  `VerifiedDate` date DEFAULT NULL,
+  `AccEnteredDate` date DEFAULT NULL,
+  `ManagerApprovedDate` date DEFAULT NULL,
+  PRIMARY KEY (`PID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_current` (
+  `SCID` int(11) NOT NULL AUTO_INCREMENT,
+  `SCNO` int(11) NOT NULL DEFAULT 0,
+  `MemberId` int(11) NOT NULL,
+  `MemberName` varchar(150) NOT NULL,
+  `CreatedDate` date NOT NULL,
+  `Amount` decimal(15,2) NOT NULL,
+  `ManagerApproved` int(3) NOT NULL DEFAULT 0,
+  `DirectorApproved` int(3) NOT NULL DEFAULT 0,
+  `Status` int(1) NOT NULL DEFAULT 1,
+  `ClosedBy` int(3) NOT NULL DEFAULT 0,
+  `ClosedDate` date DEFAULT NULL,
+  `Remarks` varchar(1000) NOT NULL,
+  `ManagerApprovedDate` date DEFAULT NULL,
+  `DirectorApprovedDate` date DEFAULT NULL,
+  `MemberCode` varchar(20) NOT NULL,
+  `CreatedBy` int(3) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`SCID`),
+  KEY `fk_member_savingscurrent` (`MemberId`),
+  CONSTRAINT `fk_member_savingscurrent` FOREIGN KEY (`MemberId`) REFERENCES `ast_members` (`MemberId`)
+) ENGINE=InnoDB AUTO_INCREMENT=139 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_current_audit` (
+  `HistoryID` int(11) NOT NULL AUTO_INCREMENT,
+  `ActionType` varchar(10) DEFAULT NULL,
+  `ActionTimestamp` datetime DEFAULT NULL,
+  `ActionUser` varchar(100) DEFAULT NULL,
+  `SCID` int(11) DEFAULT NULL,
+  `SCNO` int(11) DEFAULT NULL,
+  `MemberId` int(11) DEFAULT NULL,
+  `MemberName` varchar(150) DEFAULT NULL,
+  `CreatedDate` date DEFAULT NULL,
+  `Amount` decimal(15,2) DEFAULT NULL,
+  `ManagerApproved` int(3) DEFAULT NULL,
+  `DirectorApproved` int(3) DEFAULT NULL,
+  `Status` int(1) DEFAULT NULL,
+  `ClosedBy` int(3) DEFAULT NULL,
+  `ClosedDate` date DEFAULT NULL,
+  `Remarks` varchar(1000) DEFAULT NULL,
+  `ManagerApprovedDate` date DEFAULT NULL,
+  `DirectorApprovedDate` date DEFAULT NULL,
+  `MemberCode` varchar(20) DEFAULT NULL,
+  `CreatedBy` int(3) DEFAULT NULL,
+  PRIMARY KEY (`HistoryID`)
+) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_daily` (
+  `SDID` int(11) NOT NULL AUTO_INCREMENT,
+  `SDNO` int(11) NOT NULL DEFAULT 0,
+  `DSID` int(11) NOT NULL,
+  `MemberId` int(11) NOT NULL,
+  `MemberName` varchar(150) NOT NULL,
+  `CreatedDate` date NOT NULL,
+  `SavingsType` int(1) NOT NULL,
+  `InterestPercentage` decimal(5,2) NOT NULL,
+  `InstallMentAmount` decimal(15,2) NOT NULL,
+  `TotalInterest` decimal(15,2) NOT NULL,
+  `MaturedAmount` decimal(15,2) NOT NULL,
+  `BalanceAmount` decimal(15,2) NOT NULL,
+  `ManagerApproved` int(3) NOT NULL DEFAULT 0,
+  `ManagerApprovedDate` date DEFAULT NULL,
+  `DirectorApproved` int(3) NOT NULL DEFAULT 0,
+  `DirectorApprovedDate` date DEFAULT NULL,
+  `Status` int(1) NOT NULL DEFAULT 1,
+  `ClosedBy` int(3) NOT NULL DEFAULT 0,
+  `ClosedDate` date DEFAULT NULL,
+  `Remarks` varchar(1000) DEFAULT NULL,
+  PRIMARY KEY (`SDID`),
+  KEY `fk_member_savingsdaily` (`MemberId`),
+  KEY `fk_dailysavingsmaster_savingsdaily` (`DSID`),
+  CONSTRAINT `fk_dailysavingsmaster_savingsdaily` FOREIGN KEY (`DSID`) REFERENCES `ast_master_savings_daily` (`DSID`),
+  CONSTRAINT `fk_member_savingsdaily` FOREIGN KEY (`MemberId`) REFERENCES `ast_members` (`MemberId`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_daily_type` (
+  `SDTID` int(10) NOT NULL AUTO_INCREMENT,
+  `SDType` varchar(50) NOT NULL,
+  `Days` int(3) NOT NULL,
+  PRIMARY KEY (`SDTID`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_fd_types` (
+  `SFTID` int(11) NOT NULL AUTO_INCREMENT,
+  `SavingsType` varchar(30) NOT NULL,
+  `InterestPercentage` decimal(6,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (`SFTID`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_fixed` (
+  `SDFID` int(11) NOT NULL AUTO_INCREMENT,
+  `SDFNO` int(11) NOT NULL,
+  `MemberId` int(11) NOT NULL,
+  `MemberName` varchar(150) NOT NULL,
+  `CreatedDate` date NOT NULL,
+  `SavingsType` int(1) NOT NULL,
+  `InterestPercentage` decimal(5,2) NOT NULL,
+  `Amount` decimal(15,2) NOT NULL,
+  `TotalInterest` decimal(15,2) NOT NULL,
+  `MaturedAmount` decimal(15,2) NOT NULL,
+  `ManagerApproved` int(3) NOT NULL DEFAULT 0,
+  `ManagerApprovedDate` date DEFAULT NULL,
+  `DirectorApproved` int(3) NOT NULL DEFAULT 0,
+  `DirectorApprovedDate` date DEFAULT NULL,
+  `Status` int(1) NOT NULL DEFAULT 1,
+  `ClosedBy` int(3) NOT NULL DEFAULT 0,
+  `ClosedDate` date DEFAULT NULL,
+  `IsOldDataEntry` int(1) NOT NULL DEFAULT 0,
+  `OldDataEntryDate` date DEFAULT NULL,
+  `Remarks` varchar(1000) DEFAULT NULL,
+  PRIMARY KEY (`SDFID`),
+  KEY `fk_member_savingsfixed` (`MemberId`),
+  CONSTRAINT `fk_member_savingsfixed` FOREIGN KEY (`MemberId`) REFERENCES `ast_members` (`MemberId`)
+) ENGINE=InnoDB AUTO_INCREMENT=148 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_monthly` (
+  `SDMID` int(11) NOT NULL AUTO_INCREMENT,
+  `SDMNO` int(11) NOT NULL,
+  `SMID` int(11) NOT NULL,
+  `MemberId` int(11) NOT NULL,
+  `MemberName` varchar(150) NOT NULL,
+  `CreatedDate` date NOT NULL,
+  `SavingsType` int(1) NOT NULL,
+  `InterestPercentage` decimal(5,2) NOT NULL,
+  `InstallMentAmount` decimal(15,2) NOT NULL,
+  `TotalInterest` decimal(15,2) NOT NULL,
+  `MaturedAmount` decimal(15,2) NOT NULL,
+  `ManagerApproved` int(3) NOT NULL,
+  `ManagerApprovedDate` date NOT NULL,
+  `DirectorApproved` int(3) NOT NULL,
+  `DirectorApprovedDate` date NOT NULL,
+  `Status` int(1) NOT NULL,
+  `ClosedBy` int(3) NOT NULL,
+  `ClosedDate` date DEFAULT NULL,
+  `Remarks` varchar(1000) NOT NULL,
+  PRIMARY KEY (`SDMID`),
+  KEY `fk_member_savingsmonthly` (`MemberId`),
+  KEY `fk_monthlysavingsmaster_savingsmonthly` (`SMID`),
+  CONSTRAINT `fk_member_savingsmonthly` FOREIGN KEY (`MemberId`) REFERENCES `ast_members` (`MemberId`),
+  CONSTRAINT `fk_monthlysavingsmaster_savingsmonthly` FOREIGN KEY (`SMID`) REFERENCES `ast_master_savings_monthly` (`SMID`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_savings_paid_details` (
+  `SPDID` int(11) NOT NULL AUTO_INCREMENT,
+  `SavingsAccountNo` int(11) NOT NULL,
+  `ATMID` int(3) NOT NULL,
+  `MemberId` int(11) NOT NULL,
+  `CurrentDate` date NOT NULL,
+  `Amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `Penalty` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `InstallmentNo` int(3) NOT NULL DEFAULT 0,
+  `Month` int(3) NOT NULL,
+  `Year` int(3) NOT NULL,
+  `TID` int(11) NOT NULL,
+  `EnteredBy` int(3) NOT NULL,
+  PRIMARY KEY (`SPDID`),
+  KEY `fk_member_savingspaid` (`MemberId`),
+  KEY `fk_transaction_savingspaid` (`TID`),
+  CONSTRAINT `fk_member_savingspaid` FOREIGN KEY (`MemberId`) REFERENCES `ast_members` (`MemberId`),
+  CONSTRAINT `fk_transaction_savingspaid` FOREIGN KEY (`TID`) REFERENCES `ast_transaction` (`TID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_state` (
+  `SID` int(3) NOT NULL AUTO_INCREMENT,
+  `StateName` varchar(150) NOT NULL,
+  `Pincode` int(10) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`SID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_transaction` (
+  `TID` int(11) NOT NULL AUTO_INCREMENT,
+  `Date` date NOT NULL,
+  `AccountNo` int(11) NOT NULL,
+  `Amount` decimal(15,2) NOT NULL,
+  `AYID` int(3) NOT NULL,
+  `ATMID` int(3) NOT NULL,
+  `TransactionType` int(3) NOT NULL,
+  `TransactionMethod` int(3) NOT NULL,
+  `ChallanNo` varchar(25) NOT NULL,
+  `ACode` int(3) NOT NULL,
+  `ASubCode` int(3) NOT NULL,
+  `InterestType` int(11) NOT NULL,
+  `IsManagerApproved` int(3) NOT NULL DEFAULT 0,
+  `ManagerApprovedDate` date NOT NULL,
+  `IsDirectorApproved` int(3) NOT NULL DEFAULT 0,
+  `DirectorApprovedDate` date NOT NULL,
+  `PROrIntOrPen` int(1) NOT NULL DEFAULT 0,
+  `Remarks` varchar(1000) DEFAULT NULL,
+  `UserId` int(3) NOT NULL,
+  `Narration` varchar(500) NOT NULL,
+  `BankId` int(11) NOT NULL DEFAULT 0,
+  `MemberId` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`TID`),
+  KEY `fk_accountyear_transaction` (`AYID`),
+  KEY `fk_accounttype_transaction` (`ATMID`),
+  CONSTRAINT `fk_accounttype_transaction` FOREIGN KEY (`ATMID`) REFERENCES `ast_account_type` (`ATMID`),
+  CONSTRAINT `fk_accountyear_transaction` FOREIGN KEY (`AYID`) REFERENCES `ast_account_year` (`AYID`)
+) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_transaction_audit` (
+  `AuditID` int(11) NOT NULL AUTO_INCREMENT,
+  `AuditAction` varchar(10) DEFAULT NULL,
+  `AuditTimestamp` datetime DEFAULT current_timestamp(),
+  `TID` int(11) DEFAULT NULL,
+  `Date` date DEFAULT NULL,
+  `AccountNo` int(11) DEFAULT NULL,
+  `Amount` decimal(15,2) DEFAULT NULL,
+  `AYID` int(3) DEFAULT NULL,
+  `ATMID` int(3) DEFAULT NULL,
+  `TransactionType` int(3) DEFAULT NULL,
+  `TransactionMethod` int(3) DEFAULT NULL,
+  `ChallanNo` varchar(25) DEFAULT NULL,
+  `ACode` int(3) DEFAULT NULL,
+  `ASubCode` int(3) DEFAULT NULL,
+  `InterestType` int(11) DEFAULT NULL,
+  `IsManagerApproved` int(3) DEFAULT NULL,
+  `ManagerApprovedDate` date DEFAULT NULL,
+  `IsDirectorApproved` int(3) DEFAULT NULL,
+  `DirectorApprovedDate` date DEFAULT NULL,
+  `PROrIntOrPen` int(1) DEFAULT NULL,
+  `Remarks` varchar(1000) DEFAULT NULL,
+  `UserId` int(3) DEFAULT NULL,
+  `Narration` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`AuditID`)
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_transaction_method` (
+  `TMID` int(11) NOT NULL AUTO_INCREMENT,
+  `TID` int(11) NOT NULL,
+  `MethodType` int(1) NOT NULL DEFAULT 0,
+  `ChequeDate` date DEFAULT NULL,
+  `FromBank` varchar(100) DEFAULT NULL,
+  `ToBank` varchar(100) DEFAULT NULL,
+  `ChequeNumber` varchar(50) DEFAULT NULL,
+  `UPIType` int(3) NOT NULL DEFAULT 0,
+  `UPITransactionId` varchar(100) DEFAULT NULL,
+  `Amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `TransactionDate` date DEFAULT NULL,
+  `TransType` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`TMID`),
+  KEY `fk_transaction_transactionmethod` (`TID`),
+  CONSTRAINT `fk_transaction_transactionmethod` FOREIGN KEY (`TID`) REFERENCES `ast_transaction` (`TID`)
+) ENGINE=InnoDB AUTO_INCREMENT=197 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `ast_upi_type` (
+  `UPIType` int(3) NOT NULL AUTO_INCREMENT,
+  `UPITypeName` varchar(100) NOT NULL,
+  PRIMARY KEY (`UPIType`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `designation` (
+  `DesignationId` int(3) NOT NULL AUTO_INCREMENT,
+  `Designation` varchar(50) NOT NULL,
+  `Description` varchar(500) DEFAULT NULL,
+  `UserId` int(3) NOT NULL,
+  `IsDeleted` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`DesignationId`),
+  KEY `UserId` (`UserId`),
+  CONSTRAINT `designation_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `user` (`UserId`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `error_tracking` (
+  `ErrorId` int(5) NOT NULL AUTO_INCREMENT,
+  `PageName` varchar(50) NOT NULL,
+  `FunctionName` varchar(50) NOT NULL,
+  `Message` varchar(250) NOT NULL,
+  `Date` datetime DEFAULT NULL,
+  PRIMARY KEY (`ErrorId`)
+) ENGINE=MyISAM AUTO_INCREMENT=342 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `invt_account_year` (
+  `AYID` int(3) NOT NULL AUTO_INCREMENT,
+  `AccountYear` varchar(25) NOT NULL,
+  `UserId` int(3) NOT NULL,
+  `IsDeleted` int(1) NOT NULL,
+  `IsDefault` int(1) NOT NULL DEFAULT 0,
+  `AccountStartDate` date DEFAULT NULL,
+  `AccountEndDate` date DEFAULT NULL,
+  PRIMARY KEY (`AYID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `lead_generation` (
+  `LeadID` int(10) NOT NULL AUTO_INCREMENT,
+  `Name` varchar(50) DEFAULT NULL,
+  `Nature` varchar(50) DEFAULT NULL,
+  `MainLocation` varchar(100) DEFAULT NULL,
+  `SubLocation` varchar(100) DEFAULT NULL,
+  `Owner` varchar(50) DEFAULT NULL,
+  `OwnerMobile` varchar(15) DEFAULT NULL,
+  `OwnerPhone` varchar(15) DEFAULT NULL,
+  `OwnerEmail` varchar(50) DEFAULT NULL,
+  `ShopGST` varchar(50) DEFAULT NULL,
+  `CurrentProduct` varchar(100) DEFAULT NULL,
+  `Reference` varchar(100) DEFAULT NULL,
+  `PriceTag` varchar(50) DEFAULT NULL,
+  `PriceTagRemarks` varchar(100) DEFAULT NULL,
+  `DateTime` datetime(6) NOT NULL,
+  `Remarks` varchar(500) DEFAULT NULL,
+  `UserId` int(3) NOT NULL DEFAULT 0,
+  `ShopName` varchar(250) DEFAULT NULL,
+  `IsDeleted` int(1) NOT NULL DEFAULT 0,
+  `OutstandingAmount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (`LeadID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `logged` (
+  `loginid` int(3) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `page` (
+  `PageId` int(3) NOT NULL AUTO_INCREMENT,
+  `PageName` varchar(500) NOT NULL,
+  `Link` varchar(50) NOT NULL,
+  `Description` varchar(500) DEFAULT NULL,
+  `UserId` int(3) NOT NULL,
+  `PSMID` int(3) NOT NULL,
+  `IconName` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`PageId`),
+  KEY `fk_PageUser` (`UserId`),
+  KEY `fk_page_page_sidemenu` (`PSMID`),
+  CONSTRAINT `fk_PageUser` FOREIGN KEY (`UserId`) REFERENCES `user` (`UserId`),
+  CONSTRAINT `fk_page_page_sidemenu` FOREIGN KEY (`PSMID`) REFERENCES `page_sidemenu_main_heading` (`PSMID`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2936 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `page_sidemenu_main_heading` (
+  `PSMID` int(3) NOT NULL AUTO_INCREMENT,
+  `MainHeading` varchar(100) NOT NULL,
+  `RoleId` int(3) NOT NULL,
+  `UserId` int(3) NOT NULL,
+  `IconName` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`PSMID`),
+  KEY `fk_page_sidemenu_role` (`RoleId`)
+) ENGINE=InnoDB AUTO_INCREMENT=224 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `pdn_error_log` (
+  `EID` bigint(10) NOT NULL AUTO_INCREMENT,
+  `Date` date DEFAULT NULL,
+  `PageName` varchar(250) DEFAULT NULL,
+  `FunctionName` varchar(200) DEFAULT NULL,
+  `Message` varchar(1000) DEFAULT NULL,
+  PRIMARY KEY (`EID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `pdn_manager_incharge_setup` (
+  `MISID` int(10) NOT NULL AUTO_INCREMENT,
+  `AssigningDate` date NOT NULL,
+  `DateFrom` datetime NOT NULL,
+  `DateTo` datetime NOT NULL,
+  `FromRoleId` int(3) NOT NULL DEFAULT 0,
+  `ToRoleId` int(3) NOT NULL DEFAULT 0,
+  `ToUser` int(3) NOT NULL DEFAULT 0,
+  `Remarks` varchar(1000) NOT NULL,
+  `IsDeleted` int(1) NOT NULL DEFAULT 0,
+  `AssignedBy` int(3) NOT NULL DEFAULT 0,
+  `Status` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`MISID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `role` (
+  `RoleId` int(3) NOT NULL AUTO_INCREMENT,
+  `RoleName` varchar(50) NOT NULL,
+  `Description` varchar(500) NOT NULL,
+  `Date` date NOT NULL,
+  `UserId` int(3) NOT NULL,
+  `IsDeleted` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`RoleId`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `state` (
+  `STID` int(3) NOT NULL AUTO_INCREMENT,
+  `State` varchar(100) NOT NULL,
+  `IsDeleted` int(1) NOT NULL DEFAULT 0,
+  `UserId` int(3) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`STID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `user` (
+  `UserId` int(3) NOT NULL AUTO_INCREMENT,
+  `Date` date NOT NULL,
+  `Name` varchar(50) NOT NULL,
+  `UserName` varchar(50) NOT NULL,
+  `Password` varchar(100) NOT NULL,
+  `RoleId` int(3) NOT NULL,
+  `StaffCodeNumber` varchar(25) NOT NULL,
+  `DesignationId` int(3) NOT NULL,
+  `DivisionId` int(3) NOT NULL,
+  `EntityId` int(3) NOT NULL,
+  `EmailId` varchar(50) NOT NULL,
+  `MobileNumber` varchar(15) NOT NULL,
+  `IsBlocked` tinyint(1) NOT NULL DEFAULT 0,
+  `IsApproved` tinyint(1) NOT NULL DEFAULT 0,
+  `PhoneNumber` varchar(15) NOT NULL,
+  `IsFirstLogin` tinyint(1) NOT NULL DEFAULT 0,
+  `ApprovedBy` int(3) NOT NULL DEFAULT 0,
+  `Signature` varchar(100) NOT NULL,
+  `IsDeleted` int(1) NOT NULL DEFAULT 0,
+  `Branch` int(3) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`UserId`),
+  KEY `user_ibfk_1` (`RoleId`),
+  KEY `fk_UserDesignation` (`DesignationId`),
+  CONSTRAINT `fk_UserDesignation` FOREIGN KEY (`DesignationId`) REFERENCES `designation` (`DesignationId`),
+  CONSTRAINT `user_ibfk_1` FOREIGN KEY (`RoleId`) REFERENCES `role` (`RoleId`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `user_privilages` (
+  `UpId` int(3) NOT NULL AUTO_INCREMENT,
+  `RoleId` int(3) NOT NULL,
+  `Date` date NOT NULL,
+  `PageId` int(3) NOT NULL,
+  `DInsert` tinyint(1) NOT NULL DEFAULT 0,
+  `DEdit` tinyint(1) NOT NULL DEFAULT 0,
+  `DDelete` tinyint(1) NOT NULL DEFAULT 0,
+  `DView` tinyint(1) NOT NULL DEFAULT 0,
+  `UserId` int(3) NOT NULL,
+  `IsDeleted` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`UpId`),
+  KEY `fk_user_privilages_userrole` (`RoleId`),
+  KEY `fk_PrivilageUser` (`UserId`),
+  KEY `fk_user_privilages_page_privilages` (`PageId`),
+  CONSTRAINT `fk_PrivilageUser` FOREIGN KEY (`UserId`) REFERENCES `user` (`UserId`),
+  CONSTRAINT `fk_user_privilages_page_privilages` FOREIGN KEY (`PageId`) REFERENCES `page` (`PageId`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6149 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `user_privilages_temp` (
+  `UpId` int(3) NOT NULL AUTO_INCREMENT,
+  `RoleId` int(3) NOT NULL,
+  `Date` date NOT NULL,
+  `PageId` int(3) NOT NULL,
+  `DInsert` tinyint(1) NOT NULL DEFAULT 0,
+  `DEdit` tinyint(1) NOT NULL DEFAULT 0,
+  `DDelete` tinyint(1) NOT NULL DEFAULT 0,
+  `DView` tinyint(1) NOT NULL DEFAULT 0,
+  `UserId` int(3) NOT NULL,
+  PRIMARY KEY (`UpId`),
+  KEY `fk_user_privilages_userrole` (`RoleId`),
+  KEY `fk_user_page__privilages` (`PageId`),
+  KEY `fk_PrivilageUser` (`UserId`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+

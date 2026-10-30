@@ -1,0 +1,10 @@
+# Local environment & database overrides
+application/settings/db_local.php
+
+# Operating system & editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
