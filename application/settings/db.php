@@ -29,7 +29,11 @@ if (defined('AUTO_DB_SYNC') && AUTO_DB_SYNC) {
     $syncEnginePath = __DIR__ . '/../../DB/DatabaseSync.php';
     if (file_exists($syncEnginePath)) {
         require_once $syncEnginePath;
-        DatabaseSync::autoSync($conn);
+        try {
+            DatabaseSync::autoSync($conn);
+        } catch (\Throwable $t) {
+            error_log("AutoSync notice: " . $t->getMessage());
+        }
     }
 }
 
