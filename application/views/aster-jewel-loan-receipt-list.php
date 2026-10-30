@@ -1,5 +1,8 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+ob_start();
 // Secure session handling
 if (!isset($_SESSION['UserId']) || empty($_SESSION['UserId'])) {
     header('Location: login.php');
@@ -103,12 +106,31 @@ $todayDate = $data['todayDate'];
             font-weight: bold;
         }
 
-        /* Voucher Pop-up Modal Styling */
+        /* Voucher Pop-up Modal Styling & Viewport Centering */
         #receiptViewModal {
-            z-index: 100050 !important;
+            text-align: center;
+            padding: 0 !important;
         }
-        .modal-backdrop {
-            z-index: 100040 !important;
+        #receiptViewModal:before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+            margin-right: -4px;
+        }
+        #receiptViewModal .modal-dialog {
+            display: inline-block;
+            text-align: left;
+            vertical-align: middle;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 880px;
+        }
+        #receiptViewModal .modal-content {
+            border-radius: 8px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+            border: 1px solid #c9d2db;
+            overflow: hidden;
         }
         .voucher-card {
             background: #ffffff;
@@ -364,7 +386,7 @@ $todayDate = $data['todayDate'];
                                                 <td class="text-right">₹<?= number_format($r['InterestPaid'], 2) ?></td>
                                                 <td class="text-right">₹<?= number_format($r['BalanceLoanAmount'], 2) ?></td>
                                                 <td class="text-center">
-                                                    <button type="button" class="btn btn-default btn-xs btn-view-receipt-popup" data-receipt-id="<?= $r['ReceiptId'] ?>" data-receipt-no="<?= htmlspecialchars($r['ReceiptNo']) ?>" title="View Receipt Voucher (Popup)">
+                                                    <button type="button" class="btn btn-default btn-xs btn-view-receipt-popup" onclick="window.openReceiptVoucher(this, event)" data-receipt-id="<?= $r['ReceiptId'] ?>" data-receipt-no="<?= htmlspecialchars($r['ReceiptNo']) ?>" title="View Receipt Voucher (Popup)">
                                                         <i class="fa fa-eye"></i>
                                                     </button>
                                                     <a href="aster-jewel-loan-receipt-pdf.php?receipt_id=<?= $r['ReceiptId'] ?>" class="btn btn-danger btn-xs" title="Download PDF" target="_blank">
@@ -404,18 +426,10 @@ $todayDate = $data['todayDate'];
 <!-- Receipt Voucher Modal Popup (Placed outside #wrapper)           -->
 <!-- ============================================================== -->
 <div class="modal fade" id="receiptViewModal" tabindex="-1" role="dialog" aria-labelledby="receiptViewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document" style="width: 90%; max-width: 900px; margin: 30px auto;">
-        <div class="modal-content" style="border-radius: 6px; box-shadow: 0 5px 25px rgba(0,0,0,0.4);">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
             <div class="modal-header" style="background-color: #f7f9fa; border-bottom: 1px solid #e1e4e8; padding: 12px 20px;">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 26px; line-height: 1; margin-top: -3px;">&times;</button>
-                <div class="pull-right" style="margin-right: 15px;">
-                    <button type="button" class="btn btn-primary btn-sm" id="btn-print-modal-receipt" style="margin-right: 5px;">
-                        <i class="fa fa-print"></i> Print Voucher
-                    </button>
-                    <a href="#" target="_blank" class="btn btn-danger btn-sm" id="btn-pdf-modal-receipt" style="margin-right: 5px;">
-                        <i class="fa fa-file-pdf-o"></i> Download PDF
-                    </a>
-                </div>
                 <h4 class="modal-title" id="receiptViewModalLabel" style="font-weight: bold; color: #337ab7; margin: 0;">
                     <i class="fa fa-ticket"></i> Receipt Voucher - <span id="modal-receipt-no-display"></span>
                 </h4>
@@ -449,98 +463,88 @@ $todayDate = $data['todayDate'];
 <script src="js/dataTables.bootstrap.min.js"></script>
 
 <script>
-$(document).ready(function() {
-    $('#receipt-list-table').DataTable({
-        "paging": true,
-        "ordering": true,
-        "info": true,
-        "pageLength": 25,
-        "order": [[2, "desc"]]
-    });
+// Global Voucher Popup Loader
+window.openReceiptVoucher = function(elem, event) {
+    if (event) {
+        event.preventDefault();
+    }
+    var $btn = $(elem).closest('.btn-view-receipt-popup');
+    var receiptId = $btn.attr('data-receipt-id') || $btn.data('receipt-id');
+    var receiptNo = $btn.attr('data-receipt-no') || $btn.data('receipt-no');
 
-    // Open receipt voucher in modal popup
-    $(document).on('click', '.btn-view-receipt-popup', function(e) {
-        e.preventDefault();
-        var receiptId = $(this).attr('data-receipt-id') || $(this).data('receipt-id');
-        var receiptNo = $(this).attr('data-receipt-no') || $(this).data('receipt-no');
+    if (!receiptId) {
+        alert('Receipt ID not found.');
+        return;
+    }
 
-        if (!receiptId) {
-            alert('Receipt ID not found.');
-            return;
-        }
+    $('#modal-receipt-no-display').text(receiptNo || '');
+    $('#receipt-modal-loading').show();
+    $('#receipt-modal-error').hide().html('');
+    $('#receipt-modal-body-content').hide().html('');
 
-        $('#modal-receipt-no-display').text(receiptNo);
-        $('#btn-pdf-modal-receipt').attr('href', 'aster-jewel-loan-receipt-pdf.php?receipt_id=' + encodeURIComponent(receiptId));
+    $('#receiptViewModal').modal('show');
 
-        $('#receipt-modal-loading').show();
-        $('#receipt-modal-error').hide().html('');
-        $('#receipt-modal-body-content').hide().html('');
-
-        // Show modal immediately
-        $('#receiptViewModal').modal('show');
-
-        // Fetch voucher HTML directly via AJAX
-        $.ajax({
-            url: 'aster-jewel-loan-receipt-list.php',
-            type: 'GET',
-            dataType: 'json',
-            data: { ajax_receipt_voucher: receiptId },
-            success: function(resp) {
-                $('#receipt-modal-loading').hide();
-                if (resp && resp.status === 'success' && resp.html) {
-                    if (resp.receipt_no) {
-                        $('#modal-receipt-no-display').text(resp.receipt_no);
-                    }
-                    $('#receipt-modal-body-content').html(resp.html).show();
-                } else {
-                    var errMsg = (resp && resp.message) ? resp.message : 'Failed to load receipt voucher.';
-                    $('#receipt-modal-error').html('<i class="fa fa-exclamation-circle"></i> ' + errMsg).show();
+    $.ajax({
+        url: 'aster-jewel-loan-receipt-list.php',
+        type: 'GET',
+        dataType: 'json',
+        cache: false,
+        timeout: 10000,
+        data: { ajax_receipt_voucher: receiptId },
+        success: function(resp) {
+            $('#receipt-modal-loading').hide();
+            if (resp && resp.status === 'success' && resp.html) {
+                if (resp.receipt_no) {
+                    $('#modal-receipt-no-display').text(resp.receipt_no);
                 }
-            },
-            error: function(xhr, status, error) {
-                $('#receipt-modal-loading').hide();
-                $('#receipt-modal-error').html('<i class="fa fa-exclamation-circle"></i> Server communication error. Please try again.').show();
+                $('#receipt-modal-body-content').html(resp.html).show();
+            } else {
+                var errMsg = (resp && resp.message) ? resp.message : 'Failed to load receipt voucher details.';
+                $('#receipt-modal-error').html('<i class="fa fa-exclamation-circle"></i> ' + errMsg).show();
             }
-        });
+        },
+        error: function(xhr, status, error) {
+            $('#receipt-modal-loading').hide();
+            console.error('AJAX Voucher Error:', status, error, xhr.responseText);
+            var errMsg = 'Failed to load receipt voucher.';
+            if (status === 'timeout') {
+                errMsg = 'Request timed out while loading voucher. Please check database connectivity.';
+            } else if (xhr && xhr.responseText && xhr.responseText.indexOf('login.php') !== -1) {
+                errMsg = 'Session expired. Please <a href="login.php" target="_blank">log in again</a>.';
+            } else if (xhr && xhr.responseText) {
+                try {
+                    var parsed = JSON.parse(xhr.responseText);
+                    if (parsed && parsed.html) {
+                        $('#receipt-modal-body-content').html(parsed.html).show();
+                        return;
+                    }
+                } catch(e) {}
+                errMsg = 'Server returned an invalid response. Please try again.';
+            }
+            $('#receipt-modal-error').html('<i class="fa fa-exclamation-circle"></i> ' + errMsg).show();
+        }
     });
+};
 
-    // Print voucher directly from modal content
-    $('#btn-print-modal-receipt').on('click', function() {
-        var printContents = document.getElementById('receipt-modal-body-content').innerHTML;
-        if (!printContents) {
-            alert('Receipt content is not loaded yet.');
-            return;
+$(document).ready(function() {
+    // Safely initialize DataTable only if rows exist (prevents DataTables crash on colspan empty row)
+    if ($('#receipt-list-table').length && <?= !empty($receipts) ? 'true' : 'false' ?>) {
+        try {
+            $('#receipt-list-table').DataTable({
+                "paging": true,
+                "ordering": true,
+                "info": true,
+                "pageLength": 25,
+                "order": [[2, "desc"]]
+            });
+        } catch (e) {
+            console.warn('DataTables initialization warning:', e);
         }
-        var printWindow = window.open('', '_blank', 'height=750,width=950');
-        if (!printWindow) {
-            window.print();
-            return;
-        }
-        printWindow.document.write('<!DOCTYPE html><html><head><title>Print Receipt Voucher</title>');
-        printWindow.document.write('<link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">');
-        printWindow.document.write('<style>');
-        printWindow.document.write('body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 20px; background: #fff; }');
-        printWindow.document.write('.voucher-card { background: #fff; border: 2px solid #204d74; border-radius: 6px; padding: 20px 25px; max-width: 850px; margin: 0 auto; }');
-        printWindow.document.write('.voucher-header { text-align: center; border-bottom: 2px solid #204d74; padding-bottom: 12px; margin-bottom: 15px; }');
-        printWindow.document.write('.voucher-org-title { font-size: 20px; font-weight: 800; color: #204d74; margin-bottom: 3px; }');
-        printWindow.document.write('.voucher-org-sub { font-size: 12px; color: #555; margin-bottom: 8px; }');
-        printWindow.document.write('.voucher-badge { display: inline-block; background: #204d74; color: #fff; font-weight: bold; font-size: 13px; padding: 3px 15px; border-radius: 3px; }');
-        printWindow.document.write('.voucher-table-meta, .voucher-table-breakdown { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }');
-        printWindow.document.write('.voucher-table-meta td { padding: 5px 8px; }');
-        printWindow.document.write('.voucher-table-breakdown th, .voucher-table-breakdown td { border: 1px solid #ccc; padding: 6px 10px; }');
-        printWindow.document.write('.voucher-table-breakdown th { background: #f0f4f8; color: #204d74; font-weight: bold; }');
-        printWindow.document.write('.voucher-signatures { margin-top: 35px; }');
-        printWindow.document.write('.signature-col { text-align: center; border-top: 1px dashed #666; padding-top: 5px; font-weight: 600; font-size: 12px; }');
-        printWindow.document.write('@media print { body { padding: 0; } .voucher-card { border: 1px solid #000; box-shadow: none; width: 100%; max-width: 100%; } }');
-        printWindow.document.write('</style></head><body>');
-        printWindow.document.write(printContents);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(function() {
-            printWindow.print();
-            printWindow.close();
-        }, 300);
+    }
+
+    // Delegated click handler
+    $(document).on('click', '.btn-view-receipt-popup', function(e) {
+        window.openReceiptVoucher(this, e);
     });
 
     // Reset modal on close
