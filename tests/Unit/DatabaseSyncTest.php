@@ -31,6 +31,23 @@ SQL;
         $this->assertTrue(isset($extracted['test_sample_two']), "Parsed test_sample_two correctly");
         $this->assertTrue(strpos($extracted['test_sample_one'], 'IF NOT EXISTS') !== false, "Automatically injected IF NOT EXISTS");
 
+        $this->setTestName("DatabaseSync Table Elements & Column Parser");
+        $sampleTableSql = "CREATE TABLE `ast_sample_tbl` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `code` varchar(50) NOT NULL DEFAULT 'DEF',
+            `status` enum('ACTIVE','PENDING','ARCHIVED') NOT NULL,
+            `amount` decimal(12,2) NOT NULL DEFAULT 0.00,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uk_code` (`code`),
+            KEY `idx_status` (`status`)
+        ) ENGINE=InnoDB;";
+        $parsedElements = DatabaseSync::parseTableElements($sampleTableSql);
+        $this->assertTrue(isset($parsedElements['columns']['id']), "Extracted column `id`");
+        $this->assertTrue(isset($parsedElements['columns']['status']), "Extracted column `status`");
+        $this->assertTrue(isset($parsedElements['columns']['amount']), "Extracted column `amount`");
+        $this->assertEquals("enum('ACTIVE','PENDING','ARCHIVED') NOT NULL", $parsedElements['columns']['status']['definition'], "Extracted enum definition accurately");
+        $this->assertGreaterThan(1, count($parsedElements['indexes']), "Extracted indexes & keys");
+
         $this->setTestName("DatabaseSync Directory Resolution");
         $migrationsDir = DatabaseSync::getMigrationsDir();
         $this->assertTrue(is_dir($migrationsDir), "Migrations directory exists: " . $migrationsDir);
@@ -43,7 +60,9 @@ SQL;
         $this->assertTrue(file_exists($masterFile), "aster_structure.sql exists");
         $masterContent = file_get_contents($masterFile);
         $parsedTables = DatabaseSync::extractCreateTableStatements($masterContent);
-        $this->assertGreaterThan(40, count($parsedTables), "Master schema contains over 40 base tables");
+        $this->assertTrue(count($parsedTables) >= 46, "Master schema contains all base tables");
+        $this->assertTrue(isset($parsedTables['ast_jewel_loan_receipt']), "ast_jewel_loan_receipt exists in master schema");
+        $this->assertContains('PRINCIPAL_PAYMENT', $parsedTables['ast_jewel_loan_receipt'], "Master schema contains PRINCIPAL_PAYMENT in receipt table");
 
         $this->setTestName("Safety Guard: Strict Non-Deletion of Fields & Tables");
         // Verify that executeMultiSql refuses to execute DROP COLUMN or DROP TABLE
@@ -59,6 +78,16 @@ SQL;
         DatabaseSync::executeMultiSql($dummyConn, $dangerousSql);
         $this->assertEquals(1, count($dummyConn->executedQueries), "Destructive DROP queries were blocked");
         $this->assertEquals("SELECT 1", trim($dummyConn->executedQueries[0]), "Only safe non-destructive query ran");
+
+        $this->setTestName("DatabaseSync Comprehensive Change Management Result Keys");
+        if ($this->conn instanceof mysqli) {
+            $syncRes = DatabaseSync::syncAll($this->conn, false);
+            $this->assertTrue(is_array($syncRes), "syncAll returns an array");
+            $this->assertTrue(isset($syncRes['tables_created']), "syncAll reports tables_created");
+            $this->assertTrue(isset($syncRes['columns_added']), "syncAll reports columns_added");
+            $this->assertTrue(isset($syncRes['columns_modified']), "syncAll reports columns_modified");
+            $this->assertTrue(isset($syncRes['indexes_added']), "syncAll reports indexes_added");
+            $this->assertTrue(isset($syncRes['migrations_run']), "syncAll reports migrations_run");
+        }
     }
 }
-
