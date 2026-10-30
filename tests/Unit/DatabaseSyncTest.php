@@ -44,6 +44,21 @@ SQL;
         $masterContent = file_get_contents($masterFile);
         $parsedTables = DatabaseSync::extractCreateTableStatements($masterContent);
         $this->assertGreaterThan(40, count($parsedTables), "Master schema contains over 40 base tables");
+
+        $this->setTestName("Safety Guard: Strict Non-Deletion of Fields & Tables");
+        // Verify that executeMultiSql refuses to execute DROP COLUMN or DROP TABLE
+        $dummyConn = new class extends mysqli {
+            public $executedQueries = [];
+            public function __construct() {}
+            public function query(string $query, int $result_mode = MYSQLI_STORE_RESULT): mixed {
+                $this->executedQueries[] = $query;
+                return true;
+            }
+        };
+        $dangerousSql = "ALTER TABLE `test` DROP COLUMN `some_field`; DROP TABLE `test_tbl`; SELECT 1;";
+        DatabaseSync::executeMultiSql($dummyConn, $dangerousSql);
+        $this->assertEquals(1, count($dummyConn->executedQueries), "Destructive DROP queries were blocked");
+        $this->assertEquals("SELECT 1", trim($dummyConn->executedQueries[0]), "Only safe non-destructive query ran");
     }
 }
 
