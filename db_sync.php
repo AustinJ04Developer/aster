@@ -16,8 +16,13 @@ $message = null;
 $messageType = 'info';
 $syncResults = null;
 
+// Git Remote & Branch Detection
+$gitBranch = trim(@shell_exec('git rev-parse --abbrev-ref HEAD 2>&1') ?: '');
+$gitRemote = trim(@shell_exec('git remote get-url origin 2>&1') ?: '');
+$gitHeadCommit = trim(@shell_exec('git log -1 --pretty=format:"%h - %s" 2>&1') ?: '');
+
 // Handle Form Actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'sync_now') {
@@ -36,6 +41,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $messageType = 'info';
             $message = "Your database is already 100% up to date. No non-existent tables or pending migrations found.";
         }
+    } elseif ($action === 'git_pull_and_sync') {
+        $pullLog = '';
+        $currentBranch = $gitBranch ?: 'main';
+
+        // 1. Fetch remote changes
+        $fetchOut = trim(@shell_exec('git fetch origin 2>&1') ?: '');
+        if ($fetchOut) $pullLog .= $fetchOut . "\n";
+
+        // 2. Pull / Merge changes
+        $pullOut = trim(@shell_exec('git pull origin ' . escapeshellarg($currentBranch) . ' 2>&1') ?: '');
+        if ($pullOut) $pullLog .= $pullOut . "\n";
+
+        // If on branch other than main, also merge origin/main where PRs were merged
+        if ($currentBranch !== 'main') {
+            $mergeOut = trim(@shell_exec('git merge origin/main --no-edit 2>&1') ?: '');
+            if ($mergeOut) $pullLog .= $mergeOut . "\n";
+        }
+
+        // 3. Immediately run DatabaseSync
+        $syncResults = DatabaseSync::syncAll($conn);
+        $createdCount = count($syncResults['tables_created']);
+        $migratedCount = count($syncResults['migrations_run']);
+        $errorCount = count($syncResults['errors']);
+
+        $messageType = 'success';
+        $message = "<strong>Git Pull & Database Sync Completed!</strong><br>";
+        $message .= "Branch: <code>{$currentBranch}</code> | Created <strong>{$createdCount}</strong> table(s) | Applied <strong>{$migratedCount}</strong> migration(s).<br>";
+        if ($pullLog) {
+            $message .= "<pre style='margin-top:8px;max-height:120px;overflow-y:auto;background:#2d3748;color:#f7fafc;font-size:12px;padding:8px;'>" . htmlspecialchars(trim($pullLog)) . "</pre>";
+        }
+
+        // Refresh head commit info after pull
+        $gitHeadCommit = trim(@shell_exec('git log -1 --pretty=format:"%h - %s" 2>&1') ?: '');
     } elseif ($action === 'export_table') {
         $tableToExport = trim($_POST['export_table_name'] ?? '');
         if (!empty($tableToExport)) {
@@ -74,7 +112,8 @@ $pendingMigrations = array_diff($migrationFiles, $appliedMigrations);
 // Scan detected tables from SQL files to see if any are missing
 $allSchemaSqlFiles = glob(DatabaseSync::getSchemaDir() . '/*.sql') ?: [];
 $allMigrationSqlFiles = glob($migrationsDir . '/*.sql') ?: [];
-$allSqlFiles = array_merge($allSchemaSqlFiles, $allMigrationSqlFiles);
+$allDbSqlFiles = glob(__DIR__ . '/DB/*.sql') ?: [];
+$allSqlFiles = array_unique(array_merge($allSchemaSqlFiles, $allMigrationSqlFiles, $allDbSqlFiles));
 
 $detectedTables = [];
 foreach ($allSqlFiles as $sqf) {
@@ -98,6 +137,19 @@ $missingTablesCount = 0;
 foreach ($detectedTables as $dt) {
     if (!$dt['exists']) $missingTablesCount++;
 }
+
+// Check if there are incoming commits from remote origin
+$incomingCommits = [];
+if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
+    $incomingLog = trim(@shell_exec('git log HEAD..origin/main --oneline 2>&1') ?: '');
+    if ($incomingLog && stripos($incomingLog, 'fatal:') === false) {
+        $lines = explode("\n", $incomingLog);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line) $incomingCommits[] = $line;
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -120,6 +172,8 @@ foreach ($detectedTables as $dt) {
         .badge-pending { background-color: #f0ad4e; }
         .badge-applied { background-color: #5bc0de; }
         .code-box { background: #2d3748; color: #f7fafc; padding: 12px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; }
+        .git-bar { background: #fff; border-radius: 6px; padding: 12px 18px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .git-bar .git-info { font-size: 13px; color: #444; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     </style>
 </head>
@@ -137,6 +191,46 @@ foreach ($detectedTables as $dt) {
 </nav>
 
 <div class="container">
+
+    <!-- Git Branch & Remote Status Bar -->
+    <?php if ($gitBranch && stripos($gitBranch, 'fatal:') === false): ?>
+        <div class="git-bar">
+            <div class="git-info">
+                <strong><i class="glyphicon glyphicon-bullhorn"></i> Git Branch:</strong> <code><?= htmlspecialchars($gitBranch) ?></code> &nbsp;|&nbsp;
+                <strong>Latest Local Commit:</strong> <span class="text-muted"><?= htmlspecialchars($gitHeadCommit) ?></span>
+            </div>
+            <div>
+                <form method="POST" style="display: inline-block;">
+                    <input type="hidden" name="action" value="git_pull_and_sync">
+                    <button type="submit" class="btn btn-default btn-sm" title="Pull latest commits from GitHub and sync database">
+                        <i class="glyphicon glyphicon-cloud-download text-primary"></i> Pull from GitHub & Sync DB
+                    </button>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- Incoming Commits Alert Banner (if GitHub has new commits) -->
+    <?php if (!empty($incomingCommits)): ?>
+        <div class="alert alert-warning alert-dismissible" role="alert" style="border-left: 5px solid #f0ad4e;">
+            <h4><i class="glyphicon glyphicon-cloud-download"></i> Incoming Changes Detected on GitHub!</h4>
+            <p>There are <strong><?= count($incomingCommits) ?></strong> new commit(s) merged into <code>origin/main</code> that have not yet been applied locally:</p>
+            <ul style="margin-bottom: 15px;">
+                <?php foreach (array_slice($incomingCommits, 0, 5) as $ic): ?>
+                    <li><code><?= htmlspecialchars($ic) ?></code></li>
+                <?php endforeach; ?>
+                <?php if (count($incomingCommits) > 5): ?>
+                    <li><em>...and <?= count($incomingCommits) - 5 ?> more commit(s).</em></li>
+                <?php endif; ?>
+            </ul>
+            <form method="POST" style="margin-top: 10px;">
+                <input type="hidden" name="action" value="git_pull_and_sync">
+                <button type="submit" class="btn btn-warning btn-md" style="font-weight: bold;">
+                    <i class="glyphicon glyphicon-refresh"></i> Pull Incoming Changes from GitHub & Sync Database Now
+                </button>
+            </form>
+        </div>
+    <?php endif; ?>
 
     <?php if ($message): ?>
         <div class="alert alert-<?= $messageType ?> alert-dismissible" role="alert">
@@ -226,12 +320,22 @@ foreach ($detectedTables as $dt) {
                 Any <strong>non-existent table</strong> will be automatically created, and any <strong>new migration</strong> will be executed.
                 Your existing tables and test data will <strong>NEVER be deleted or wiped</strong>!
             </p>
-            <form method="POST" style="display: inline-block;">
-                <input type="hidden" name="action" value="sync_now">
-                <button type="submit" class="btn btn-success btn-lg" style="padding: 12px 35px; font-size: 16px; font-weight: bold;">
-                    <i class="glyphicon glyphicon-flash"></i> Sync Database Now
-                </button>
-            </form>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <form method="POST" style="display: inline-block;">
+                    <input type="hidden" name="action" value="sync_now">
+                    <button type="submit" class="btn btn-success btn-lg" style="padding: 12px 30px; font-size: 15px; font-weight: bold;">
+                        <i class="glyphicon glyphicon-flash"></i> Sync Database Now
+                    </button>
+                </form>
+                <?php if ($gitBranch && stripos($gitBranch, 'fatal:') === false): ?>
+                    <form method="POST" style="display: inline-block;">
+                        <input type="hidden" name="action" value="git_pull_and_sync">
+                        <button type="submit" class="btn btn-primary btn-lg" style="padding: 12px 30px; font-size: 15px; font-weight: bold;">
+                            <i class="glyphicon glyphicon-cloud-download"></i> Pull from GitHub & Sync
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
@@ -349,7 +453,7 @@ foreach ($detectedTables as $dt) {
             <h4><span class="label label-primary">Step 1</span> When Developer A creates a new table or changes schema:</h4>
             <ul>
                 <li><strong>Option A (One-Click):</strong> Go to this page, select the new table under <em>"Export a Newly Created Table"</em>, and click Generate.</li>
-                <li><strong>Option B (Manual):</strong> Create a new file in <code>DB/migrations/</code> (e.g., <code>20261030_create_new_feature.sql</code>) containing:
+                <li><strong>Option B (Manual):</strong> Create a new file in <code>DB/migrations/</code> (e.g., <code>011_create_new_feature.sql</code>) containing:
                     <div class="code-box" style="margin-top: 5px;">
 CREATE TABLE IF NOT EXISTS `your_new_table` (<br>
 &nbsp;&nbsp;`id` INT AUTO_INCREMENT PRIMARY KEY,<br>
@@ -368,13 +472,10 @@ git push
 
             <hr>
 
-            <h4><span class="label label-success">Step 2</span> When Developer B pulls the code from GitHub:</h4>
+            <h4><span class="label label-success">Step 2</span> When Developer B syncs changes from GitHub:</h4>
             <ul>
-                <li>Developer B pulls the changes:
-                    <div class="code-box" style="margin-top: 5px;">git pull</div>
-                </li>
-                <li>Developer B visits <code>http://localhost/aster/db_sync.php</code> and clicks <strong>"Sync Database Now"</strong> (or runs <code>php DB/sync.php</code> from terminal).</li>
-                <li>The non-existent table is automatically created in Developer B's MySQL, without touching any of Developer B's existing records or requiring full database export!</li>
+                <li>Visit <code>http://localhost/aster/db_sync.php</code> and click <strong>"Pull from GitHub & Sync"</strong> (or run <code>git pull</code> then click <strong>"Sync Database Now"</strong>).</li>
+                <li>The non-existent table is automatically created in Developer B's MySQL, and all new migrations are safely executed without touching any of Developer B's existing records or requiring full database export!</li>
             </ul>
 
             <hr>
@@ -393,4 +494,3 @@ git push
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
-
