@@ -59,6 +59,14 @@ $todayDateDisplay = $data['todayDateDisplay'];
             font-size: 11px;
             font-weight: bold;
         }
+        .badge-type-principal {
+            background-color: #5bc0de;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
         .badge-type-creation {
             background-color: #f0ad4e;
             color: #fff;
@@ -175,6 +183,8 @@ $todayDateDisplay = $data['todayDateDisplay'];
                             <p><span class="preview-label">Transaction Type:</span> 
                                 <?php if ($selectedReceipt['TransactionType'] === 'INTEREST_PAYMENT'): ?>
                                     <span class="badge-type-payment">INTEREST PAYMENT</span>
+                                <?php elseif ($selectedReceipt['TransactionType'] === 'PRINCIPAL_PAYMENT'): ?>
+                                    <span class="badge-type-principal">PRINCIPAL PAYMENT</span>
                                 <?php elseif ($selectedReceipt['TransactionType'] === 'JEWEL_RELEASE'): ?>
                                     <span class="badge-type-release">JEWEL RELEASE</span>
                                 <?php else: ?>
@@ -204,6 +214,8 @@ $todayDateDisplay = $data['todayDateDisplay'];
                         <i class="fa fa-info-circle"></i>
                         <?php if ($selectedReceipt['TransactionType'] === 'JEWEL_RELEASE'): ?>
                             Deleting this Jewel Release receipt will <strong>re-open the loan account</strong> and restore its outstanding principal balance back to <strong>₹<?= number_format($selectedReceipt['ProjectedBalance'], 2) ?></strong>.
+                        <?php elseif ($selectedReceipt['TransactionType'] === 'PRINCIPAL_PAYMENT'): ?>
+                            Deleting this Principal Payment receipt will reverse the principal payment of <strong>₹<?= number_format($selectedReceipt['PrincipalPaid'], 2) ?></strong> and restore the outstanding loan balance back to <strong>₹<?= number_format($selectedReceipt['ProjectedBalance'], 2) ?></strong>.
                         <?php elseif ($selectedReceipt['TransactionType'] === 'INTEREST_PAYMENT' && $selectedReceipt['PrincipalPaid'] > 0): ?>
                             Deleting this receipt will reverse the principal payment of <strong>₹<?= number_format($selectedReceipt['PrincipalPaid'], 2) ?></strong>, restoring the loan balance from <strong>₹<?= number_format($selectedReceipt['CurrentLoanBalance'], 2) ?></strong> to <strong>₹<?= number_format($selectedReceipt['ProjectedBalance'], 2) ?></strong>.
                         <?php elseif ($selectedReceipt['TransactionType'] === 'LOAN_CREATION'): ?>
@@ -276,6 +288,8 @@ $todayDateDisplay = $data['todayDateDisplay'];
                                                 <td>
                                                     <?php if ($r['TransactionType'] === 'INTEREST_PAYMENT'): ?>
                                                         <span class="badge-type-payment">INTEREST</span>
+                                                    <?php elseif ($r['TransactionType'] === 'PRINCIPAL_PAYMENT'): ?>
+                                                        <span class="badge-type-principal">PRINCIPAL</span>
                                                     <?php elseif ($r['TransactionType'] === 'JEWEL_RELEASE'): ?>
                                                         <span class="badge-type-release">RELEASE</span>
                                                     <?php else: ?>

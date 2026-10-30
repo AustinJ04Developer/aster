@@ -188,21 +188,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_jewel_loan']))
         $updateResult = $model->updateJewelLoan($editLoanId, $customerData, $loanData, $itemsData);
         if ($updateResult['status']) {
             // Synchronously update initial LOAN_CREATION receipt to reflect the edited loan amount and charges
+            // Customer does NOT pay principal at loan creation; bank disburses principal to customer
             if (!empty($conn) && $editLoanId > 0 && !empty($loanData)) {
                 $newLoanAmt = (float)$loanData['LoanAmount'];
                 $newAppr = (float)$loanData['AppraiserCharge'];
-                $newPF = (float)$loanData['ProcessingFee'];
-                $newTotPaid = $newLoanAmt + $newAppr + $newPF;
+                $newPF = (float)($loanData['ProcessingFee'] ?? 0.00);
+                $newTotPaid = round($newAppr, 2);
 
                 $upRecStmt = $conn->prepare("UPDATE ast_jewel_loan_receipt SET 
-                    PrincipalPaid = ?, 
+                    PrincipalPaid = 0.00, 
                     TotalPaid = ?, 
                     BalanceLoanAmount = ?, 
                     AppraiserCharge = ?, 
-                    ProcessingFee = ? 
+                    ProcessingFee = 0.00 
                     WHERE LoanDetailId = ? AND TransactionType = 'LOAN_CREATION'");
                 if ($upRecStmt) {
-                    $upRecStmt->bind_param("dddddi", $newLoanAmt, $newTotPaid, $newLoanAmt, $newAppr, $newPF, $editLoanId);
+                    $upRecStmt->bind_param("dddi", $newTotPaid, $newLoanAmt, $newAppr, $editLoanId);
                     $upRecStmt->execute();
                     $upRecStmt->close();
                 }
@@ -222,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_jewel_loan']))
                 'totalWeight' => $totalWeight,
                 'loanDetailId' => $editLoanId,
                 'viewUrl' => 'aster-jewel-loan-view.php?dnum=' . urlencode($editDNumber),
-                'pdfUrl' => 'aster-jewel-loan-pdf.php?id=' . $editLoanId,
+                'pdfUrl' => 'aster-jewel-loan-pdf.php?dnum=' . urlencode($editDNumber),
                 'receiptUrl' => 'aster-jewel-loan-receipt.php?dnum=' . urlencode($editDNumber),
                 'timestamp' => date('d/m/Y h:i A')
             ];
@@ -539,7 +540,7 @@ $activeDNum = $loan['DNumber'] ?? ($customer['DNumber'] ?? ($member['MemberCode'
                 </div>
                 <div class="col-md-4 col-xs-12 text-right no-print" style="margin-top: 5px;">
                     <?php if (!empty($loan['LoanDetailId']) && !$isEditMode): ?>
-                        <a href="aster-jewel-loan-pdf.php?id=<?php echo urlencode($loan['LoanDetailId']); ?>" target="_blank" class="btn btn-info btn-sm">
+                        <a href="aster-jewel-loan-pdf.php?dnum=<?php echo urlencode($loan['DNumber']); ?>" target="_blank" class="btn btn-info btn-sm">
                             <i class="fa fa-file-pdf-o"></i> Sanction PDF
                         </a>
                         <a href="aster-jewel-loan-receipt.php?dnum=<?php echo urlencode($loan['DNumber']); ?>" class="btn btn-success btn-sm" style="margin-left: 5px;">

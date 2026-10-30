@@ -376,6 +376,8 @@ $(document).ready(function() {
                                 typeBadge = '<span class="label label-info">LOAN_CREATION</span>';
                             } else if (t.TransactionType === 'INTEREST_PAYMENT') {
                                 typeBadge = '<span class="label label-warning">INTEREST_PAYMENT</span>';
+                            } else if (t.TransactionType === 'PRINCIPAL_PAYMENT') {
+                                typeBadge = '<span class="label label-primary">PRINCIPAL_PAYMENT</span>';
                             } else if (t.TransactionType === 'JEWEL_RELEASE') {
                                 typeBadge = '<span class="label label-success">JEWEL_RELEASE</span>';
                             } else {

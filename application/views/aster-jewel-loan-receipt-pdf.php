@@ -40,6 +40,7 @@ $payMethod  = $receipt['PaymentMethod'];
 $txnTypeLabels = [
     'LOAN_CREATION'    => 'JEWEL LOAN DISBURSEMENT RECEIPT',
     'INTEREST_PAYMENT' => 'JEWEL LOAN INTEREST PAYMENT RECEIPT',
+    'PRINCIPAL_PAYMENT'=> 'JEWEL LOAN PRINCIPAL PAYMENT RECEIPT',
     'JEWEL_RELEASE'    => 'JEWEL RELEASE / CLOSURE RECEIPT'
 ];
 $receiptTitle = $txnTypeLabels[$txnTypeRaw] ?? 'JEWEL LOAN TRANSACTION RECEIPT';
@@ -128,26 +129,24 @@ $html = '
     <tr>
         <td class="label">Customer D-Number:</td>
         <td class="value"><strong>' . htmlspecialchars($dNum) . '</strong></td>
-        <td class="label">Loan ID:</td>
-        <td class="value"><strong>JL-' . str_pad((string)$loanId, 4, '0', STR_PAD_LEFT) . '</strong></td>
-    </tr>
-    <tr>
         <td class="label">Loan Date:</td>
         <td class="value">' . htmlspecialchars($loanDate) . '</td>
+    </tr>
+    <tr>
         <td class="label">Interest Rate:</td>
         <td class="value"><strong>' . htmlspecialchars($intRate) . '</strong></td>
-    </tr>
-    <tr>
         <td class="label">Monthly Due Date:</td>
         <td class="value">' . htmlspecialchars($monthlyDueDate) . '</td>
-        <td class="label">Closing Due Date:</td>
-        <td class="value">' . htmlspecialchars($closingDueDate) . '</td>
     </tr>
     <tr>
+        <td class="label">Closing Due Date:</td>
+        <td class="value">' . htmlspecialchars($closingDueDate) . '</td>
         <td class="label">Transaction Type:</td>
         <td class="value"><strong>' . htmlspecialchars($txnTypeRaw) . '</strong></td>
+    </tr>
+    <tr>
         <td class="label">Payment Mode:</td>
-        <td class="value"><strong>' . htmlspecialchars($payMethod) . '</strong></td>
+        <td class="value" colspan="3"><strong>' . htmlspecialchars($payMethod) . '</strong></td>
     </tr>
 </table>
 

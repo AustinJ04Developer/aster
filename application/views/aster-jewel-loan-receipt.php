@@ -77,6 +77,346 @@ function getIndianCurrencyWords($number) {
     }
     return trim(($Rupees ? $Rupees . 'Rupees ' : '') . $paise . ' Only');
 }
+
+$isPopup = (isset($_GET['popup']) || isset($_GET['modal']));
+if ($isPopup && $isViewOnly && !empty($receiptView['receipt'])) {
+    $r = $receiptView['receipt'];
+    $l = $receiptView['loan'] ?? [];
+    $c = $receiptView['customer'] ?? [];
+    $itms = $receiptView['items'] ?? [];
+
+    $rNo = htmlspecialchars($r['ReceiptNo']);
+    $rDate = !empty($r['ReceiptDate']) ? date('d-m-Y', strtotime($r['ReceiptDate'])) : date('d-m-Y');
+    $dNum = htmlspecialchars($r['DNumber']);
+    $custName = htmlspecialchars($c['Name'] ?? 'Customer');
+    $mobile = htmlspecialchars($c['MobileNumber'] ?? '-');
+    $address = htmlspecialchars($c['Address'] ?? '-');
+    $loanDateStr = !empty($l['LoanDate']) ? date('d-m-Y', strtotime($l['LoanDate'])) : '-';
+
+    $principalPaid = (float)$r['PrincipalPaid'];
+    $interestPaid = (float)$r['InterestPaid'];
+    $defaultInterestPaid = (float)$r['DefaultInterestPaid'];
+    $appraiserCharge = (float)$r['AppraiserCharge'];
+    $processingFee = (float)$r['ProcessingFee'];
+    $totalPaid = (float)$r['TotalPaid'];
+    $remainingBalance = (float)$r['BalanceLoanAmount'];
+    $wordsAmount = getIndianCurrencyWords($totalPaid);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Receipt Voucher - <?php echo $rNo; ?></title>
+    <link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            background-color: #f7f9fa;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            padding: 15px;
+            margin: 0;
+        }
+        .voucher-card {
+            background: #ffffff;
+            border: 2px solid #204d74;
+            border-radius: 6px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 860px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .voucher-header {
+            text-align: center;
+            border-bottom: 2px solid #204d74;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        .voucher-org-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #204d74;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+        .voucher-org-sub {
+            font-size: 13px;
+            color: #555555;
+            margin-bottom: 10px;
+        }
+        .voucher-badge {
+            display: inline-block;
+            background: #204d74;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 4px 18px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .voucher-table-meta {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .voucher-table-meta td {
+            padding: 5px 8px;
+            font-size: 13px;
+        }
+        .voucher-table-breakdown {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .voucher-table-breakdown th {
+            background: #f0f4f8;
+            color: #204d74;
+            border: 1px solid #ccc;
+            padding: 7px 10px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .voucher-table-breakdown td {
+            border: 1px solid #ccc;
+            padding: 7px 10px;
+            font-size: 13px;
+        }
+        .voucher-signatures {
+            margin-top: 35px;
+            padding-top: 10px;
+        }
+        .signature-col {
+            text-align: center;
+            border-top: 1px dashed #666;
+            padding-top: 5px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #444;
+        }
+        @media print {
+            body {
+                background: #fff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .voucher-card {
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 10px !important;
+                margin: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="max-width: 860px; margin: 0 auto 15px auto;">
+        <div class="row">
+            <div class="col-xs-6">
+                <span class="text-muted" style="font-size: 13px; line-height: 30px;">
+                    <i class="fa fa-ticket text-primary"></i> <strong>Receipt No: <?php echo $rNo; ?></strong>
+                </span>
+            </div>
+            <div class="col-xs-6 text-right">
+                <button type="button" class="btn btn-primary btn-sm" onclick="window.print();">
+                    <i class="fa fa-print"></i> Print Voucher
+                </button>
+                <a href="aster-jewel-loan-receipt-pdf.php?receipt_id=<?php echo urlencode($r['ReceiptId']); ?>" target="_blank" class="btn btn-danger btn-sm" style="margin-left: 5px;">
+                    <i class="fa fa-file-pdf-o"></i> Download PDF
+                </a>
+                <button type="button" class="btn btn-default btn-sm" style="margin-left: 5px;" onclick="if(window.parent && window.parent.$){window.parent.$('#receiptViewModal').modal('hide');}">
+                    <i class="fa fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Voucher Container -->
+    <div class="voucher-card">
+        <div class="voucher-header">
+            <div class="voucher-org-title">ASTER PUBLIC DEVELOPMENT FOUNDATION</div>
+            <div class="voucher-org-sub">Jewel Loan Division &bull; Panachamoodu, Kanyakumari District</div>
+            <div class="voucher-badge">
+                <?php 
+                $voucherBadgeText = 'JEWEL LOAN RECEIPT VOUCHER';
+                if ($r['TransactionType'] === 'JEWEL_RELEASE') {
+                    $voucherBadgeText = 'JEWEL RELEASE / CLOSURE RECEIPT';
+                } elseif ($r['TransactionType'] === 'PRINCIPAL_PAYMENT') {
+                    $voucherBadgeText = 'JEWEL LOAN PRINCIPAL PAYMENT RECEIPT';
+                } elseif ($r['TransactionType'] === 'LOAN_CREATION') {
+                    $voucherBadgeText = 'JEWEL LOAN DISBURSEMENT RECEIPT';
+                }
+                echo htmlspecialchars($voucherBadgeText); 
+                ?>
+            </div>
+        </div>
+
+        <table class="voucher-table-meta">
+            <tr>
+                <td style="width: 20%;"><strong>Receipt No:</strong></td>
+                <td style="width: 30%; color: #d9534f; font-weight: bold; font-size: 15px;"><?php echo $rNo; ?></td>
+                <td style="width: 20%;"><strong>Receipt Date:</strong></td>
+                <td style="width: 30%; font-weight: 600;"><?php echo $rDate; ?></td>
+            </tr>
+            <tr>
+                <td><strong>D Number:</strong></td>
+                <td><span class="label label-primary" style="font-size: 13px;"><?php echo $dNum; ?></span></td>
+                <td><strong>Loan Pledge Date:</strong></td>
+                <td><?php echo $loanDateStr; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Customer Name:</strong></td>
+                <td style="font-weight: bold; font-size: 14px;"><?php echo $custName; ?></td>
+                <td><strong>Mobile Number:</strong></td>
+                <td><?php echo $mobile; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Customer Address:</strong></td>
+                <td colspan="3"><?php echo $address; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Payment Mode:</strong></td>
+                <td><span class="label label-default" style="font-size: 12px;"><?php echo htmlspecialchars($r['PaymentMethod']); ?></span></td>
+                <td><strong>Transaction Type:</strong></td>
+                <td>
+                    <span class="label label-<?php 
+                        echo ($r['TransactionType'] === 'JEWEL_RELEASE') ? 'success' : 
+                            (($r['TransactionType'] === 'PRINCIPAL_PAYMENT') ? 'primary' : 
+                            (($r['TransactionType'] === 'LOAN_CREATION') ? 'warning' : 'info')); 
+                    ?>">
+                        <?php echo htmlspecialchars($r['TransactionType']); ?>
+                    </span>
+                </td>
+            </tr>
+            <?php if (!empty($r['ChequeNumber'])): ?>
+                <tr>
+                    <td><strong>Cheque Details:</strong></td>
+                    <td colspan="3">Cheque No: <?php echo htmlspecialchars($r['ChequeNumber']); ?> | Customer Bank: <?php echo htmlspecialchars($r['ChequeFromBank']); ?> | Deposited: <?php echo htmlspecialchars($r['ChequeToBank']); ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php if (!empty($r['RTGSNumber'])): ?>
+                <tr>
+                    <td><strong>RTGS / UTR No:</strong></td>
+                    <td colspan="3"><?php echo htmlspecialchars($r['RTGSNumber']); ?> | Bank: <?php echo htmlspecialchars($r['RTGSToBank']); ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php if (!empty($r['UPIType'])): ?>
+                <tr>
+                    <td><strong>UPI Reference:</strong></td>
+                    <td colspan="3">App: <?php echo htmlspecialchars($r['UPIType']); ?> | Txn ID: <?php echo htmlspecialchars($r['UPITransactionNumber']); ?> | Bank: <?php echo htmlspecialchars($r['UPIToBank']); ?></td>
+                </tr>
+            <?php endif; ?>
+        </table>
+
+        <!-- Financial Breakdown -->
+        <table class="voucher-table-breakdown">
+            <thead>
+                <tr>
+                    <th style="width: 8%;">Sl</th>
+                    <th>Description</th>
+                    <th class="text-right" style="width: 30%;">Amount (INR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">1</td>
+                    <td>Interest Payment Paid</td>
+                    <td class="text-right">&#8377; <?php echo number_format($interestPaid, 2); ?></td>
+                </tr>
+                <?php if ($defaultInterestPaid > 0): ?>
+                    <tr>
+                        <td class="text-center">2</td>
+                        <td>Default / Overdue Interest Paid</td>
+                        <td class="text-right">&#8377; <?php echo number_format($defaultInterestPaid, 2); ?></td>
+                    </tr>
+                <?php endif; ?>
+                <?php if ($principalPaid > 0): ?>
+                    <tr>
+                        <td class="text-center"><?php echo ($defaultInterestPaid > 0) ? '3' : '2'; ?></td>
+                        <td>Principal Amount Paid / Reduced</td>
+                        <td class="text-right">&#8377; <?php echo number_format($principalPaid, 2); ?></td>
+                    </tr>
+                <?php endif; ?>
+                <?php if ($appraiserCharge > 0): ?>
+                    <tr>
+                        <td class="text-center">#</td>
+                        <td>Appraiser Charges</td>
+                        <td class="text-right">&#8377; <?php echo number_format($appraiserCharge, 2); ?></td>
+                    </tr>
+                <?php endif; ?>
+                <?php if ($processingFee > 0): ?>
+                    <tr>
+                        <td class="text-center">#</td>
+                        <td>Processing Fee</td>
+                        <td class="text-right">&#8377; <?php echo number_format($processingFee, 2); ?></td>
+                    </tr>
+                <?php endif; ?>
+                <tr style="background-color: #f7fbfd; font-size: 15px; font-weight: bold;">
+                    <td colspan="2" class="text-right" style="color: #204d74;">TOTAL AMOUNT RECEIVED:</td>
+                    <td class="text-right" style="color: #d9534f;">&#8377; <?php echo number_format($totalPaid, 2); ?></td>
+                </tr>
+                <tr style="background-color: #fafafa;">
+                    <td colspan="2" class="text-right"><strong>Remaining Principal Balance:</strong></td>
+                    <td class="text-right"><strong>&#8377; <?php echo number_format($remainingBalance, 2); ?></strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 15px; margin-bottom: 20px; font-size: 13px;">
+            <strong>Amount in Words:</strong> <span style="font-style: italic; color: #204d74;"><?php echo $wordsAmount; ?></span>
+        </div>
+
+        <?php if (!empty($itms)): ?>
+            <div style="margin-top: 20px;">
+                <div style="font-weight: bold; font-size: 13px; color: #204d74; margin-bottom: 6px;">Pledged Ornaments Snapshot:</div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-condensed" style="font-size: 12px; margin-bottom: 0;">
+                        <tr style="background: #f0f0f0;">
+                            <th>Sl</th>
+                            <th>Item</th>
+                            <th>No of Items</th>
+                            <th class="text-right">Gross (g)</th>
+                            <th class="text-right">Net Wt (g)</th>
+                        </tr>
+                        <?php foreach ($itms as $idx => $it): ?>
+                            <tr>
+                                <td><?php echo $idx + 1; ?></td>
+                                <td><?php echo htmlspecialchars($it['ItemName']); ?></td>
+                                <td><?php echo (int)$it['NoOfItems']; ?></td>
+                                <td class="text-right"><?php echo number_format((float)$it['Gram'], 3); ?></td>
+                                <td class="text-right"><?php echo number_format((float)$it['NetWeight'], 3); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="row voucher-signatures">
+            <div class="col-xs-4 text-center">
+                <div class="signature-col">Customer Signature</div>
+            </div>
+            <div class="col-xs-4 text-center">
+                <div class="signature-col">Cashier / Prepared By</div>
+            </div>
+            <div class="col-xs-4 text-center">
+                <div class="signature-col">Authorized Officer</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<?php
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -229,6 +569,38 @@ function getIndianCurrencyWords($number) {
             color: #444;
         }
 
+        /* D-Number Searchable Dropdown Styling */
+        #dnumber-dropdown-menu {
+            border: 1px solid #337ab7;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+        }
+        .dnumber-dropdown-item a {
+            display: block;
+            clear: both;
+            text-decoration: none !important;
+            transition: background-color 0.12s ease;
+        }
+        .dnumber-dropdown-item a:hover,
+        .dnumber-dropdown-item.active a {
+            background-color: #337ab7 !important;
+            color: #fff !important;
+        }
+        .dnumber-dropdown-item a:hover strong,
+        .dnumber-dropdown-item.active a strong {
+            color: #fff !important;
+        }
+        .dnumber-dropdown-item a:hover .text-muted,
+        .dnumber-dropdown-item.active a .text-muted {
+            color: #e1eef9 !important;
+        }
+        .dnumber-dropdown-item a:hover .label-primary,
+        .dnumber-dropdown-item.active a .label-primary {
+            background-color: #ffffff !important;
+            color: #337ab7 !important;
+        }
+
         @media print {
             #side-menu, .navbar, .page-header, .no-print, .breadcrumb, footer, .alert {
                 display: none !important;
@@ -311,7 +683,17 @@ function getIndianCurrencyWords($number) {
                     <div class="voucher-org-title">ASTER PUBLIC DEVELOPMENT FOUNDATION</div>
                     <div class="voucher-org-sub">Jewel Loan Division &bull; Panachamoodu, Kanyakumari District</div>
                     <div class="voucher-badge">
-                        <?php echo htmlspecialchars($r['TransactionType'] === 'JEWEL_RELEASE' ? 'JEWEL RELEASE / CLOSURE RECEIPT' : 'JEWEL LOAN RECEIPT VOUCHER'); ?>
+                        <?php 
+                        $voucherBadgeText = 'JEWEL LOAN RECEIPT VOUCHER';
+                        if ($r['TransactionType'] === 'JEWEL_RELEASE') {
+                            $voucherBadgeText = 'JEWEL RELEASE / CLOSURE RECEIPT';
+                        } elseif ($r['TransactionType'] === 'PRINCIPAL_PAYMENT') {
+                            $voucherBadgeText = 'JEWEL LOAN PRINCIPAL PAYMENT RECEIPT';
+                        } elseif ($r['TransactionType'] === 'LOAN_CREATION') {
+                            $voucherBadgeText = 'JEWEL LOAN DISBURSEMENT RECEIPT';
+                        }
+                        echo htmlspecialchars($voucherBadgeText); 
+                        ?>
                     </div>
                 </div>
 
@@ -343,7 +725,11 @@ function getIndianCurrencyWords($number) {
                         <td><span class="label label-default" style="font-size: 12px;"><?php echo htmlspecialchars($r['PaymentMethod']); ?></span></td>
                         <td><strong>Transaction Type:</strong></td>
                         <td>
-                            <span class="label label-<?php echo ($r['TransactionType'] === 'JEWEL_RELEASE') ? 'success' : 'info'; ?>">
+                            <span class="label label-<?php 
+                                echo ($r['TransactionType'] === 'JEWEL_RELEASE') ? 'success' : 
+                                    (($r['TransactionType'] === 'PRINCIPAL_PAYMENT') ? 'primary' : 
+                                    (($r['TransactionType'] === 'LOAN_CREATION') ? 'warning' : 'info')); 
+                            ?>">
                                 <?php echo htmlspecialchars($r['TransactionType']); ?>
                             </span>
                         </td>
@@ -584,25 +970,51 @@ function getIndianCurrencyWords($number) {
                 </div>
 
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Select D Number <span class="mandatory">*</span></label>
+                    <div class="form-group" style="position: relative;" id="dnumber-search-group">
+                        <label for="search_d_number">Select / Type D Number <span class="mandatory">*</span></label>
                         <div class="input-group">
                             <input type="text" name="search_d_number" id="search_d_number" class="form-control" 
-                                   list="active_dnumbers_list" placeholder="Enter D Number (e.g. D-0001)" 
-                                   value="<?php echo htmlspecialchars($selDNumber); ?>" autocomplete="off" required>
-                            <datalist id="active_dnumbers_list">
-                                <?php foreach ($activeDNumbers as $ad): ?>
-                                    <option value="<?php echo htmlspecialchars($ad['DNumber']); ?>">
-                                        <?php echo htmlspecialchars($ad['DNumber'] . ' - ' . ($ad['Name'] ?? 'Customer')); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </datalist>
+                                   placeholder="Type or select D Number from dropdown..." 
+                                   value="<?php echo htmlspecialchars($selDNumber); ?>" 
+                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" 
+                                   data-lpignore="true" required>
                             <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="btn-toggle-dnumber-dropdown" title="Open D-Number Dropdown (Database List)">
+                                    <span class="caret"></span>
+                                </button>
                                 <button type="button" class="btn btn-default" id="btn-clear-dnumber" title="Clear Search">
                                     <i class="fa fa-times"></i>
                                 </button>
                             </span>
                         </div>
+                        <!-- Live Dropdown Menu populated directly from Database -->
+                        <ul class="dropdown-menu" id="dnumber-dropdown-menu" style="width: 100%; max-height: 280px; overflow-y: auto; z-index: 1050; margin-top: 2px;">
+                            <li class="dropdown-header" style="background: #f4f6f9; color: #337ab7; font-weight: bold; padding: 6px 12px; border-bottom: 1px solid #e1e4e8;">
+                                <i class="fa fa-database"></i> D-Numbers from Database
+                                <span class="badge pull-right" id="dnumber-badge-count"><?= count($activeDNumbers) ?></span>
+                            </li>
+                            <?php if (!empty($activeDNumbers)): ?>
+                                <?php foreach ($activeDNumbers as $ad): ?>
+                                    <li class="dnumber-dropdown-item" 
+                                        data-dnumber="<?= htmlspecialchars($ad['DNumber']) ?>" 
+                                        data-name="<?= htmlspecialchars($ad['Name'] ?? 'Customer') ?>"
+                                        data-search="<?= htmlspecialchars(strtolower($ad['DNumber'] . ' ' . ($ad['Name'] ?? ''))) ?>">
+                                        <a href="javascript:void(0);" style="padding: 7px 12px; border-bottom: 1px solid #f2f2f2;">
+                                            <span class="label label-primary" style="font-size: 11px;"><?= htmlspecialchars($ad['DNumber']) ?></span>
+                                            <strong style="margin-left: 6px; color: #333; font-size: 13px;"><?= htmlspecialchars($ad['Name'] ?? 'Customer') ?></strong>
+                                            <span class="pull-right text-muted" style="font-size: 11px;">
+                                                Bal: ₹<?= number_format((float)$ad['BalanceLoanAmount'], 2) ?>
+                                            </span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="text-muted text-center" style="padding: 12px;">No active loans found in database.</li>
+                            <?php endif; ?>
+                            <li id="dnumber-no-results" style="display: none; padding: 12px; color: #888; text-align: center;">
+                                <i class="fa fa-info-circle"></i> No matching D-Number in database.
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
@@ -706,6 +1118,7 @@ function getIndianCurrencyWords($number) {
                         <label>Transaction Type <span class="mandatory">*</span></label>
                         <select id="receipt_transaction_type_select" class="form-control" onchange="onTxnTypeChange(this.value)">
                             <option value="INTEREST_PAYMENT" selected>Interest Payment (Monthly EMI / Due)</option>
+                            <option value="PRINCIPAL_PAYMENT">Principal Payment (Part-Payment / Reduction)</option>
                             <option value="JEWEL_RELEASE">Full Settlement & Jewel Release</option>
                         </select>
                     </div>
@@ -1116,7 +1529,11 @@ function getIndianCurrencyWords($number) {
                                             <td><strong><?php echo htmlspecialchars($rh['ReceiptNo']); ?></strong></td>
                                             <td><?php echo date('d-m-Y', strtotime($rh['ReceiptDate'])); ?></td>
                                             <td>
-                                                <span class="label label-<?php echo ($rh['TransactionType'] === 'JEWEL_RELEASE') ? 'success' : 'primary'; ?>">
+                                                <span class="label label-<?php 
+                                                    echo ($rh['TransactionType'] === 'JEWEL_RELEASE') ? 'success' : 
+                                                        (($rh['TransactionType'] === 'PRINCIPAL_PAYMENT') ? 'primary' : 
+                                                        (($rh['TransactionType'] === 'LOAN_CREATION') ? 'warning' : 'info')); 
+                                                ?>">
                                                     <?php echo htmlspecialchars($rh['TransactionType']); ?>
                                                 </span>
                                             </td>
@@ -1211,6 +1628,12 @@ function updatePaymentAllocation() {
         defaultIntPaid = defaultIntDue;
         principalPaid = currentBalance;
         newBalance = 0;
+    } else if (txnType === 'PRINCIPAL_PAYMENT') {
+        // Direct principal repayment only
+        interestPaid = 0;
+        defaultIntPaid = 0;
+        principalPaid = Math.min(currentBalance, totalPaid);
+        newBalance = Math.max(0, currentBalance - principalPaid);
     } else {
         // Priority 1: Default Interest
         defaultIntPaid = Math.min(defaultIntDue, totalPaid);
@@ -1246,6 +1669,9 @@ function onTxnTypeChange(txnType) {
     if (txnType === 'JEWEL_RELEASE') {
         var totalClosure = bal + intAmt + defInt;
         $('#amount_paying').val(totalClosure.toFixed(2)).prop('readonly', true);
+    } else if (txnType === 'PRINCIPAL_PAYMENT') {
+        $('#amount_paying').prop('readonly', false);
+        $('#amount_paying').val(bal > 0 ? bal.toFixed(2) : '');
     } else {
         // Interest Payment
         var interestOnly = intAmt + defInt;
@@ -1317,20 +1743,139 @@ function resetReceiptForm() {
     $('#dnumber-search-alert').slideUp();
 }
 
+// Toggle D-number dropdown
+$('#btn-toggle-dnumber-dropdown').on('click', function(e) {
+    e.stopPropagation();
+    var menu = $('#dnumber-dropdown-menu');
+    if (menu.is(':visible')) {
+        menu.hide();
+    } else {
+        $('.dnumber-dropdown-item').show();
+        $('#dnumber-no-results').hide();
+        menu.show();
+        $('#search_d_number').focus();
+    }
+});
+
+// Dropdown item click
+$(document).on('click', '.dnumber-dropdown-item', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var dNum = $(this).attr('data-dnumber');
+    $('#search_d_number').val(dNum);
+    $('#dnumber-dropdown-menu').hide();
+    performDNumberSearch(dNum);
+});
+
+// Real-time typing filter for D-number dropdown
+$('#search_d_number').on('input', function() {
+    var val = $.trim($(this).val()).toLowerCase();
+    var hasMatch = false;
+    if (val.length === 0) {
+        $('.dnumber-dropdown-item').show();
+        $('#dnumber-no-results').hide();
+    } else {
+        $('.dnumber-dropdown-item').each(function() {
+            var searchTxt = $(this).attr('data-search') || '';
+            if (searchTxt.indexOf(val) !== -1) {
+                $(this).show();
+                hasMatch = true;
+            } else {
+                $(this).hide();
+            }
+        });
+        if (!hasMatch) {
+            $('#dnumber-no-results').show();
+        } else {
+            $('#dnumber-no-results').hide();
+        }
+    }
+    $('#dnumber-dropdown-menu').show();
+});
+
+// Keyboard navigation in search input
+$('#search_d_number').on('keydown', function(e) {
+    var menu = $('#dnumber-dropdown-menu');
+    var visibleItems = menu.find('.dnumber-dropdown-item:visible');
+    
+    if (e.which === 40) { // Down arrow
+        e.preventDefault();
+        if (!menu.is(':visible')) {
+            menu.show();
+            return;
+        }
+        var active = visibleItems.filter('.active');
+        if (!active.length || active.is(':last-child')) {
+            visibleItems.removeClass('active');
+            visibleItems.first().addClass('active');
+        } else {
+            active.removeClass('active').nextAll(':visible').first().addClass('active');
+        }
+        var newActive = visibleItems.filter('.active');
+        if (newActive.length) {
+            var offset = newActive.position().top + menu.scrollTop();
+            menu.scrollTop(offset - 40);
+        }
+    } else if (e.which === 38) { // Up arrow
+        e.preventDefault();
+        if (!menu.is(':visible')) return;
+        var active = visibleItems.filter('.active');
+        if (!active.length || active.is(':first-child')) {
+            visibleItems.removeClass('active');
+            visibleItems.last().addClass('active');
+        } else {
+            active.removeClass('active').prevAll(':visible').first().addClass('active');
+        }
+        var newActive = visibleItems.filter('.active');
+        if (newActive.length) {
+            var offset = newActive.position().top + menu.scrollTop();
+            menu.scrollTop(offset - 40);
+        }
+    } else if (e.which === 13) { // Enter key
+        e.preventDefault();
+        var active = visibleItems.filter('.active');
+        if (menu.is(':visible') && active.length) {
+            var dNum = active.attr('data-dnumber');
+            $('#search_d_number').val(dNum);
+            menu.hide();
+            performDNumberSearch(dNum);
+        } else {
+            menu.hide();
+            performDNumberSearch();
+        }
+    } else if (e.which === 27) { // Escape
+        menu.hide();
+    }
+});
+
+// Close dropdown on click outside
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('#dnumber-search-group').length) {
+        $('#dnumber-dropdown-menu').hide();
+    }
+});
+
 // Clear button
 $('#btn-clear-dnumber').on('click', function() {
     $('#search_d_number').val('').focus();
+    $('#dnumber-dropdown-menu').hide();
+    $('.dnumber-dropdown-item').show();
+    $('#dnumber-no-results').hide();
 });
 
 // Perform Search via AJAX or direct lookup
-function performDNumberSearch() {
-    var dNum = $.trim($('#search_d_number').val());
+function performDNumberSearch(customDNum) {
+    var dNum = (typeof customDNum !== 'undefined' && customDNum !== null && customDNum !== '') 
+               ? $.trim(customDNum) 
+               : $.trim($('#search_d_number').val());
     if (!dNum) {
         $('#dnumber-search-alert-msg').text('Please enter or select a D Number to search.');
         $('#dnumber-search-alert').slideDown();
         $('#search_d_number').focus();
         return;
     }
+    $('#search_d_number').val(dNum);
+    $('#dnumber-dropdown-menu').hide();
 
     $('#btn-search-dnumber').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Searching...');
     $('#dnumber-search-alert').slideUp();
@@ -1441,22 +1986,17 @@ function populateReceiptData(data) {
     $('#display_cust_pincode').val(c.Pincode || c.PinCode || '');
 }
 
-// Bind search click & Enter key
-$('#btn-search-dnumber').on('click', performDNumberSearch);
-$('#search_d_number').on('keypress', function(e) {
-    if (e.which === 13) {
-        e.preventDefault();
-        performDNumberSearch();
-    }
+// Bind search click
+$('#btn-search-dnumber').on('click', function() {
+    performDNumberSearch();
 });
 
 // Form submission validation
 $('#jewel-loan-receipt-form').on('submit', function(e) {
-    var loanId = $('#loan_detail_id').val();
-    var dNum = $('#hidden_d_number').val();
+    var dNum = $('#hidden_d_number').val() || $('#search_d_number').val();
     var amt = parseFloat($('#amount_paying').val()) || 0;
 
-    if (!loanId || !dNum) {
+    if (!dNum) {
         e.preventDefault();
         alert('Please search and select a valid D Number before saving.');
         $('#search_d_number').focus();
