@@ -24,8 +24,21 @@ class JewelLoanAccountListController {
             if (!headers_sent()) {
                 header('Content-Type: application/json');
             }
-            $loanDetailId = (int)$_GET['ajax_txn_history'];
-            $loanRecord = $this->model->getLoanRecordForPdf($loanDetailId);
+            $param = trim($_GET['ajax_txn_history']);
+            $loanRecord = null;
+            $loanDetailId = 0;
+
+            if (is_numeric($param)) {
+                $loanDetailId = (int)$param;
+                $loanRecord = $this->model->getLoanRecordForPdf($loanDetailId);
+            } else {
+                // Look up by DNumber
+                $loan = $this->model->getLoanDetailsByDNumber($param);
+                if ($loan && !empty($loan['LoanDetailId'])) {
+                    $loanDetailId = (int)$loan['LoanDetailId'];
+                    $loanRecord = $this->model->getLoanRecordForPdf($loanDetailId);
+                }
+            }
             
             if (!$loanRecord || empty($loanRecord['loan'])) {
                 echo json_encode(['status' => 'error', 'message' => 'Loan record not found.']);
@@ -102,11 +115,11 @@ class JewelLoanAccountListController {
         }
 
         return [
-            'selectedDate' => $selectedDateInput,
-            'dbDate' => $dbDate,
+            'selectedDate'      => $selectedDateInput,
+            'dbDate'            => $dbDate,
             'isSearchTriggered' => $isSearchTriggered,
-            'loans' => $loans
+            'loans'             => $loans
         ];
     }
 }
-
+?>

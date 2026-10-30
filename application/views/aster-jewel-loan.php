@@ -85,7 +85,7 @@ extract($data);
     <div id="page-wrapper">
         <div class="row">
             <div class="col-lg-12">
-                <h2 class="page-header">Jewel Loan Application</h2>
+                <h2 class="page-header">Jewel Loan Creation</h2>
                 <hr class="hr-background">
             </div>
         </div>
