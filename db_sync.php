@@ -1,9 +1,19 @@
 <?php
 /**
- * Aster - Database Sync & Migration Dashboard
+ * Aster - Database Sync & Change Manager Dashboard
  * 
+<<<<<<< HEAD
  * Allows collaborators on GitHub to sync missing tables and migrations
  * from `main` or any other branch without exporting/overwriting the entire database.
+=======
+ * Manages EVERY change in the database:
+ * - Detects and creates non-existent tables
+ * - Detects and adds missing columns (ALTER TABLE ADD COLUMN)
+ * - Detects and synchronizes modified column types/enums (ALTER TABLE MODIFY COLUMN)
+ * - Detects and creates missing indexes
+ * - Runs pending migrations
+ * - Automatically captures live database structure into aster_structure.sql for Git
+>>>>>>> origin/AJ
  * 
  * Access via browser: http://localhost/aster/db_sync.php
  */
@@ -57,20 +67,32 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'sync_now') {
-        $syncResults = DatabaseSync::syncAll($conn);
-        $createdCount = count($syncResults['tables_created']);
+        $syncResults = DatabaseSync::syncAll($conn, true);
+        $createdCount  = count($syncResults['tables_created']);
+        $colsAddCount  = count($syncResults['columns_added']);
+        $colsModCount  = count($syncResults['columns_modified']);
+        $idxAddCount   = count($syncResults['indexes_added']);
         $migratedCount = count($syncResults['migrations_run']);
-        $errorCount = count($syncResults['errors']);
+        $errorCount    = count($syncResults['errors']);
+        $totalChanges  = $createdCount + $colsAddCount + $colsModCount + $idxAddCount + $migratedCount;
 
         if ($errorCount > 0) {
             $messageType = 'warning';
-            $message = "Sync completed with {$errorCount} warning(s). Created {$createdCount} table(s), applied {$migratedCount} migration(s).";
-        } elseif ($createdCount > 0 || $migratedCount > 0) {
+            $message = "Sync completed with {$errorCount} warning(s). Applied {$totalChanges} change(s).";
+        } elseif ($totalChanges > 0) {
             $messageType = 'success';
-            $message = "Success! Created {$createdCount} missing table(s) and applied {$migratedCount} pending migration(s).";
+            $message = "Success! Applied {$totalChanges} database change(s) ({$createdCount} tables, {$colsAddCount} columns added, {$colsModCount} columns modified, {$idxAddCount} indexes, {$migratedCount} migrations) and synchronized master schema.";
         } else {
             $messageType = 'info';
-            $message = "Your database is already 100% up to date. No non-existent tables or pending migrations found.";
+            $message = "Your database is already 100% up to date. Every table, column, index, and migration is synchronized.";
+        }
+    } elseif ($action === 'export_master_schema') {
+        if (DatabaseSync::exportMasterSchema($conn)) {
+            $messageType = 'success';
+            $message = "Master baseline schema (<strong>DB/schema/aster_structure.sql</strong>) updated with all live database tables and definitions. Ready to commit to Git!";
+        } else {
+            $messageType = 'danger';
+            $message = "Failed to update master schema. Please check filesystem write permissions.";
         }
     } elseif ($action === 'git_pull_and_sync' || $action === 'merge_branch_and_sync') {
         $pullLog = '';
@@ -168,23 +190,28 @@ if (is_dir($migrationsDir)) {
 // Find pending migrations
 $pendingMigrations = array_diff($migrationFiles, $appliedMigrations);
 
+<<<<<<< HEAD
 // Scan detected tables from all SQL files across schema, migrations, and DB directory
 $allSchemaSqlFiles = glob(DatabaseSync::getSchemaDir() . '/*.sql') ?: [];
 $allMigrationSqlFiles = glob($migrationsDir . '/*.sql') ?: [];
 $allDbSqlFiles = glob(__DIR__ . '/DB/*.sql') ?: [];
 $allSqlFiles = array_unique(array_merge($allSchemaSqlFiles, $allMigrationSqlFiles, $allDbSqlFiles));
+=======
+// Scan detected tables from SQL files to see if any are missing
+$allSqlFiles = DatabaseSync::getScannableSqlFiles();
+>>>>>>> origin/AJ
 
 $detectedTables = [];
 foreach ($allSqlFiles as $sqf) {
     $fname = basename($sqf);
-    if (stripos($fname, 'backup_') === 0) continue;
-    $content = file_get_contents($sqf);
+    $content = @file_get_contents($sqf);
+    if (!$content) continue;
     $found = DatabaseSync::extractCreateTableStatements($content);
     foreach ($found as $tname => $stmt) {
         $cleanTname = strtolower(trim($tname, '`'));
         if (!isset($detectedTables[$cleanTname])) {
             $detectedTables[$cleanTname] = [
-                'name' => $cleanTname,
+                'name'   => $cleanTname,
                 'source' => $fname,
                 'exists' => in_array($cleanTname, $existingTables)
             ];
@@ -197,6 +224,7 @@ foreach ($detectedTables as $dt) {
     if (!$dt['exists']) $missingTablesCount++;
 }
 
+<<<<<<< HEAD
 // 6. Check incoming commits comparing current HEAD vs origin/{$targetBranch}
 $incomingCommits = [];
 if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
@@ -210,13 +238,17 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
         }
     }
 }
+=======
+$schemaFile = DatabaseSync::getSchemaDir() . '/aster_structure.sql';
+$schemaUpdatedTime = file_exists($schemaFile) ? date('d/m/Y h:i A', filemtime($schemaFile)) : 'Never';
+>>>>>>> origin/AJ
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aster - Database Sync & Migration Manager</title>
+    <title>Aster - Database Sync & Change Manager</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
     <style>
         body { background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
@@ -242,7 +274,7 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
 <nav class="navbar navbar-inverse navbar-static-top" style="margin-bottom: 25px;">
     <div class="container">
         <div class="navbar-header">
-            <span class="navbar-brand"><i class="glyphicon glyphicon-transfer"></i> Aster Database Sync (GitHub Collab)</span>
+            <span class="navbar-brand"><i class="glyphicon glyphicon-transfer"></i> Aster Database Sync & Change Manager</span>
         </div>
         <ul class="nav navbar-nav navbar-right">
             <li><a href="application/views/admin-dashboard.php"><i class="glyphicon glyphicon-home"></i> Back to Dashboard</a></li>
@@ -336,10 +368,43 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
             <div class="panel-body">
                 <?php if (!empty($syncResults['tables_created'])): ?>
                     <div class="text-success" style="margin-bottom: 10px;">
-                        <strong><i class="glyphicon glyphicon-ok-circle"></i> Non-Existent Tables Created:</strong>
+                        <strong><i class="glyphicon glyphicon-ok-circle"></i> Tables Created:</strong>
                         <ul>
                             <?php foreach ($syncResults['tables_created'] as $tc): ?>
                                 <li>Created table <code><?= htmlspecialchars($tc['table']) ?></code> (from <?= htmlspecialchars($tc['source']) ?>)</li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($syncResults['columns_added'])): ?>
+                    <div class="text-success" style="margin-bottom: 10px;">
+                        <strong><i class="glyphicon glyphicon-plus-sign"></i> Columns Added:</strong>
+                        <ul>
+                            <?php foreach ($syncResults['columns_added'] as $ca): ?>
+                                <li>Added column <code><?= htmlspecialchars($ca['table']) ?>.<?= htmlspecialchars($ca['column']) ?></code></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($syncResults['columns_modified'])): ?>
+                    <div class="text-info" style="margin-bottom: 10px;">
+                        <strong><i class="glyphicon glyphicon-edit"></i> Columns Synchronized / Modified:</strong>
+                        <ul>
+                            <?php foreach ($syncResults['columns_modified'] as $cm): ?>
+                                <li>Updated <code><?= htmlspecialchars($cm['table']) ?>.<?= htmlspecialchars($cm['column']) ?></code> (<?= htmlspecialchars($cm['type']) ?>)</li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($syncResults['indexes_added'])): ?>
+                    <div class="text-primary" style="margin-bottom: 10px;">
+                        <strong><i class="glyphicon glyphicon-bookmark"></i> Indexes Added:</strong>
+                        <ul>
+                            <?php foreach ($syncResults['indexes_added'] as $ia): ?>
+                                <li>Added index <code><?= htmlspecialchars($ia['table']) ?>: <?= htmlspecialchars($ia['index']) ?></code></li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
@@ -353,6 +418,12 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
                                 <li>Executed <code><?= htmlspecialchars($mr) ?></code></li>
                             <?php endforeach; ?>
                         </ul>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($syncResults['schema_updated']): ?>
+                    <div class="text-success" style="margin-bottom: 10px;">
+                        <i class="glyphicon glyphicon-check"></i> Master baseline schema (<code>DB/schema/aster_structure.sql</code>) synchronized with live database.
                     </div>
                 <?php endif; ?>
 
@@ -381,16 +452,9 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
         </div>
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="label-stat">Existing Tables</div>
+                <div class="label-stat">Live Tables</div>
                 <h3 class="text-success"><?= count($existingTables) ?></h3>
                 <small class="text-muted">In your local MySQL</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="label-stat">Non-Existent Tables</div>
-                <h3 class="<?= $missingTablesCount > 0 ? 'text-danger' : 'text-muted' ?>"><?= $missingTablesCount ?></h3>
-                <small class="text-muted"><?= $missingTablesCount > 0 ? 'Need creation' : 'All tables present' ?></small>
             </div>
         </div>
         <div class="col-md-3">
@@ -400,11 +464,19 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
                 <small class="text-muted"><?= count($appliedMigrations) ?> already executed</small>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="label-stat">Master Schema</div>
+                <h3 class="text-info"><?= count($detectedTables) ?></h3>
+                <small class="text-muted">Updated: <?= $schemaUpdatedTime ?></small>
+            </div>
+        </div>
     </div>
 
     <!-- Main Sync Action Card -->
     <div class="panel panel-primary">
         <div class="panel-body text-center" style="padding: 25px;">
+<<<<<<< HEAD
             <h3 style="margin-top:0;">Synchronize Database with GitHub Changes</h3>
             <p class="text-muted" style="max-width: 700px; margin: 0 auto 20px auto;">
                 Checks shared schema and migration files from GitHub.
@@ -428,6 +500,25 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
                     </form>
                 <?php endif; ?>
             </div>
+=======
+            <h3 style="margin-top:0;">Manage Every Change in the Database</h3>
+            <p class="text-muted" style="max-width: 700px; margin: 0 auto 20px auto;">
+                Synchronizes <strong>tables, missing columns, column definitions (including enums), indexes, and migrations</strong>.
+                Ensures both collaborators stay 100% in sync without losing existing data or manual dumps.
+            </p>
+            <form method="POST" style="display: inline-block; margin-right: 10px;">
+                <input type="hidden" name="action" value="sync_now">
+                <button type="submit" class="btn btn-success btn-lg" style="padding: 12px 35px; font-size: 16px; font-weight: bold;">
+                    <i class="glyphicon glyphicon-flash"></i> Sync Every Change Now
+                </button>
+            </form>
+            <form method="POST" style="display: inline-block;">
+                <input type="hidden" name="action" value="export_master_schema">
+                <button type="submit" class="btn btn-default btn-lg" style="padding: 12px 25px; font-size: 16px;" title="Updates aster_structure.sql with current database structure">
+                    <i class="glyphicon glyphicon-save-file"></i> Save DB Structure to Master Schema
+                </button>
+            </form>
+>>>>>>> origin/AJ
         </div>
     </div>
 
@@ -436,7 +527,7 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <i class="glyphicon glyphicon-th-list"></i> Shared Tables Check (<?= count($detectedTables) ?> tracked)
+                    <i class="glyphicon glyphicon-th-list"></i> Tracked Tables (<?= count($detectedTables) ?>)
                 </div>
                 <div class="panel-body table-responsive" style="padding: 0;">
                     <table class="table table-hover table-striped" style="margin-bottom: 0;">
@@ -459,7 +550,7 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
                                             <?php if ($dt['exists']): ?>
                                                 <span class="badge badge-exists"><i class="glyphicon glyphicon-ok"></i> Exists</span>
                                             <?php else: ?>
-                                                <span class="badge badge-missing"><i class="glyphicon glyphicon-alert"></i> Non-Existent</span>
+                                                <span class="badge badge-missing"><i class="glyphicon glyphicon-alert"></i> Missing</span>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
@@ -538,6 +629,7 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Instructions / Collaboration Workflow Guide -->
     <div class="panel panel-info">
         <div class="panel-heading"><i class="glyphicon glyphicon-info-sign"></i> How Both Collaborators Share Database Changes via GitHub</div>
@@ -582,6 +674,8 @@ git push
         </div>
     </div>
 
+=======
+>>>>>>> origin/AJ
 </div>
 
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
