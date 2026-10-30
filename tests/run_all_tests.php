@@ -15,6 +15,7 @@ echo "====================================================================\n";
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/Unit/DatabaseTest.php';
+require_once __DIR__ . '/Unit/DatabaseSyncTest.php';
 require_once __DIR__ . '/Unit/PaymentAllocationTest.php';
 require_once __DIR__ . '/Unit/SearchModelTest.php';
 require_once __DIR__ . '/Unit/JewelLoanModelTest.php';
@@ -57,6 +58,7 @@ class JewelLoanScenariosTestSuite {
 $suites = [
     'Jewel Loan Calculations & Scenarios (24 Checks)' => new JewelLoanScenariosTestSuite($conn),
     'Database & Schema Integrity'      => new DatabaseTest($conn),
+    'Database Sync & Migration Engine' => new DatabaseSyncTest($conn),
     'Payment Allocation Algorithm'     => new PaymentAllocationTest(),
     'Search Engine Model'              => new SearchModelTest($conn),
     'Jewel Loan Lifecycle & Accounting'=> new JewelLoanModelTest($conn),
