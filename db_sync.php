@@ -13,7 +13,11 @@
  * - Detects and creates missing indexes
  * - Runs pending migrations
  * - Automatically captures live database structure into aster_structure.sql for Git
+<<<<<<< HEAD
+>>>>>>> AJ
+=======
 >>>>>>> origin/AJ
+>>>>>>> origin/dee
  * 
  * Access via browser: http://localhost/aster/db_sync.php
  */
@@ -199,7 +203,11 @@ $allSqlFiles = array_unique(array_merge($allSchemaSqlFiles, $allMigrationSqlFile
 =======
 // Scan detected tables from SQL files to see if any are missing
 $allSqlFiles = DatabaseSync::getScannableSqlFiles();
+<<<<<<< HEAD
+>>>>>>> AJ
+=======
 >>>>>>> origin/AJ
+>>>>>>> origin/dee
 
 $detectedTables = [];
 foreach ($allSqlFiles as $sqf) {
@@ -241,7 +249,11 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
 =======
 $schemaFile = DatabaseSync::getSchemaDir() . '/aster_structure.sql';
 $schemaUpdatedTime = file_exists($schemaFile) ? date('d/m/Y h:i A', filemtime($schemaFile)) : 'Never';
+<<<<<<< HEAD
+>>>>>>> AJ
+=======
 >>>>>>> origin/AJ
+>>>>>>> origin/dee
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -518,7 +530,11 @@ $schemaUpdatedTime = file_exists($schemaFile) ? date('d/m/Y h:i A', filemtime($s
                     <i class="glyphicon glyphicon-save-file"></i> Save DB Structure to Master Schema
                 </button>
             </form>
+<<<<<<< HEAD
+>>>>>>> AJ
+=======
 >>>>>>> origin/AJ
+>>>>>>> origin/dee
         </div>
     </div>
 
@@ -675,7 +691,11 @@ git push
     </div>
 
 =======
+<<<<<<< HEAD
+>>>>>>> AJ
+=======
 >>>>>>> origin/AJ
+>>>>>>> origin/dee
 </div>
 
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
