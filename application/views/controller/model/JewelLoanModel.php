@@ -945,6 +945,11 @@ class JewelLoanModel {
         return $this->getLoanRecordForPdf(0, $dNumber);
     }
 
+    public function getLoanDetailsByDNumber($dNumber) {
+        $rec = $this->getLoanRecordForPdf(0, $dNumber);
+        return $rec['loan'] ?? null;
+    }
+
     public function getLoanRecordForPdf($loanDetailId = 0, $dNumber = '') {
         $loanDetail = null;
         if ((int)$loanDetailId > 0) {
@@ -1929,6 +1934,187 @@ class JewelLoanModel {
             }
         }
         return $list;
+    }
+
+    /**
+     * Retrieve all closed/inactive Jewel Loan accounts.
+     * An account is considered closed if its BalanceLoanAmount <= 0.00 or a JEWEL_RELEASE receipt exists.
+     *
+     * @return array
+     */
+    public function getClosedJewelLoans() {
+        $sql = "SELECT d.LoanDetailId, d.DNumber, d.LoanDate, d.InterestRate, d.LoanAmount, d.BalanceLoanAmount,
+                       COALESCE(NULLIF(c.Name, ''), m.FullName, 'Customer') AS CustomerName
+                FROM ast_jewel_loan_details d
+                INNER JOIN (
+                    SELECT MAX(LoanDetailId) AS MaxLoanDetailId, DNumber
+                    FROM ast_jewel_loan_details
+                    WHERE DNumber IS NOT NULL AND DNumber != ''
+                    GROUP BY DNumber
+                ) latest ON d.LoanDetailId = latest.MaxLoanDetailId
+                LEFT JOIN ast_jewel_loan_customer c ON c.DNumber = d.DNumber
+                LEFT JOIN ast_members m ON m.MemberCode = d.DNumber
+                WHERE d.BalanceLoanAmount <= 0.00
+                   OR EXISTS (
+                       SELECT 1 FROM ast_jewel_loan_receipt r
+                       WHERE r.LoanDetailId = d.LoanDetailId AND r.TransactionType = 'JEWEL_RELEASE'
+                   )
+                ORDER BY d.LoanDetailId DESC";
+        $res = $this->conn->query($sql);
+        $loans = [];
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $loanDate = $row['LoanDate'];
+                $row['LoanDateFormatted'] = !empty($loanDate) ? date('d/m/Y', strtotime($loanDate)) : '-';
+                $row['Status'] = 'Inactive';
+                $loans[] = $row;
+            }
+        }
+        return $loans;
+    }
+
+    /**
+     * Retrieve all Jewel Loan accounts for selection dropdowns.
+     *
+     * @return array
+     */
+    public function getAllJewelLoanDNumbers() {
+        $sql = "SELECT d.DNumber, d.LoanDetailId, 
+                       COALESCE(NULLIF(c.Name, ''), m.FullName, 'Customer') AS CustomerName, 
+                       d.LoanDate, d.InterestRate, d.LoanAmount, d.BalanceLoanAmount 
+                FROM ast_jewel_loan_details d
+                INNER JOIN (
+                    SELECT MAX(LoanDetailId) AS MaxLoanDetailId, DNumber
+                    FROM ast_jewel_loan_details
+                    WHERE DNumber IS NOT NULL AND DNumber != ''
+                    GROUP BY DNumber
+                ) latest ON d.LoanDetailId = latest.MaxLoanDetailId
+                LEFT JOIN ast_jewel_loan_customer c ON c.DNumber = d.DNumber
+                LEFT JOIN ast_members m ON m.MemberCode = d.DNumber
+                ORDER BY d.LoanDetailId DESC";
+        $res = $this->conn->query($sql);
+        $list = [];
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $list[] = $row;
+            }
+        }
+        return $list;
+    }
+
+    /**
+     * Retrieve account details for deletion preview.
+     *
+     * @param string $dNumber
+     * @return array|null
+     */
+    public function getAccountForDeletion($dNumber) {
+        $dNumber = trim($dNumber);
+        if (empty($dNumber)) {
+            return null;
+        }
+
+        $sql = "SELECT d.LoanDetailId, d.DNumber, d.LoanDate, d.InterestRate, d.LoanAmount, d.BalanceLoanAmount,
+                       COALESCE(NULLIF(c.Name, ''), m.FullName, 'Customer') AS CustomerName
+                FROM ast_jewel_loan_details d
+                LEFT JOIN ast_jewel_loan_customer c ON c.DNumber = d.DNumber
+                LEFT JOIN ast_members m ON m.MemberCode = d.DNumber
+                WHERE d.DNumber = ?
+                ORDER BY d.LoanDetailId DESC
+                LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) return null;
+        $stmt->bind_param("s", $dNumber);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $account = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+
+        if ($account) {
+            $ldId = (int)$account['LoanDetailId'];
+            $bal = (float)$account['BalanceLoanAmount'];
+            // Check if JEWEL_RELEASE receipt exists
+            $chkRelease = $this->conn->query("SELECT ReceiptId FROM ast_jewel_loan_receipt WHERE LoanDetailId = {$ldId} AND TransactionType = 'JEWEL_RELEASE' LIMIT 1");
+            $hasRelease = ($chkRelease && $chkRelease->num_rows > 0);
+            $account['Status'] = ($hasRelease || $bal <= 0.00) ? 'Inactive' : 'Active';
+            $loanDate = $account['LoanDate'];
+            $account['LoanDateFormatted'] = !empty($loanDate) ? date('d/m/Y', strtotime($loanDate)) : '-';
+        }
+        return $account;
+    }
+
+    /**
+     * Completely delete a Jewel Loan account and all associated records.
+     * Removes receipts, rate history, items, details, and customer atomically.
+     *
+     * @param string $dNumber
+     * @return array
+     */
+    public function deleteJewelLoanAccount($dNumber) {
+        $dNumber = trim($dNumber);
+        if (empty($dNumber)) {
+            return ['success' => false, 'message' => 'Invalid D Number provided.'];
+        }
+
+        $this->conn->begin_transaction();
+        try {
+            // Find all LoanDetailId associated with this DNumber
+            $ldIds = [];
+            $stmt = $this->conn->prepare("SELECT LoanDetailId FROM ast_jewel_loan_details WHERE DNumber = ?");
+            if ($stmt) {
+                $stmt->bind_param("s", $dNumber);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                while ($r = $res->fetch_assoc()) {
+                    $ldIds[] = (int)$r['LoanDetailId'];
+                }
+                $stmt->close();
+            }
+
+            // 1. Delete Receipts & Rate History & Items by LoanDetailId
+            if (!empty($ldIds)) {
+                $idList = implode(',', $ldIds);
+                $this->conn->query("DELETE FROM ast_jewel_loan_receipt WHERE LoanDetailId IN ({$idList})");
+                $this->conn->query("DELETE FROM ast_jewel_loan_rate_history WHERE LoanDetailId IN ({$idList})");
+                $this->conn->query("DELETE FROM ast_jewel_loan_items WHERE LoanDetailId IN ({$idList})");
+            }
+            $stmtR = $this->conn->prepare("DELETE FROM ast_jewel_loan_receipt WHERE DNumber = ?");
+            if ($stmtR) {
+                $stmtR->bind_param("s", $dNumber);
+                $stmtR->execute();
+                $stmtR->close();
+            }
+
+            // 2. Delete Items by DNumber
+            $stmtI = $this->conn->prepare("DELETE FROM ast_jewel_loan_items WHERE DNumber = ?");
+            if ($stmtI) {
+                $stmtI->bind_param("s", $dNumber);
+                $stmtI->execute();
+                $stmtI->close();
+            }
+
+            // 3. Delete Loan Details
+            $stmtD = $this->conn->prepare("DELETE FROM ast_jewel_loan_details WHERE DNumber = ?");
+            if ($stmtD) {
+                $stmtD->bind_param("s", $dNumber);
+                $stmtD->execute();
+                $stmtD->close();
+            }
+
+            // 4. Delete Customer
+            $stmtC = $this->conn->prepare("DELETE FROM ast_jewel_loan_customer WHERE DNumber = ?");
+            if ($stmtC) {
+                $stmtC->bind_param("s", $dNumber);
+                $stmtC->execute();
+                $stmtC->close();
+            }
+
+            $this->conn->commit();
+            return ['success' => true, 'message' => "Jewel Loan Account {$dNumber} has been successfully deleted."];
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            return ['success' => false, 'message' => 'Error deleting account: ' . $e->getMessage()];
+        }
     }
 }
 ?>

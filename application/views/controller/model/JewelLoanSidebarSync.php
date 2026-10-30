@@ -26,6 +26,7 @@ class JewelLoanSidebarSync {
 
             // 2. Ensure all Jewel Loan pages are strictly assigned to PSMID = 50 (Jewel Loan)
             $conn->query("UPDATE `page` SET `PSMID` = 50 WHERE `Link` LIKE 'aster-jewel-loan%' OR `Link` LIKE 'aster-master-gl%'");
+            $conn->query("UPDATE `page` SET `PageName` = 'Jewel Loan Search', `Description` = 'Jewel Loan Search' WHERE `Link` = 'aster-jewel-loan-search.php'");
 
             // 3. Make sure Receipt List exists under PSMID = 50 with proper icon
             $receiptListId = 2937;
@@ -40,28 +41,45 @@ class JewelLoanSidebarSync {
             }
 
             // 4. Register or Update Delete Receipt immediately after Receipt List under PSMID = 50
-            $deleteReceiptId = $receiptListId + 1;
-            // Check if Delete Receipt is already in page
+            $deleteReceiptId = 2938;
             $drRes = $conn->query("SELECT PageId FROM `page` WHERE `Link` = 'aster-jewel-loan-delete-receipt.php' LIMIT 1");
             if ($drRes && $drRes->num_rows > 0) {
                 $drRow = $drRes->fetch_assoc();
-                $currentDrId = (int)$drRow['PageId'];
-                $conn->query("UPDATE `page` SET `PageName` = 'Delete Receipt', `IconName` = 'glyphicon-trash', `PSMID` = 50, `UserId` = 1 WHERE `PageId` = {$currentDrId}");
-                $deleteReceiptId = $currentDrId;
+                $deleteReceiptId = (int)$drRow['PageId'];
+                $conn->query("UPDATE `page` SET `PageName` = 'Delete Receipt', `IconName` = 'glyphicon-trash', `PSMID` = 50, `UserId` = 1 WHERE `PageId` = {$deleteReceiptId}");
             } else {
-                // Check if target ID is occupied
-                $occ = $conn->query("SELECT PageId FROM `page` WHERE `PageId` = {$deleteReceiptId} LIMIT 1");
-                if ($occ && $occ->num_rows > 0) {
-                    $maxRes = $conn->query("SELECT MAX(PageId) as mx FROM `page` WHERE `PageId` < 9000");
-                    $deleteReceiptId = ($maxRes && $m = $maxRes->fetch_assoc()) ? (int)$m['mx'] + 1 : 2939;
-                }
                 $conn->query("INSERT INTO `page` (`PageId`, `PageName`, `Link`, `Description`, `UserId`, `PSMID`, `IconName`) 
                               VALUES ({$deleteReceiptId}, 'Delete Receipt', 'aster-jewel-loan-delete-receipt.php', 'Jewel Loan Delete Today\'s Receipt', 1, 50, 'glyphicon-trash')");
             }
 
-            // 5. Ensure privileges for Delete Receipt and Receipt List for all standard roles
+            // 5. Register or Update Closed Accounts List under PSMID = 50
+            $closedAccountsId = 2939;
+            $caRes = $conn->query("SELECT PageId FROM `page` WHERE `Link` = 'aster-jewel-loan-closed-accounts.php' LIMIT 1");
+            if ($caRes && $caRes->num_rows > 0) {
+                $caRow = $caRes->fetch_assoc();
+                $closedAccountsId = (int)$caRow['PageId'];
+                $conn->query("UPDATE `page` SET `PageName` = 'Closed Accounts List', `IconName` = 'glyphicon-folder-close', `PSMID` = 50, `UserId` = 1 WHERE `PageId` = {$closedAccountsId}");
+            } else {
+                $conn->query("INSERT INTO `page` (`PageId`, `PageName`, `Link`, `Description`, `UserId`, `PSMID`, `IconName`) 
+                              VALUES ({$closedAccountsId}, 'Closed Accounts List', 'aster-jewel-loan-closed-accounts.php', 'Jewel Loan Closed Accounts List', 1, 50, 'glyphicon-folder-close')");
+            }
+
+            // 6. Register or Update Delete Account under PSMID = 50
+            $deleteAccountId = 2940;
+            $daRes = $conn->query("SELECT PageId FROM `page` WHERE `Link` = 'aster-jewel-loan-delete-account.php' LIMIT 1");
+            if ($daRes && $daRes->num_rows > 0) {
+                $daRow = $daRes->fetch_assoc();
+                $deleteAccountId = (int)$daRow['PageId'];
+                $conn->query("UPDATE `page` SET `PageName` = 'Delete Account', `IconName` = 'glyphicon-remove', `PSMID` = 50, `UserId` = 1 WHERE `PageId` = {$deleteAccountId}");
+            } else {
+                $conn->query("INSERT INTO `page` (`PageId`, `PageName`, `Link`, `Description`, `UserId`, `PSMID`, `IconName`) 
+                              VALUES ({$deleteAccountId}, 'Delete Account', 'aster-jewel-loan-delete-account.php', 'Jewel Loan Delete Account', 1, 50, 'glyphicon-remove')");
+            }
+
+            // 7. Ensure privileges for all standard roles (1, 2, 3, 4, 5, 8)
             $roles = [1, 2, 3, 4, 5, 8];
-            foreach ([$receiptListId, $deleteReceiptId] as $pId) {
+            $allJlPages = [$receiptListId, $deleteReceiptId, $closedAccountsId, $deleteAccountId];
+            foreach ($allJlPages as $pId) {
                 foreach ($roles as $rId) {
                     $pChk = $conn->query("SELECT UPId FROM `user_privilages` WHERE `RoleId` = {$rId} AND `PageId` = {$pId} LIMIT 1");
                     if ($pChk && $pChk->num_rows > 0) {

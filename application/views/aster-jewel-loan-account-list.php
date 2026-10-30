@@ -74,29 +74,29 @@ $loans             = $data['loans'];
             color: #ffffff;
             opacity: 0.9;
         }
-        .modal-meta-box {
-            background-color: #fcfcfc;
-            border: 1px solid #e3e3e3;
-            border-radius: 4px;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-        }
-        .modal-meta-label {
-            font-size: 11px;
+        .txn-history-heading {
+            text-align: center;
+            text-decoration: underline;
             font-weight: bold;
-            color: #777;
-            text-transform: uppercase;
+            font-size: 22px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            color: #222;
         }
-        .modal-meta-val {
+        .popup-meta-table {
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            background-color: #ffffff;
+        }
+        .popup-meta-table td {
+            padding: 12px 16px;
+            border: 1px solid #ddd;
             font-size: 14px;
+        }
+        .popup-meta-label {
             font-weight: bold;
             color: #333;
-        }
-        .txn-type-label {
-            font-size: 11px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 3px;
         }
     </style>
 </head>
@@ -208,7 +208,7 @@ $loans             = $data['loans'];
 <!-- TRANSACTION HISTORY POP-UP MODAL                          -->
 <!-- ======================================================== -->
 <div class="modal fade" id="modalTransactionHistory" tabindex="-1" role="dialog" aria-labelledby="modalTxnTitle" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document" style="width: 85%; max-width: 1000px;">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%; max-width: 1100px;">
         <div class="modal-content">
             <div class="modal-header modal-header-custom">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -216,76 +216,60 @@ $loans             = $data['loans'];
                 </button>
                 <h4 class="modal-title" id="modalTxnTitle">Transaction History</h4>
             </div>
-            <div class="modal-body" style="padding: 20px;">
+            <div class="modal-body" style="padding: 25px 20px;">
                 <!-- Loading Spinner -->
                 <div id="modalLoading" class="text-center" style="padding: 30px 0; display: none;">
                     <i class="fa fa-spinner fa-spin fa-2x text-primary"></i>
-                    <p class="text-muted" style="margin-top: 8px;">Loading...</p>
+                    <p class="text-muted" style="margin-top: 8px;">Loading transactions...</p>
                 </div>
 
                 <!-- Content Container -->
                 <div id="modalContentContainer">
-                    <!-- Loan Account Overview Details from table -->
-                    <div class="modal-meta-box">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">Date</div>
-                                <div class="modal-meta-val" id="modalLoanDate">-</div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">D Number</div>
-                                <div class="modal-meta-val" id="modalDNumber" style="color: #337ab7;">-</div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">Name</div>
-                                <div class="modal-meta-val" id="modalCustomerName">-</div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">Default %</div>
-                                <div class="modal-meta-val" id="modalInterestRate">-</div>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top: 10px;">
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">Loan Amount</div>
-                                <div class="modal-meta-val" id="modalLoanAmount">-</div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">Balance Amount</div>
-                                <div class="modal-meta-val" id="modalBalanceAmount">-</div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">Due Date</div>
-                                <div class="modal-meta-val" id="modalDueDate">-</div>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="modal-meta-label">Status</div>
-                                <div class="modal-meta-val" id="modalStatus">-</div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Heading matching Image 2 -->
+                    <div class="txn-history-heading">Transaction History</div>
 
-                    <!-- Transaction History Records Table -->
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered table-hover" id="modalTxnTable" style="margin-bottom: 0;">
+                    <!-- 3-Column Header Table matching Image 2 -->
+                    <table class="popup-meta-table">
+                        <tbody>
+                            <tr>
+                                <td style="width: 33%;">
+                                    <span class="popup-meta-label">D Number:</span> <span id="modalDNumber">-</span>
+                                </td>
+                                <td style="width: 34%;">
+                                    <span class="popup-meta-label">Customer Name:</span> <span id="modalCustomerName">-</span>
+                                </td>
+                                <td style="width: 33%;">
+                                    <span class="popup-meta-label">Status:</span> <span id="modalStatus">-</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Transaction & Receipts History Table matching aster-jewel-loan-view.php -->
+                    <div class="table-responsive" id="modalTxnTableContainer">
+                        <table class="table table-bordered table-striped table-hover" id="modalTxnTable" style="margin-bottom: 0;">
                             <thead>
-                                <tr class="header-row">
-                                    <th style="width: 45px;">SlNo</th>
+                                <tr style="background-color: #f5f5f5;">
                                     <th>Receipt No</th>
-                                    <th>Date</th>
+                                    <th>Receipt Date</th>
                                     <th>Transaction Type</th>
-                                    <th>Payment Mode</th>
-                                    <th>Principal Paid</th>
-                                    <th>Interest Paid</th>
-                                    <th>Total Paid</th>
-                                    <th>Balance Loan Amount</th>
-                                    <th style="width: 60px;">Print</th>
+                                    <th>Payment Method</th>
+                                    <th class="text-right">Balance Amount (₹)</th>
+                                    <th class="text-right">Total Paid (₹)</th>
+                                    <th class="text-right">Principal (₹)</th>
+                                    <th class="text-right">Interest (₹)</th>
+                                    <th class="text-right">Current Bal (₹)</th>
+                                    <th class="text-center no-print" style="width: 120px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="modalTxnBody">
                                 <!-- Populated dynamically by JavaScript -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="alert alert-info text-center" id="modalNoTxnMsg" style="display: none; margin-bottom: 0;">
+                        No receipt transactions recorded for this jewel loan yet.
                     </div>
                 </div>
             </div>
@@ -332,7 +316,9 @@ $(document).ready(function() {
         }
 
         var loanDetailId = $(this).data('id');
-        if (!loanDetailId) return;
+        var dNumber = $(this).data('dnum');
+        var targetParam = dNumber || loanDetailId;
+        if (!targetParam) return;
 
         $('#modalLoading').show();
         $('#modalContentContainer').hide();
@@ -343,7 +329,7 @@ $(document).ready(function() {
             type: 'GET',
             dataType: 'json',
             data: {
-                ajax_txn_history: loanDetailId
+                ajax_txn_history: targetParam
             },
             success: function(resp) {
                 $('#modalLoading').hide();
@@ -351,69 +337,72 @@ $(document).ready(function() {
                     var l = resp.loan;
                     var txns = resp.transactions || [];
 
-                    // Populate Overview fields
-                    $('#modalLoanDate').text(l.LoanDateFormatted || '-');
+                    // Populate 3-column table
                     $('#modalDNumber').text(l.DNumber || '-');
                     $('#modalCustomerName').text(l.CustomerName || '-');
-                    $('#modalInterestRate').text(l.InterestRate || '-');
-                    $('#modalLoanAmount').text(l.LoanAmount);
-                    $('#modalBalanceAmount').text(l.BalanceLoanAmount);
-                    $('#modalDueDate').text(l.DueDateFormatted || '-');
 
                     // Status
                     if (l.Status === 'Active') {
-                        $('#modalStatus').html('<span class="badge-active">Active</span>');
+                        $('#modalStatus').html('<span class="label label-success">Active</span>');
                     } else {
-                        $('#modalStatus').html('<span class="badge-inactive">Inactive</span>');
+                        $('#modalStatus').html('<span class="label label-default">Inactive</span>');
                     }
 
-                    // Build Transaction History Table Body
+                    // Build Transaction History Table Body matching aster-jewel-loan-view.php
                     var tbodyHtml = '';
                     if (txns.length > 0) {
-                        $.each(txns, function(i, t) {
-                            var typeBadge = '';
-                            if (t.TransactionType === 'LOAN_CREATION') {
-                                typeBadge = '<span class="label label-info">LOAN_CREATION</span>';
-                            } else if (t.TransactionType === 'INTEREST_PAYMENT') {
-                                typeBadge = '<span class="label label-warning">INTEREST_PAYMENT</span>';
-                            } else if (t.TransactionType === 'PRINCIPAL_PAYMENT') {
-                                typeBadge = '<span class="label label-primary">PRINCIPAL_PAYMENT</span>';
-                            } else if (t.TransactionType === 'JEWEL_RELEASE') {
-                                typeBadge = '<span class="label label-success">JEWEL_RELEASE</span>';
-                            } else {
-                                typeBadge = '<span class="label label-default">' + (t.TransactionType || '-') + '</span>';
-                            }
+                        $('#modalTxnTableContainer').show();
+                        $('#modalNoTxnMsg').hide();
 
-                            var printPdfBtn = '<a href="aster-jewel-loan-receipt-pdf.php?receipt_id=' + t.ReceiptId + '" target="_blank" class="btn btn-xs btn-default" title="Print Receipt"><i class="fa fa-print"></i></a>';
+                        $.each(txns, function(i, t) {
+                            var isRelease = (t.TransactionType === 'JEWEL_RELEASE');
+                            var isLoanCreation = (t.TransactionType === 'LOAN_CREATION');
+                            var typeClass = isRelease ? 'success' : (isLoanCreation ? 'info' : 'primary');
+                            var typeBadge = '<span class="label label-' + typeClass + '">' + (t.TransactionType || '-') + '</span>';
+
+                            var principalPaid = parseFloat(t.PrincipalPaid || 0);
+                            var interestPaid = parseFloat(t.InterestPaid || 0);
+                            var totalPaid = parseFloat(t.TotalPaid || 0);
+                            var balAmount = parseFloat(t.BalanceLoanAmount || 0);
+                            var prevBal = isLoanCreation ? balAmount : (balAmount + principalPaid);
+
+                            var actionBtns = '<a href="aster-jewel-loan-receipt.php?receipt_id=' + encodeURIComponent(t.ReceiptId) + '&view_only=1" class="btn btn-xs btn-info" title="View Receipt Voucher" style="margin-right: 4px;">' +
+                                             '<i class="fa fa-eye"></i> View</a>' +
+                                             '<a href="aster-jewel-loan-receipt-pdf.php?receipt_id=' + encodeURIComponent(t.ReceiptId) + '" target="_blank" class="btn btn-xs btn-default" title="PDF Receipt">' +
+                                             '<i class="fa fa-file-pdf-o"></i></a>';
 
                             tbodyHtml += '<tr>';
-                            tbodyHtml += '<td class="text-center">' + (i + 1) + '</td>';
-                            tbodyHtml += '<td class="text-center">' + (t.ReceiptNo || '-') + '</td>';
-                            tbodyHtml += '<td class="text-center">' + (t.FormattedReceiptDate || t.ReceiptDate || '-') + '</td>';
-                            tbodyHtml += '<td class="text-center">' + typeBadge + '</td>';
-                            tbodyHtml += '<td class="text-center">' + (t.PaymentMethod || 'Cash') + '</td>';
-                            tbodyHtml += '<td class="text-right">' + formatMoney(t.PrincipalPaid) + '</td>';
-                            tbodyHtml += '<td class="text-right">' + formatMoney(t.InterestPaid) + '</td>';
-                            tbodyHtml += '<td class="text-right" style="font-weight:bold;">' + formatMoney(t.TotalPaid) + '</td>';
-                            tbodyHtml += '<td class="text-right" style="font-weight:bold;">' + formatMoney(t.BalanceLoanAmount) + '</td>';
-                            tbodyHtml += '<td class="text-center">' + printPdfBtn + '</td>';
+                            tbodyHtml += '<td><strong>' + (t.ReceiptNo || '-') + '</strong></td>';
+                            tbodyHtml += '<td>' + (t.FormattedReceiptDate || t.ReceiptDate || '-') + '</td>';
+                            tbodyHtml += '<td>' + typeBadge + '</td>';
+                            tbodyHtml += '<td>' + (t.PaymentMethod || 'Cash') + '</td>';
+                            tbodyHtml += '<td class="text-right">₹' + formatMoney(prevBal) + '</td>';
+                            tbodyHtml += '<td class="text-right" style="font-weight: bold; color: #337ab7;">₹' + formatMoney(totalPaid) + '</td>';
+                            tbodyHtml += '<td class="text-right">₹' + formatMoney(principalPaid) + '</td>';
+                            tbodyHtml += '<td class="text-right">₹' + formatMoney(interestPaid) + '</td>';
+                            tbodyHtml += '<td class="text-right">₹' + formatMoney(balAmount) + '</td>';
+                            tbodyHtml += '<td class="text-center no-print">' + actionBtns + '</td>';
                             tbodyHtml += '</tr>';
                         });
+                        $('#modalTxnBody').html(tbodyHtml);
                     } else {
-                        tbodyHtml = '<tr><td colspan="10" class="text-center" style="padding: 15px; color:#777;">No transactions found.</td></tr>';
+                        $('#modalTxnTableContainer').hide();
+                        $('#modalNoTxnMsg').show();
+                        $('#modalTxnBody').html('');
                     }
-                    $('#modalTxnBody').html(tbodyHtml);
 
                     $('#modalContentContainer').show();
                 } else {
-                    $('#modalTxnBody').html('<tr><td colspan="10" class="text-center text-danger" style="padding:15px;">' + ((resp && resp.message) ? resp.message : 'Error loading details.') + '</td></tr>');
+                    $('#modalTxnTableContainer').hide();
+                    $('#modalNoTxnMsg').html('<span class="text-danger">' + ((resp && resp.message) ? resp.message : 'Error loading details.') + '</span>').show();
                     $('#modalContentContainer').show();
                 }
             },
             error: function() {
                 $('#modalLoading').hide();
                 $('#modalContentContainer').show();
-                $('#modalTxnBody').html('<tr><td colspan="10" class="text-center text-danger" style="padding:15px;">Failed to connect to server.</td></tr>');
+                $('#modalTxnTableContainer').hide();
+                $('#modalNoTxnMsg').html('<span class="text-danger">Failed to communicate with server.</span>').show();
             }
         });
     });

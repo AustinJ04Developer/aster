@@ -23,6 +23,7 @@ require_once __DIR__ . '/Unit/JewelLoanAccountListTest.php';
 require_once __DIR__ . '/Unit/JewelLoanDeleteReceiptTest.php';
 require_once __DIR__ . '/Unit/JewelLoanReceiptPopupAndDropdownTest.php';
 require_once __DIR__ . '/Unit/JewelLoanCalculationAndScenariosTest.php';
+require_once __DIR__ . '/Unit/JewelLoanClosedAndDeleteAccountTest.php';
 require_once __DIR__ . '/Integration/PdfGenerationTest.php';
 require_once __DIR__ . '/Integration/SyntaxLintTest.php';
 
@@ -56,6 +57,7 @@ class JewelLoanScenariosTestSuite {
     public function getFailedCount() { return $this->failed; }
     public function getErrors() { return $this->errors; }
 }
+
 $suites = [
     'Jewel Loan Calculations & Scenarios (24 Checks)' => new JewelLoanScenariosTestSuite($conn),
     'Database & Schema Integrity'      => new DatabaseTest($conn),
@@ -66,6 +68,7 @@ $suites = [
     'Jewel Loan Account List & Monthly Due'=> new JewelLoanAccountListTest(),
     'Jewel Loan Delete Receipt Engine' => new JewelLoanDeleteReceiptTest(),
     'Receipt Popup & Database Dropdown' => new JewelLoanReceiptPopupAndDropdownTest(),
+    'Closed & Delete Account, Popup, Renaming' => new JewelLoanClosedAndDeleteAccountTest($conn),
     'PDF Voucher & Buffer Engine'      => new PdfGenerationTest($conn),
     'Codebase Syntax Lint Integrity'   => new SyntaxLintTest(),
 ];
