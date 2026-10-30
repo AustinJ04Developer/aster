@@ -3,7 +3,7 @@
  * Aster - Database Sync & Migration Dashboard
  * 
  * Allows collaborators on GitHub to sync missing tables and migrations
- * without exporting/overwriting the entire database.
+ * from `main` or any other branch without exporting/overwriting the entire database.
  * 
  * Access via browser: http://localhost/aster/db_sync.php
  */
@@ -16,12 +16,43 @@ $message = null;
 $messageType = 'info';
 $syncResults = null;
 
-// Git Remote & Branch Detection
+// 1. Git Remote & Branch Detection
 $gitBranch = trim(@shell_exec('git rev-parse --abbrev-ref HEAD 2>&1') ?: '');
 $gitRemote = trim(@shell_exec('git remote get-url origin 2>&1') ?: '');
 $gitHeadCommit = trim(@shell_exec('git log -1 --pretty=format:"%h - %s" 2>&1') ?: '');
 
-// Handle Form Actions
+// 2. Discover all available branches (local & remote)
+$allBranches = [];
+$rawBranchLines = explode("\n", trim(@shell_exec('git branch -a 2>&1') ?: ''));
+foreach ($rawBranchLines as $bLine) {
+    $clean = trim($bLine, "* \t\r\n");
+    if (!$clean || strpos($clean, 'remotes/origin/HEAD') !== false) continue;
+    if (strpos($clean, 'remotes/origin/') === 0) {
+        $clean = substr($clean, strlen('remotes/origin/'));
+    }
+    if ($clean && !in_array($clean, $allBranches, true)) {
+        $allBranches[] = $clean;
+    }
+}
+if (empty($allBranches)) {
+    $allBranches = ['main', 'dee', 'AJ'];
+}
+// Sort branches with 'main' first, then current branch, then others
+usort($allBranches, function($a, $b) use ($gitBranch) {
+    if ($a === 'main') return -1;
+    if ($b === 'main') return 1;
+    if ($a === $gitBranch) return -1;
+    if ($b === $gitBranch) return 1;
+    return strcmp($a, $b);
+});
+
+// Selected target branch to compare / pull from (defaults to 'main')
+$targetBranch = trim($_REQUEST['target_branch'] ?? ($_POST['target_branch'] ?? 'main'));
+if (!in_array($targetBranch, $allBranches, true)) {
+    $targetBranch = in_array('main', $allBranches, true) ? 'main' : ($allBranches[0] ?? 'main');
+}
+
+// 3. Handle Form Actions
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -41,23 +72,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $messageType = 'info';
             $message = "Your database is already 100% up to date. No non-existent tables or pending migrations found.";
         }
-    } elseif ($action === 'git_pull_and_sync') {
+    } elseif ($action === 'git_pull_and_sync' || $action === 'merge_branch_and_sync') {
         $pullLog = '';
+        $srcBranch = trim($_POST['source_branch'] ?? $targetBranch);
         $currentBranch = $gitBranch ?: 'main';
 
-        // 1. Fetch remote changes
+        // 1. Fetch all remote updates
         $fetchOut = trim(@shell_exec('git fetch origin 2>&1') ?: '');
         if ($fetchOut) $pullLog .= $fetchOut . "\n";
 
-        // 2. Pull / Merge changes
-        $pullOut = trim(@shell_exec('git pull origin ' . escapeshellarg($currentBranch) . ' 2>&1') ?: '');
-        if ($pullOut) $pullLog .= $pullOut . "\n";
-
-        // If on branch other than main, also merge origin/main where PRs were merged
-        if ($currentBranch !== 'main') {
-            $mergeOut = trim(@shell_exec('git merge origin/main --no-edit 2>&1') ?: '');
-            if ($mergeOut) $pullLog .= $mergeOut . "\n";
-        }
+        // 2. Pull / Merge changes from specified target branch
+        $mergeCommand = "git merge origin/" . escapeshellarg($srcBranch) . " --no-edit 2>&1";
+        $mergeOut = trim(@shell_exec($mergeCommand) ?: '');
+        if ($mergeOut) $pullLog .= $mergeOut . "\n";
 
         // 3. Immediately run DatabaseSync
         $syncResults = DatabaseSync::syncAll($conn);
@@ -65,15 +92,47 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $migratedCount = count($syncResults['migrations_run']);
         $errorCount = count($syncResults['errors']);
 
-        $messageType = 'success';
-        $message = "<strong>Git Pull & Database Sync Completed!</strong><br>";
-        $message .= "Branch: <code>{$currentBranch}</code> | Created <strong>{$createdCount}</strong> table(s) | Applied <strong>{$migratedCount}</strong> migration(s).<br>";
+        $messageType = ($errorCount > 0) ? 'warning' : 'success';
+        $message = "<strong>Merged changes from branch `{$srcBranch}` into `{$currentBranch}` & synced database!</strong><br>";
+        $message .= "<small>Created <strong>{$createdCount}</strong> table(s) | Applied <strong>{$migratedCount}</strong> migration(s).</small><br>";
         if ($pullLog) {
             $message .= "<pre style='margin-top:8px;max-height:120px;overflow-y:auto;background:#2d3748;color:#f7fafc;font-size:12px;padding:8px;'>" . htmlspecialchars(trim($pullLog)) . "</pre>";
         }
 
-        // Refresh head commit info after pull
+        // Refresh head commit info after merge
         $gitHeadCommit = trim(@shell_exec('git log -1 --pretty=format:"%h - %s" 2>&1') ?: '');
+    } elseif ($action === 'switch_branch_and_sync') {
+        $switchLog = '';
+        $newBranch = trim($_POST['switch_branch_to'] ?? $targetBranch);
+
+        // Fetch
+        $fetchOut = trim(@shell_exec('git fetch origin 2>&1') ?: '');
+        if ($fetchOut) $switchLog .= $fetchOut . "\n";
+
+        // Checkout branch
+        $checkoutOut = trim(@shell_exec('git checkout ' . escapeshellarg($newBranch) . ' 2>&1') ?: '');
+        $switchLog .= $checkoutOut . "\n";
+
+        // Pull latest from remote branch
+        $pullOut = trim(@shell_exec('git pull origin ' . escapeshellarg($newBranch) . ' 2>&1') ?: '');
+        if ($pullOut) $switchLog .= $pullOut . "\n";
+
+        // Update active branch variable
+        $gitBranch = trim(@shell_exec('git rev-parse --abbrev-ref HEAD 2>&1') ?: $newBranch);
+        $gitHeadCommit = trim(@shell_exec('git log -1 --pretty=format:"%h - %s" 2>&1') ?: '');
+
+        // Immediately run DatabaseSync
+        $syncResults = DatabaseSync::syncAll($conn);
+        $createdCount = count($syncResults['tables_created']);
+        $migratedCount = count($syncResults['migrations_run']);
+        $errorCount = count($syncResults['errors']);
+
+        $messageType = ($errorCount > 0) ? 'warning' : 'success';
+        $message = "<strong>Switched active branch to `{$newBranch}` and synced database!</strong><br>";
+        $message .= "<small>Created <strong>{$createdCount}</strong> table(s) | Applied <strong>{$migratedCount}</strong> migration(s).</small><br>";
+        if ($switchLog) {
+            $message .= "<pre style='margin-top:8px;max-height:120px;overflow-y:auto;background:#2d3748;color:#f7fafc;font-size:12px;padding:8px;'>" . htmlspecialchars(trim($switchLog)) . "</pre>";
+        }
     } elseif ($action === 'export_table') {
         $tableToExport = trim($_POST['export_table_name'] ?? '');
         if (!empty($tableToExport)) {
@@ -89,12 +148,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     }
 }
 
-// Fetch current database state
+// 4. Fetch current database state
 DatabaseSync::initMigrationsTable($conn);
 $existingTables = DatabaseSync::getExistingTables($conn);
 $appliedMigrations = DatabaseSync::getAppliedMigrations($conn);
 
-// Scan migration files
+// 5. Scan migration files
 $migrationsDir = DatabaseSync::getMigrationsDir();
 $migrationFiles = [];
 if (is_dir($migrationsDir)) {
@@ -109,7 +168,7 @@ if (is_dir($migrationsDir)) {
 // Find pending migrations
 $pendingMigrations = array_diff($migrationFiles, $appliedMigrations);
 
-// Scan detected tables from SQL files to see if any are missing
+// Scan detected tables from all SQL files across schema, migrations, and DB directory
 $allSchemaSqlFiles = glob(DatabaseSync::getSchemaDir() . '/*.sql') ?: [];
 $allMigrationSqlFiles = glob($migrationsDir . '/*.sql') ?: [];
 $allDbSqlFiles = glob(__DIR__ . '/DB/*.sql') ?: [];
@@ -138,10 +197,11 @@ foreach ($detectedTables as $dt) {
     if (!$dt['exists']) $missingTablesCount++;
 }
 
-// Check if there are incoming commits from remote origin
+// 6. Check incoming commits comparing current HEAD vs origin/{$targetBranch}
 $incomingCommits = [];
 if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
-    $incomingLog = trim(@shell_exec('git log HEAD..origin/main --oneline 2>&1') ?: '');
+    $cmd = "git log HEAD..origin/" . escapeshellarg($targetBranch) . " --oneline 2>&1";
+    $incomingLog = trim(@shell_exec($cmd) ?: '');
     if ($incomingLog && stripos($incomingLog, 'fatal:') === false) {
         $lines = explode("\n", $incomingLog);
         foreach ($lines as $line) {
@@ -172,7 +232,7 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
         .badge-pending { background-color: #f0ad4e; }
         .badge-applied { background-color: #5bc0de; }
         .code-box { background: #2d3748; color: #f7fafc; padding: 12px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; }
-        .git-bar { background: #fff; border-radius: 6px; padding: 12px 18px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .git-bar { background: #fff; border-radius: 6px; padding: 15px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .git-bar .git-info { font-size: 13px; color: #444; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     </style>
@@ -192,43 +252,74 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
 
 <div class="container">
 
-    <!-- Git Branch & Remote Status Bar -->
+    <!-- Git Branch Selector & Synchronization Toolbar -->
     <?php if ($gitBranch && stripos($gitBranch, 'fatal:') === false): ?>
         <div class="git-bar">
             <div class="git-info">
-                <strong><i class="glyphicon glyphicon-bullhorn"></i> Git Branch:</strong> <code><?= htmlspecialchars($gitBranch) ?></code> &nbsp;|&nbsp;
+                <strong><i class="glyphicon glyphicon-bullhorn"></i> Current Active Branch:</strong> 
+                <span class="label label-primary" style="font-size: 13px;"><?= htmlspecialchars($gitBranch) ?></span> &nbsp;|&nbsp;
                 <strong>Latest Local Commit:</strong> <span class="text-muted"><?= htmlspecialchars($gitHeadCommit) ?></span>
             </div>
-            <div>
-                <form method="POST" style="display: inline-block;">
-                    <input type="hidden" name="action" value="git_pull_and_sync">
-                    <button type="submit" class="btn btn-default btn-sm" title="Pull latest commits from GitHub and sync database">
-                        <i class="glyphicon glyphicon-cloud-download text-primary"></i> Pull from GitHub & Sync DB
-                    </button>
-                </form>
-            </div>
+            
+            <!-- Target Branch Picker Form -->
+            <form method="GET" action="db_sync.php" class="form-inline" style="margin: 0;">
+                <label for="target_branch" style="font-size: 13px; margin-right: 5px;">
+                    <i class="glyphicon glyphicon-random text-primary"></i> Sync Source:
+                </label>
+                <div class="input-group">
+                    <select name="target_branch" id="target_branch" class="form-control input-sm" onchange="this.form.submit()" style="font-weight: bold;">
+                        <?php foreach ($allBranches as $b): ?>
+                            <option value="<?= htmlspecialchars($b) ?>" <?= ($b === $targetBranch) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($b) ?><?= ($b === 'main') ? ' (Main / Merged)' : '' ?><?= ($b === $gitBranch) ? ' [Active]' : '' ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default btn-sm" title="Refresh branch comparison">
+                            <i class="glyphicon glyphicon-refresh"></i> Check
+                        </button>
+                    </span>
+                </div>
+            </form>
         </div>
     <?php endif; ?>
 
-    <!-- Incoming Commits Alert Banner (if GitHub has new commits) -->
+    <!-- Incoming Commits Alert Banner (if target branch has incoming changes) -->
     <?php if (!empty($incomingCommits)): ?>
-        <div class="alert alert-warning alert-dismissible" role="alert" style="border-left: 5px solid #f0ad4e;">
-            <h4><i class="glyphicon glyphicon-cloud-download"></i> Incoming Changes Detected on GitHub!</h4>
-            <p>There are <strong><?= count($incomingCommits) ?></strong> new commit(s) merged into <code>origin/main</code> that have not yet been applied locally:</p>
+        <div class="alert alert-warning alert-dismissible" role="alert" style="border-left: 5px solid #f0ad4e; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+            <h4><i class="glyphicon glyphicon-cloud-download"></i> Incoming Merges / Changes Detected from <code>origin/<?= htmlspecialchars($targetBranch) ?></code>!</h4>
+            <p>There are <strong><?= count($incomingCommits) ?></strong> new commit(s) on <code>origin/<?= htmlspecialchars($targetBranch) ?></code> that have not yet been applied to your local branch <code><?= htmlspecialchars($gitBranch) ?></code>:</p>
             <ul style="margin-bottom: 15px;">
-                <?php foreach (array_slice($incomingCommits, 0, 5) as $ic): ?>
+                <?php foreach (array_slice($incomingCommits, 0, 6) as $ic): ?>
                     <li><code><?= htmlspecialchars($ic) ?></code></li>
                 <?php endforeach; ?>
-                <?php if (count($incomingCommits) > 5): ?>
-                    <li><em>...and <?= count($incomingCommits) - 5 ?> more commit(s).</em></li>
+                <?php if (count($incomingCommits) > 6): ?>
+                    <li><em>...and <?= count($incomingCommits) - 6 ?> more commit(s).</em></li>
                 <?php endif; ?>
             </ul>
-            <form method="POST" style="margin-top: 10px;">
-                <input type="hidden" name="action" value="git_pull_and_sync">
-                <button type="submit" class="btn btn-warning btn-md" style="font-weight: bold;">
-                    <i class="glyphicon glyphicon-refresh"></i> Pull Incoming Changes from GitHub & Sync Database Now
-                </button>
-            </form>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <form method="POST" style="margin: 0;">
+                    <input type="hidden" name="action" value="merge_branch_and_sync">
+                    <input type="hidden" name="source_branch" value="<?= htmlspecialchars($targetBranch) ?>">
+                    <button type="submit" class="btn btn-warning btn-md" style="font-weight: bold;">
+                        <i class="glyphicon glyphicon-import"></i> Merge Changes from <code><?= htmlspecialchars($targetBranch) ?></code> & Sync Database Now
+                    </button>
+                </form>
+                <?php if ($gitBranch !== $targetBranch): ?>
+                    <form method="POST" style="margin: 0;">
+                        <input type="hidden" name="action" value="switch_branch_and_sync">
+                        <input type="hidden" name="switch_branch_to" value="<?= htmlspecialchars($targetBranch) ?>">
+                        <button type="submit" class="btn btn-default btn-md" style="font-weight: bold;">
+                            <i class="glyphicon glyphicon-share-alt"></i> Switch to <code><?= htmlspecialchars($targetBranch) ?></code> & Sync
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php elseif ($gitBranch && stripos($gitBranch, 'fatal:') === false): ?>
+        <div class="alert alert-success" style="padding: 10px 15px; margin-bottom: 20px; border-left: 4px solid #5cb85c;">
+            <i class="glyphicon glyphicon-ok-sign"></i> 
+            Your current branch <code><?= htmlspecialchars($gitBranch) ?></code> is completely up to date with <code>origin/<?= htmlspecialchars($targetBranch) ?></code>.
         </div>
     <?php endif; ?>
 
@@ -315,8 +406,8 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
     <div class="panel panel-primary">
         <div class="panel-body text-center" style="padding: 25px;">
             <h3 style="margin-top:0;">Synchronize Database with GitHub Changes</h3>
-            <p class="text-muted" style="max-width: 650px; margin: 0 auto 20px auto;">
-                Clicking the button below checks all shared schema and migration files from GitHub.
+            <p class="text-muted" style="max-width: 700px; margin: 0 auto 20px auto;">
+                Checks shared schema and migration files from GitHub.
                 Any <strong>non-existent table</strong> will be automatically created, and any <strong>new migration</strong> will be executed.
                 Your existing tables and test data will <strong>NEVER be deleted or wiped</strong>!
             </p>
@@ -324,14 +415,15 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
                 <form method="POST" style="display: inline-block;">
                     <input type="hidden" name="action" value="sync_now">
                     <button type="submit" class="btn btn-success btn-lg" style="padding: 12px 30px; font-size: 15px; font-weight: bold;">
-                        <i class="glyphicon glyphicon-flash"></i> Sync Database Now
+                        <i class="glyphicon glyphicon-flash"></i> Sync Database Now (Local Files)
                     </button>
                 </form>
                 <?php if ($gitBranch && stripos($gitBranch, 'fatal:') === false): ?>
                     <form method="POST" style="display: inline-block;">
-                        <input type="hidden" name="action" value="git_pull_and_sync">
+                        <input type="hidden" name="action" value="merge_branch_and_sync">
+                        <input type="hidden" name="source_branch" value="<?= htmlspecialchars($targetBranch) ?>">
                         <button type="submit" class="btn btn-primary btn-lg" style="padding: 12px 30px; font-size: 15px; font-weight: bold;">
-                            <i class="glyphicon glyphicon-cloud-download"></i> Pull from GitHub & Sync
+                            <i class="glyphicon glyphicon-cloud-download"></i> Pull & Merge from <code><?= htmlspecialchars($targetBranch) ?></code> + Sync DB
                         </button>
                     </form>
                 <?php endif; ?>
@@ -450,7 +542,7 @@ if ($gitBranch && stripos($gitBranch, 'fatal:') === false) {
     <div class="panel panel-info">
         <div class="panel-heading"><i class="glyphicon glyphicon-info-sign"></i> How Both Collaborators Share Database Changes via GitHub</div>
         <div class="panel-body">
-            <h4><span class="label label-primary">Step 1</span> When Developer A creates a new table or changes schema:</h4>
+            <h4><span class="label label-primary">Step 1</span> When Developer creates a new table or changes schema:</h4>
             <ul>
                 <li><strong>Option A (One-Click):</strong> Go to this page, select the new table under <em>"Export a Newly Created Table"</em>, and click Generate.</li>
                 <li><strong>Option B (Manual):</strong> Create a new file in <code>DB/migrations/</code> (e.g., <code>011_create_new_feature.sql</code>) containing:
@@ -472,10 +564,12 @@ git push
 
             <hr>
 
-            <h4><span class="label label-success">Step 2</span> When Developer B syncs changes from GitHub:</h4>
+            <h4><span class="label label-success">Step 2</span> When Collaborator syncs changes from GitHub:</h4>
             <ul>
-                <li>Visit <code>http://localhost/aster/db_sync.php</code> and click <strong>"Pull from GitHub & Sync"</strong> (or run <code>git pull</code> then click <strong>"Sync Database Now"</strong>).</li>
-                <li>The non-existent table is automatically created in Developer B's MySQL, and all new migrations are safely executed without touching any of Developer B's existing records or requiring full database export!</li>
+                <li>Visit <code>http://localhost/aster/db_sync.php</code>.</li>
+                <li>Choose the source branch from the <strong>Sync Source</strong> dropdown (e.g. <code>main</code> or any other branch).</li>
+                <li>Click <strong>"Pull & Merge from {branch} + Sync DB"</strong>.</li>
+                <li>The non-existent table is automatically created in MySQL, and all new migrations are safely executed without touching existing records or requiring full database export!</li>
             </ul>
 
             <hr>
