@@ -16,15 +16,18 @@ class JewelLoanReceiptListController {
         }
         $this->conn = $conn;
         $this->model = new JewelLoanReceiptListModel($this->conn);
-        if ($this->conn) {
+        if ($this->conn && !isset($_GET['ajax_receipt_voucher'])) {
             $this->model->ensurePageRegistered();
         }
     }
 
     public function handleRequest() {
         if (isset($_GET['ajax_receipt_voucher'])) {
+            while (ob_get_level() > 0) {
+                @ob_end_clean();
+            }
             if (!headers_sent()) {
-                header('Content-Type: application/json');
+                header('Content-Type: application/json; charset=utf-8');
             }
             $rId = (int)$_GET['ajax_receipt_voucher'];
             require_once __DIR__ . '/model/JewelLoanModel.php';
