@@ -25,7 +25,8 @@ class JewelLoanReceiptPopupAndDropdownTest extends TestCase {
         $this->assertContains('btn-view-receipt-popup', $listHtml, "Receipt List has btn-view-receipt-popup action buttons");
         $this->assertContains('id="receipt-modal-body-content"', $listHtml, "Receipt List has receipt-modal-body-content for displaying the voucher");
         $this->assertContains('ajax_receipt_voucher', $listHtml, "Receipt List triggers ajax_receipt_voucher to fetch voucher");
-        $this->assertContains('btn-print-modal-receipt', $listHtml, "Receipt List has print button in modal");
+        $this->assertFalse(strpos($listHtml, 'id="btn-print-modal-receipt"') !== false, "Print voucher button removed from popup modal as requested");
+        $this->assertFalse(strpos($listHtml, 'id="btn-pdf-modal-receipt"') !== false, "Download PDF button removed from popup modal as requested");
         $this->assertFalse(strpos($listHtml, 'btn-view-receipt-popup" target="_blank"') !== false, "View receipt popup button does not open in a separate tab page");
 
         $this->setTestName("Verify Receipt Search & Dropdown Markup (No Cache / Database Powered)");
