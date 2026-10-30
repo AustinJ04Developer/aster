@@ -80,23 +80,23 @@ $loans             = $data['loans'];
             font-weight: bold;
             font-size: 22px;
             margin-top: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             color: #222;
         }
         .popup-meta-table {
             width: 100%;
             margin-bottom: 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
             background-color: #ffffff;
         }
         .popup-meta-table td {
-            padding: 12px 16px;
+            padding: 12px 18px;
             border: 1px solid #ddd;
-            font-size: 14px;
+            font-size: 15px;
         }
         .popup-meta-label {
             font-weight: bold;
-            color: #333;
+            color: #222;
         }
     </style>
 </head>
@@ -174,7 +174,8 @@ $loans             = $data['loans'];
                                 <?php foreach ($loans as $idx => $loan): ?>
                                     <tr class="clickable-loan-row" 
                                         data-id="<?php echo (int)$loan['LoanDetailId']; ?>" 
-                                        data-dnum="<?php echo htmlspecialchars($loan['DNumber']); ?>">
+                                        data-dnum="<?php echo htmlspecialchars($loan['DNumber']); ?>"
+                                        onclick="openTransactionHistoryModal('<?php echo htmlspecialchars($loan['DNumber']); ?>')">
                                         <td class="text-center"><?php echo $idx + 1; ?></td>
                                         <td class="text-center"><?php echo htmlspecialchars($loan['LoanDateFormatted']); ?></td>
                                         <td class="text-center" style="font-weight: bold; color: #337ab7;">
@@ -225,25 +226,30 @@ $loans             = $data['loans'];
 
                 <!-- Content Container -->
                 <div id="modalContentContainer">
-                    <!-- Heading matching Image 2 -->
+                    <!-- Heading matching Image 1 -->
                     <div class="txn-history-heading">Transaction History</div>
 
-                    <!-- 3-Column Header Table matching Image 2 -->
+                    <!-- 3-Column Header Table matching Image 1: D Number | Name | Status -->
                     <table class="popup-meta-table">
                         <tbody>
                             <tr>
                                 <td style="width: 33%;">
-                                    <span class="popup-meta-label">D Number:</span> <span id="modalDNumber">-</span>
+                                    <span class="popup-meta-label">D Number:</span> <span id="modalDNumber" style="font-weight: normal; color: #337ab7;">-</span>
                                 </td>
                                 <td style="width: 34%;">
-                                    <span class="popup-meta-label">Customer Name:</span> <span id="modalCustomerName">-</span>
+                                    <span class="popup-meta-label">Name:</span> <span id="modalCustomerName" style="font-weight: normal;">-</span>
                                 </td>
                                 <td style="width: 33%;">
-                                    <span class="popup-meta-label">Status:</span> <span id="modalStatus">-</span>
+                                    <span class="popup-meta-label">Status:</span> <span id="modalStatus" style="font-weight: normal;">-</span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <!-- Heading matching Image 2 from aster-jewel-loan-view.php -->
+                    <div style="font-size: 16px; font-weight: bold; color: #337ab7; margin-bottom: 12px;">
+                        <i class="fa fa-ticket"></i> Transaction & Receipts History
+                    </div>
 
                     <!-- Transaction & Receipts History Table matching aster-jewel-loan-view.php -->
                     <div class="table-responsive" id="modalTxnTableContainer">
@@ -268,13 +274,17 @@ $loans             = $data['loans'];
                         </table>
                     </div>
 
-                    <div class="alert alert-info text-center" id="modalNoTxnMsg" style="display: none; margin-bottom: 0;">
+                    <div class="alert alert-info text-center" id="modalNoTxnMsg" style="display: none; margin-top: 15px; margin-bottom: 0;">
                         No receipt transactions recorded for this jewel loan yet.
                     </div>
+
+                    <!-- Centered Red Close Button matching Image 1 -->
+                    <div class="text-center" style="margin-top: 25px; margin-bottom: 5px;">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" style="background-color: #d9534f; border-color: #d43f3a; padding: 6px 30px; font-size: 14px; font-weight: bold; border-radius: 4px;">
+                            Close
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer" style="padding: 10px 15px;">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -291,6 +301,104 @@ $loans             = $data['loans'];
 <script src="js/dataTables.bootstrap.min.js"></script>
 
 <script>
+// Format money helper
+function formatMoney(num) {
+    var n = parseFloat(num);
+    if (isNaN(n)) return '0.00';
+    return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Global modal opener function
+window.openTransactionHistoryModal = function(targetParam) {
+    if (!targetParam) return;
+
+    $('#modalLoading').show();
+    $('#modalContentContainer').hide();
+    $('#modalTransactionHistory').modal('show');
+
+    $.ajax({
+        url: 'aster-jewel-loan-account-list.php',
+        type: 'GET',
+        dataType: 'json',
+        data: {
+            ajax_txn_history: targetParam
+        },
+        success: function(resp) {
+            $('#modalLoading').hide();
+            if (resp && resp.status === 'success') {
+                var l = resp.loan;
+                var txns = resp.transactions || [];
+
+                // 3-column table
+                $('#modalDNumber').text(l.DNumber || '-');
+                $('#modalCustomerName').text(l.CustomerName || '-');
+
+                // Status
+                if (l.Status === 'Active') {
+                    $('#modalStatus').html('<span class="label label-success" style="font-size: 12px; font-weight: bold; padding: 3px 8px;">Active</span>');
+                } else {
+                    $('#modalStatus').html('<span class="label label-default" style="font-size: 12px; font-weight: bold; padding: 3px 8px;">Inactive</span>');
+                }
+
+                // Build Transaction History Table Body matching aster-jewel-loan-view.php
+                var tbodyHtml = '';
+                if (txns.length > 0) {
+                    $('#modalTxnTableContainer').show();
+                    $('#modalNoTxnMsg').hide();
+
+                    $.each(txns, function(i, t) {
+                        var isRelease = (t.TransactionType === 'JEWEL_RELEASE');
+                        var isLoanCreation = (t.TransactionType === 'LOAN_CREATION');
+                        var typeClass = isRelease ? 'success' : (isLoanCreation ? 'info' : 'primary');
+                        var typeBadge = '<span class="label label-' + typeClass + '" style="font-size: 11px; padding: 3px 6px;">' + (t.TransactionType || '-') + '</span>';
+
+                        var principalPaid = parseFloat(t.PrincipalPaid || 0);
+                        var interestPaid = parseFloat(t.InterestPaid || 0);
+                        var totalPaid = parseFloat(t.TotalPaid || 0);
+                        var balAmount = parseFloat(t.BalanceLoanAmount || 0);
+                        var prevBal = isLoanCreation ? balAmount : (balAmount + principalPaid);
+
+                        var actionBtns = '<a href="aster-jewel-loan-receipt.php?receipt_id=' + encodeURIComponent(t.ReceiptId) + '&view_only=1" class="btn btn-xs btn-info" title="View Receipt Voucher" style="margin-right: 4px;">' +
+                                         '<i class="fa fa-eye"></i> View</a>' +
+                                         '<a href="aster-jewel-loan-receipt-pdf.php?receipt_id=' + encodeURIComponent(t.ReceiptId) + '" target="_blank" class="btn btn-xs btn-default" title="PDF Receipt">' +
+                                         '<i class="fa fa-file-text-o"></i></a>';
+
+                        tbodyHtml += '<tr>';
+                        tbodyHtml += '<td><strong>' + (t.ReceiptNo || '-') + '</strong></td>';
+                        tbodyHtml += '<td>' + (t.FormattedReceiptDate || t.ReceiptDate || '-') + '</td>';
+                        tbodyHtml += '<td>' + typeBadge + '</td>';
+                        tbodyHtml += '<td>' + (t.PaymentMethod || 'Cash') + '</td>';
+                        tbodyHtml += '<td class="text-right">₹' + formatMoney(prevBal) + '</td>';
+                        tbodyHtml += '<td class="text-right" style="font-weight: bold; color: #337ab7;">₹' + formatMoney(totalPaid) + '</td>';
+                        tbodyHtml += '<td class="text-right">₹' + formatMoney(principalPaid) + '</td>';
+                        tbodyHtml += '<td class="text-right">₹' + formatMoney(interestPaid) + '</td>';
+                        tbodyHtml += '<td class="text-right">₹' + formatMoney(balAmount) + '</td>';
+                        tbodyHtml += '<td class="text-center no-print">' + actionBtns + '</td>';
+                        tbodyHtml += '</tr>';
+                    });
+                    $('#modalTxnBody').html(tbodyHtml);
+                } else {
+                    $('#modalTxnTableContainer').hide();
+                    $('#modalNoTxnMsg').show();
+                    $('#modalTxnBody').html('');
+                }
+
+                $('#modalContentContainer').show();
+            } else {
+                $('#modalTxnTableContainer').hide();
+                $('#modalNoTxnMsg').html('<span class="text-danger">' + ((resp && resp.message) ? resp.message : 'Error loading details.') + '</span>').show();
+                $('#modalContentContainer').show();
+            }
+        },
+        error: function() {
+            $('#modalLoading').hide();
+            $('#modalContentContainer').show();
+            $('#modalTxnTableContainer').hide();
+            $('#modalNoTxnMsg').html('<span class="text-danger">Failed to communicate with server.</span>').show();
+        }
+    });
+};
+
 $(document).ready(function() {
     // Initialize standard Aster DataTable
     if ($('#designation-details').length && <?php echo (!empty($loans) ? 'true' : 'false'); ?>) {
@@ -302,109 +410,26 @@ $(document).ready(function() {
         });
     }
 
-    // Format money helper
-    function formatMoney(num) {
-        var n = parseFloat(num);
-        if (isNaN(n)) return '0.00';
-        return n.toFixed(2);
-    }
-
-    // Row Click handler to show Transaction History Modal
-    $(document).on('click', '.clickable-loan-row', function(e) {
-        if ($(e.target).closest('a, button').length) {
+    // Delegated click handler on row
+    $(document).on('click', '#designation-details tbody tr, .clickable-loan-row', function(e) {
+        if ($(e.target).closest('a, button, input').length) {
             return;
         }
 
-        var loanDetailId = $(this).data('id');
-        var dNumber = $(this).data('dnum');
-        var targetParam = dNumber || loanDetailId;
-        if (!targetParam) return;
+        var dNumber = $(this).attr('data-dnum') || $(this).data('dnum');
+        var loanDetailId = $(this).attr('data-id') || $(this).data('id');
 
-        $('#modalLoading').show();
-        $('#modalContentContainer').hide();
-        $('#modalTransactionHistory').modal('show');
-
-        $.ajax({
-            url: 'aster-jewel-loan-account-list.php',
-            type: 'GET',
-            dataType: 'json',
-            data: {
-                ajax_txn_history: targetParam
-            },
-            success: function(resp) {
-                $('#modalLoading').hide();
-                if (resp && resp.status === 'success') {
-                    var l = resp.loan;
-                    var txns = resp.transactions || [];
-
-                    // Populate 3-column table
-                    $('#modalDNumber').text(l.DNumber || '-');
-                    $('#modalCustomerName').text(l.CustomerName || '-');
-
-                    // Status
-                    if (l.Status === 'Active') {
-                        $('#modalStatus').html('<span class="label label-success">Active</span>');
-                    } else {
-                        $('#modalStatus').html('<span class="label label-default">Inactive</span>');
-                    }
-
-                    // Build Transaction History Table Body matching aster-jewel-loan-view.php
-                    var tbodyHtml = '';
-                    if (txns.length > 0) {
-                        $('#modalTxnTableContainer').show();
-                        $('#modalNoTxnMsg').hide();
-
-                        $.each(txns, function(i, t) {
-                            var isRelease = (t.TransactionType === 'JEWEL_RELEASE');
-                            var isLoanCreation = (t.TransactionType === 'LOAN_CREATION');
-                            var typeClass = isRelease ? 'success' : (isLoanCreation ? 'info' : 'primary');
-                            var typeBadge = '<span class="label label-' + typeClass + '">' + (t.TransactionType || '-') + '</span>';
-
-                            var principalPaid = parseFloat(t.PrincipalPaid || 0);
-                            var interestPaid = parseFloat(t.InterestPaid || 0);
-                            var totalPaid = parseFloat(t.TotalPaid || 0);
-                            var balAmount = parseFloat(t.BalanceLoanAmount || 0);
-                            var prevBal = isLoanCreation ? balAmount : (balAmount + principalPaid);
-
-                            var actionBtns = '<a href="aster-jewel-loan-receipt.php?receipt_id=' + encodeURIComponent(t.ReceiptId) + '&view_only=1" class="btn btn-xs btn-info" title="View Receipt Voucher" style="margin-right: 4px;">' +
-                                             '<i class="fa fa-eye"></i> View</a>' +
-                                             '<a href="aster-jewel-loan-receipt-pdf.php?receipt_id=' + encodeURIComponent(t.ReceiptId) + '" target="_blank" class="btn btn-xs btn-default" title="PDF Receipt">' +
-                                             '<i class="fa fa-file-pdf-o"></i></a>';
-
-                            tbodyHtml += '<tr>';
-                            tbodyHtml += '<td><strong>' + (t.ReceiptNo || '-') + '</strong></td>';
-                            tbodyHtml += '<td>' + (t.FormattedReceiptDate || t.ReceiptDate || '-') + '</td>';
-                            tbodyHtml += '<td>' + typeBadge + '</td>';
-                            tbodyHtml += '<td>' + (t.PaymentMethod || 'Cash') + '</td>';
-                            tbodyHtml += '<td class="text-right">₹' + formatMoney(prevBal) + '</td>';
-                            tbodyHtml += '<td class="text-right" style="font-weight: bold; color: #337ab7;">₹' + formatMoney(totalPaid) + '</td>';
-                            tbodyHtml += '<td class="text-right">₹' + formatMoney(principalPaid) + '</td>';
-                            tbodyHtml += '<td class="text-right">₹' + formatMoney(interestPaid) + '</td>';
-                            tbodyHtml += '<td class="text-right">₹' + formatMoney(balAmount) + '</td>';
-                            tbodyHtml += '<td class="text-center no-print">' + actionBtns + '</td>';
-                            tbodyHtml += '</tr>';
-                        });
-                        $('#modalTxnBody').html(tbodyHtml);
-                    } else {
-                        $('#modalTxnTableContainer').hide();
-                        $('#modalNoTxnMsg').show();
-                        $('#modalTxnBody').html('');
-                    }
-
-                    $('#modalContentContainer').show();
-                } else {
-                    $('#modalTxnTableContainer').hide();
-                    $('#modalNoTxnMsg').html('<span class="text-danger">' + ((resp && resp.message) ? resp.message : 'Error loading details.') + '</span>').show();
-                    $('#modalContentContainer').show();
-                }
-            },
-            error: function() {
-                $('#modalLoading').hide();
-                $('#modalContentContainer').show();
-                $('#modalTxnTableContainer').hide();
-                $('#modalNoTxnMsg').html('<span class="text-danger">Failed to communicate with server.</span>').show();
+        if (!dNumber) {
+            var dCell = $(this).find('td:nth-child(3)');
+            if (dCell.length) {
+                dNumber = $.trim(dCell.text());
             }
-        });
+        }
+
+        var targetParam = dNumber || loanDetailId;
+        if (targetParam) {
+            openTransactionHistoryModal(targetParam);
+        }
     });
 });
 </script>

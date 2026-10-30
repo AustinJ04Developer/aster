@@ -1891,11 +1891,11 @@ class JewelLoanModel {
     public function getTransactionHistoryByLoanDetailId($loanDetailId) {
         $txns = [];
         $sql = "SELECT r.*, 
-                       DATE_FORMAT(r.ReceiptDate, '%d/%m/%Y') AS FormattedReceiptDate,
+                       DATE_FORMAT(r.ReceiptDate, '%d-%m-%Y') AS FormattedReceiptDate,
                        DATE_FORMAT(r.CreatedAt, '%d/%m/%Y %h:%i %p') AS FormattedCreatedAt
                 FROM ast_jewel_loan_receipt r
                 WHERE r.LoanDetailId = ?
-                ORDER BY r.ReceiptId ASC";
+                ORDER BY r.ReceiptId DESC";
         $stmt = $this->conn->prepare($sql);
         if ($stmt) {
             $loanDetailId = (int)$loanDetailId;

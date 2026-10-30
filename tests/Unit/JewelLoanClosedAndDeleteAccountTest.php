@@ -142,9 +142,9 @@ class JewelLoanClosedAndDeleteAccountTest extends TestCase {
         $this->assertTrue(
             strpos($accListView, 'popup-meta-table') !== false &&
             strpos($accListView, 'D Number:') !== false &&
-            strpos($accListView, 'Customer Name:') !== false &&
+            (strpos($accListView, 'Customer Name:') !== false || strpos($accListView, 'Name:') !== false) &&
             strpos($accListView, 'Status:') !== false,
-            "Modal contains 3-column table: D Number, Customer Name, Status matching Image 2"
+            "Modal contains 3-column table: D Number, Name, Status matching Image 1 & 2"
         );
         $this->assertTrue(
             strpos($accListView, 'Balance Amount (₹)') !== false &&

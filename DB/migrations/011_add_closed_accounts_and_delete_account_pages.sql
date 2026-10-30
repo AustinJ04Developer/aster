@@ -61,3 +61,4 @@ WHERE p.Link = 'aster-jewel-loan-delete-account.php'
       SELECT 1 FROM `user_privilages` up 
       WHERE up.RoleId = r.RoleId AND up.PageId = p.PageId
   );
+
